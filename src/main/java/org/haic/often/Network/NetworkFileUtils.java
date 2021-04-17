@@ -393,7 +393,7 @@ public final class NetworkFileUtils {
 			if (!Judge.isNull(piece) && URIUtils.statusIsOK(piece.statusCode())) {
 				try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
 					output.seek(start);
-					byte[] buffer = bufferSize > PIECE_MAX_SIZE ? new byte[bufferSize] : new byte[PIECE_MAX_SIZE];
+					byte[] buffer = new byte[bufferSize];
 					int length;
 					while (!Judge.isMinusOne(length = inputStream.read(buffer))) {
 						output.write(buffer, 0, length);
