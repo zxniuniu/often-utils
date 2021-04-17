@@ -26,7 +26,7 @@ import net.lingala.zip4j.model.enums.RandomAccessFileMode;
  * 网络文件 工具类
  *
  * @author haicdust
- * @version 1.0
+ * @version 1.5
  * @since 2020/2/25 18:45
  */
 public final class NetworkFileUtils {
