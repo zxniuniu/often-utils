@@ -343,8 +343,7 @@ public final class NetworkFileUtils {
 			ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
 			for (int i = 0; i < MAX_PIECE_COUNT; i++) {
 				executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-					int start = index * PIECE_MAX_SIZE;
-					result.add(writePiece(file, down, start, index + 1 == MAX_PIECE_COUNT ? fileSize : start + PIECE_MAX_SIZE - 1));
+					result.add(writePiece(file, down, index * PIECE_MAX_SIZE, (index + 1) * PIECE_MAX_SIZE - 1));
 				}));
 			}
 			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
@@ -353,8 +352,7 @@ public final class NetworkFileUtils {
 			}
 		} else {
 			List<Integer> piece = IntStream.rangeClosed(0, MAX_THREADS - 1).boxed().collect(Collectors.toList());
-			if (piece.parallelStream().map(index -> writePiece(file, down, index * fileSize / MAX_THREADS, index + 1 == MAX_THREADS ? fileSize : (index + 1) * fileSize / MAX_THREADS - 1))
-					.collect(Collectors.toList()).contains(false)) {
+			if (piece.parallelStream().map(index -> writePiece(file, down, index * fileSize / MAX_THREADS, (index + 1) * fileSize / MAX_THREADS - 1)).collect(Collectors.toList()).contains(false)) {
 				return HttpStatus.SC_REQUEST_TIMEOUT;
 			}
 		}
