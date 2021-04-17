@@ -336,6 +336,7 @@ public final class NetworkFileUtils {
 			return statusCode;
 		}
 		downInfo = ReadWriteUtils.orgin(down).list();
+		bufferSize = Math.min(PIECE_MAX_SIZE, bufferSize);
 		int fileSize = Integer.parseInt(response.header("Content-Length"));
 		if (fileSize > PIECE_MAX_SIZE * MAX_THREADS) {
 			int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
