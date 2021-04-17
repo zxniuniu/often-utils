@@ -1,9 +1,2 @@
-/src/
-/.idea/
-/local.properties
-/PngAcc.iml
-/pom.xml
-/README.md
-
 # 项目排除路径
 /target/
