@@ -179,7 +179,7 @@ public final class ReadWriteUtils {
 	public void list(final @NotNull List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset))) {
-			outStream.write(lists.parallelStream().collect(Collectors.joining("\n")) + StringUtils.LINE_SEPARATOR);
+			outStream.write(lists.parallelStream().collect(Collectors.joining(StringUtils.LINE_SEPARATOR)) + StringUtils.LINE_SEPARATOR);
 			outStream.flush();
 		} catch (final IOException e) {
 			e.printStackTrace();
