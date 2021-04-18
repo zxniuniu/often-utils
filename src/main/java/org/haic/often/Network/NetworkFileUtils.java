@@ -1,10 +1,7 @@
 package org.haic.often.Network;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,13 +23,13 @@ import net.lingala.zip4j.model.enums.RandomAccessFileMode;
  * 网络文件 工具类
  *
  * @author haicdust
- * @version 1.5
+ * @version 1.6
  * @since 2020/2/25 18:45
  */
 public final class NetworkFileUtils {
 
 	private String url; // 请求URL
-	private String filename; // 文件名
+	private String fileName; // 文件名
 	private String referrer; // 上一页
 	private String proxyHost; // 代理服务器地址
 	private String hash; // hash值,md5算法
@@ -41,16 +38,19 @@ public final class NetworkFileUtils {
 	private int retry; // 请求异常重试次数
 	private int MAX_THREADS; // 多线程下载
 	private int bufferSize; // 缓冲区大小
+	private int fileSize; // 文件大小
 	private int PIECE_MAX_SIZE; // 块最大值
 	private boolean unlimitedRetry;// 请求异常无限重试
 	private boolean errorExit; // 错误退出
+	private File file; // 文件
+	private File down; // dwon文件
+	private List<String> downInfo = new ArrayList<>(); // dwon文件信息
 	private Map<String, String> cookies = new HashMap<>(); // cookies
-	private List<String> downInfo; // dwon文件信息
 
 	private NetworkFileUtils() {
 		bufferSize = 8192; // 默认缓冲区大小
 		MAX_THREADS = 16; // 默认16线程
-		PIECE_MAX_SIZE = 1048576; // 默认块大小
+		PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
 	}
 
 	/**
@@ -61,19 +61,8 @@ public final class NetworkFileUtils {
 	 * @return this
 	 */
 	@Contract(pure = true)
-
 	public static NetworkFileUtils connect(final @NotNull String url) {
 		return config().url(url);
-	}
-
-	/**
-	 * 获取新的 NetworkFileUtils 对象
-	 *
-	 * @return this
-	 */
-	@Contract(pure = true)
-	private static NetworkFileUtils config() {
-		return new NetworkFileUtils();
 	}
 
 	/**
@@ -90,6 +79,55 @@ public final class NetworkFileUtils {
 	}
 
 	/**
+	 * 获取新的NetworkFileUtils对象并设置down文件<br/>
+	 * down -> 包含待下载文件的下载信息的文件
+	 *
+	 * @param down
+	 *            down文件
+	 * @return new NetworkFileUtils
+	 */
+	@Contract(pure = true)
+	public static NetworkFileUtils down(final String down) {
+		return down(new File(down));
+	}
+
+	/**
+	 * 获取新的NetworkFileUtils对象并设置down文件<br/>
+	 * down -> 包含待下载文件的下载信息的文件
+	 *
+	 * @param down
+	 *            down文件
+	 * @return new NetworkFileUtils
+	 */
+	@Contract(pure = true)
+	public static NetworkFileUtils down(final File down) {
+		return config().setDown(down);
+	}
+
+	/**
+	 * 设置 down文件
+	 *
+	 * @param down
+	 *            down文件
+	 * @return this
+	 */
+	@Contract(pure = true)
+	public NetworkFileUtils setDown(final File down) {
+		this.down = down;
+		return this;
+	}
+
+	/**
+	 * 获取新的 NetworkFileUtils 对象
+	 *
+	 * @return this
+	 */
+	@Contract(pure = true)
+	private static NetworkFileUtils config() {
+		return new NetworkFileUtils();
+	}
+
+	/**
 	 * 设置文件名
 	 *
 	 * @param filename
@@ -98,7 +136,7 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public NetworkFileUtils filename(final @NotNull String filename) {
-		this.filename = filename;
+		this.fileName = filename;
 		return this;
 	}
 
@@ -314,37 +352,61 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public int download(final @NotNull File folder) {
-		Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit)
-				.GetResponse();
-		int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
-		if (!URIUtils.statusIsOK(statusCode)) {
-			return statusCode;
+		if (Judge.isNull(down)) { // 获取文件信息
+			Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit)
+					.GetResponse();
+			int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
+			if (!URIUtils.statusIsOK(statusCode)) {
+				return statusCode;
+			}
+			if (Judge.isEmpty(fileName)) {
+				String content_disposition = Objects.requireNonNull(response).header("Content-Disposition");
+				fileName = Judge.isNull(content_disposition) ? url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)
+						: content_disposition.substring(content_disposition.indexOf("filename=") + 10);
+				fileName = TranscodUtils.decodeByURL(fileName);
+			}
+			fileName = FilesUtils.illegalFileName(fileName);
+			if (fileName.length() > 200) {
+				throw new RuntimeException("URL: " + url + " Error: File name length is greater than 200");
+			}
+			file = new File(folder.getPath(), fileName); // 获取其file对象
+			down = new File(folder.getPath(), fileName + ".down");
+			if (file.isFile() && !down.exists()) {
+				return statusCode;
+			}
+			fileSize = Integer.parseInt(Objects.requireNonNull(response).header("Content-Length"));
+			if (down.isFile()) {
+				downInfo = ReadWriteUtils.orgin(down).list();
+			} else if (down.exists()) {
+				throw new RuntimeException("Not is file " + down);
+			} else {
+				ReadWriteUtils.orgin(down).text("URL=" + url + StringUtils.LF + "fileName=" + fileName + StringUtils.LF + "fileSize=" + fileSize);
+			}
+		} else if (down.isFile()) {
+			downInfo = ReadWriteUtils.orgin(down).list();
+			url = downInfo.get(0).split(StringUtils.EQUAL_SIGN)[1];
+			fileName = downInfo.get(1).split(StringUtils.EQUAL_SIGN)[1];
+			fileSize = Integer.parseInt(downInfo.get(2).split(StringUtils.EQUAL_SIGN)[1]);
+			if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
+				throw new RuntimeException("Info is error " + down);
+			}
+			file = new File(folder.getPath(), fileName); // 获取其file对象
+		} else {
+			if (errorExit) {
+				throw new RuntimeException("Not found or not is file " + down);
+			}
+			return HttpStatus.SC_NOT_FOUND;
 		}
-		if (Judge.isEmpty(filename)) {
-			String content_disposition = Objects.requireNonNull(response).header("Content-Disposition");
-			filename = Judge.isNull(content_disposition) ? url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)
-					: content_disposition.substring(content_disposition.indexOf("filename=") + 10);
-		}
-		filename = FilesUtils.illegalFileName(TranscodUtils.decodeByURL(filename));
-		if (filename.length() > 200) {
-			throw new RuntimeException("URL: " + url + " Error: File name length is greater than 200");
-		}
+		// 开始下载
 		FilesUtils.createFolder(folder);
-		File down = new File(folder.getPath(), filename + ".down"); // 获取其file对象
-		File file = new File(folder.getPath(), filename); // 获取其file对象
-		if (file.isFile() && !down.exists()) {
-			return statusCode;
-		}
-		downInfo = ReadWriteUtils.orgin(down).list();
 		bufferSize = Math.min(PIECE_MAX_SIZE, bufferSize);
-		int fileSize = Integer.parseInt(response.header("Content-Length"));
 		if (fileSize > PIECE_MAX_SIZE * MAX_THREADS) {
 			int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
 			List<Boolean> result = new CopyOnWriteArrayList<>();
 			ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
 			for (int i = 0; i < MAX_PIECE_COUNT; i++) {
 				executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-					result.add(writePiece(file, down, index * PIECE_MAX_SIZE, (index + 1) * PIECE_MAX_SIZE - 1));
+					result.add(writePiece(index * PIECE_MAX_SIZE, (index + 1) * PIECE_MAX_SIZE - 1));
 				}));
 			}
 			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
@@ -353,11 +415,11 @@ public final class NetworkFileUtils {
 			}
 		} else {
 			List<Integer> piece = IntStream.rangeClosed(0, MAX_THREADS - 1).boxed().collect(Collectors.toList());
-			if (piece.parallelStream().map(index -> writePiece(file, down, index * fileSize / MAX_THREADS, (index + 1) * fileSize / MAX_THREADS - 1)).collect(Collectors.toList()).contains(false)) {
+			if (piece.parallelStream().map(index -> writePiece(index * fileSize / MAX_THREADS, (index + 1) * fileSize / MAX_THREADS - 1)).collect(Collectors.toList()).contains(false)) {
 				return HttpStatus.SC_REQUEST_TIMEOUT;
 			}
 		}
-		down.delete();
+		down.delete(); // 删除信息文件
 		// 效验文件完整性
 		if (!Judge.isEmpty(hash)) {
 			try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
@@ -369,23 +431,19 @@ public final class NetworkFileUtils {
 				e.printStackTrace();
 			}
 		}
-		return statusCode;
+		return HttpStatus.SC_OK;
 	}
 
 	/**
 	 * 下载获取文件区块信息并写入文件
 	 *
-	 * @param file
-	 *            文件
-	 * @param down
-	 *            down文件
 	 * @param start
 	 *            块起始位
 	 * @param end
 	 *            块结束位
 	 * @return 下载并写入是否成功
 	 */
-	private boolean writePiece(File file, File down, int start, int end) {
+	private boolean writePiece(int start, int end) {
 		String pointer = start + "-" + end;
 		if (!downInfo.contains(pointer)) {
 			Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
