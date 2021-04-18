@@ -144,7 +144,7 @@ public final class ReadWriteUtils {
 	@Contract(pure = true)
 	public void listToText(final @NotNull List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
-		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset))) {
+		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(StringUtils.join(lists, StringUtils.SPACE) + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
 			outStream.flush();
 		} catch (final IOException e) {
@@ -161,7 +161,7 @@ public final class ReadWriteUtils {
 	@Contract(pure = true)
 	public void text(final @NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
-		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset))) {
+		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(str + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
 			outStream.flush();
 		} catch (final IOException e) {
@@ -178,8 +178,27 @@ public final class ReadWriteUtils {
 	@Contract(pure = true)
 	public void list(final @NotNull List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
-		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset))) {
+		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(lists.parallelStream().collect(Collectors.joining(StringUtils.LINE_SEPARATOR)) + StringUtils.LINE_SEPARATOR);
+			outStream.flush();
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 将字符串写入二进制文件
+	 *
+	 * @param str
+	 *            字符串
+	 */
+	@Contract(pure = true)
+	public void binary(final @NotNull String str) {
+		FilesUtils.createFolder(source.getParent());
+		try (DataOutputStream outStream = new DataOutputStream(new FileOutputStream(source, append))) {
+			for (byte b : (str + StringUtils.LF).getBytes()) {
+				outStream.writeInt(b); // 文件输出流用于将数据写入文件
+			}
 			outStream.flush();
 		} catch (final IOException e) {
 			e.printStackTrace();
@@ -461,6 +480,29 @@ public final class ReadWriteUtils {
 	@Contract(pure = true)
 	public Map<String, byte[]> mapArray() {
 		return FilesUtils.iterateFiles(source).parallelStream().collect(Collectors.toMap(File::getPath, this::array));
+	}
+
+	/**
+	 * 读取二进制文件信息
+	 *
+	 * @return 文件文本信息
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public String binary() {
+		StringBuilder result = new StringBuilder();
+		if (!source.isFile()) {
+			return String.valueOf(result);
+		}
+		try (DataInputStream inputStream = new DataInputStream(new FileInputStream(source))) {
+			for (int i = 0; i < source.length() / 4; i++) {
+				result.append((char) inputStream.readInt());
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+
+		return String.valueOf(result);
 	}
 
 	/**

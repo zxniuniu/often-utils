@@ -9,6 +9,9 @@ public class AppTest {
 	private static final int proxyPort = 7890;
 
 	public static void main(String[] args) {
-		System.out.println(Math.min(128, 334));
+		String path = "F:\\Downloads\\123.down";
+		ReadWriteUtils.orgin(path).binary(path);
+		System.out.println(ReadWriteUtils.orgin(path).binary());
 	}
+
 }

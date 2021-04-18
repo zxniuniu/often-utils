@@ -1,5 +1,9 @@
 Java常用工具类
 
+时间：2021/4/18 15:34  
+-ReadWriteUtils  
+--增加二进制文件读写
+
 时间：2021/4/18 15:22  
 -NetworkFileUtils  
 --改进down文件配置参数  
