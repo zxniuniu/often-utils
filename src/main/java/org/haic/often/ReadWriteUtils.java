@@ -269,8 +269,7 @@ public final class ReadWriteUtils {
 	public void channelCopy(File out) {
 		FilesUtils.createFolder(out.getParent());
 		try (FileChannel inputChannel = new FileInputStream(source).getChannel(); FileChannel outputChannel = new FileOutputStream(out).getChannel()) {
-			long start = append ? out.length() : 0;
-			outputChannel.transferFrom(inputChannel, start, inputChannel.size());
+			outputChannel.transferFrom(inputChannel, append ? out.length() : 0, inputChannel.size());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -527,9 +526,7 @@ public final class ReadWriteUtils {
 		try (FileChannel channel = new RandomAccessFile(source, RandomAccessFileMode.READ.getValue()).getChannel()) {
 			long MAX_COUNT = (int) Math.ceil((double) source.length() / (double) Integer.MAX_VALUE);
 			for (long i = 0; i < MAX_COUNT; i++) {
-				long start = i * Integer.MAX_VALUE;
-				long size = i + 1 == MAX_COUNT ? source.length() % Integer.MAX_VALUE : Integer.MAX_VALUE;
-				result.put(charset.decode(channel.map(FileChannel.MapMode.READ_ONLY, start, size)));
+				result.put(charset.decode(channel.map(FileChannel.MapMode.READ_ONLY, i * Integer.MAX_VALUE, i + 1 == MAX_COUNT ? source.length() % Integer.MAX_VALUE : Integer.MAX_VALUE)));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
