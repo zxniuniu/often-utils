@@ -8,10 +8,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.Contract;
@@ -501,8 +498,18 @@ public final class ReadWriteUtils {
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
-
 		return String.valueOf(result);
+	}
+
+	/**
+	 * 按行读取二进制文件信息
+	 *
+	 * @return 文件文本信息
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public List<String> binaryList() {
+		return new ArrayList<>(Arrays.asList(binary().split(StringUtils.LF)));
 	}
 
 	/**
