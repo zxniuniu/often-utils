@@ -1,5 +1,11 @@
 Java常用工具类
 
+时间：2021/4/19 21:56  
+-HtmlUnitUtils  
+-HttpsUtils  
+-JsonUtils  
+--为Network工具类构造参数添加accept-encoding请求头属性
+
 时间：2021/4/18 15:34  
 -ReadWriteUtils  
 --增加二进制文件读写

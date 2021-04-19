@@ -52,6 +52,7 @@ public final class JsoupUtils {
 
 	private JsoupUtils() {
 		followRedirects = true;
+		headers.put("accept-encoding", "gzip, deflate, br");
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 	}
 
