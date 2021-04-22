@@ -49,7 +49,6 @@ public final class NetworkFileUtils {
 
 	private NetworkFileUtils() {
 		bufferSize = 8192; // 默认缓冲区大小
-		MAX_THREADS = 16; // 默认16线程
 		PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
 	}
 
@@ -352,8 +351,9 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public int download(final @NotNull File folder) {
+		Response response = null;
 		if (Judge.isNull(down)) { // 获取文件信息
-			Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit)
+			response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit)
 					.GetResponse();
 			int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
 			if (!URIUtils.statusIsOK(statusCode)) {
@@ -391,6 +391,14 @@ public final class NetworkFileUtils {
 				throw new RuntimeException("Info is error " + down);
 			}
 			file = new File(folder.getPath(), fileName); // 获取其file对象
+			if (Judge.isEmpty(MAX_THREADS)) {
+				response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit)
+						.GetResponse();
+				int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
+				if (!URIUtils.statusIsOK(statusCode)) {
+					return statusCode;
+				}
+			}
 		} else {
 			if (errorExit) {
 				throw new RuntimeException("Not found or not is file " + down);
@@ -399,26 +407,41 @@ public final class NetworkFileUtils {
 		}
 		// 开始下载
 		FilesUtils.createFolder(folder);
-		bufferSize = Math.min(PIECE_MAX_SIZE, bufferSize);
-		List<Integer> result;
-		if (fileSize > PIECE_MAX_SIZE * MAX_THREADS) {
-			List<Integer> statusCodes = new CopyOnWriteArrayList<>();
-			int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
-			ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
-			for (int i = 0; i < MAX_PIECE_COUNT; i++) {
-				executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-					statusCodes.add(writePiece(index * PIECE_MAX_SIZE, (index + 1) * PIECE_MAX_SIZE - 1));
-				}));
+		if (Judge.isEmpty(MAX_THREADS)) {
+			try (BufferedInputStream inputStream = Objects.requireNonNull(response).bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
+				output.seek(0);
+				byte[] buffer = new byte[bufferSize];
+				int length;
+				while (!Judge.isMinusOne(length = inputStream.read(buffer))) {
+					output.write(buffer, 0, length);
+				}
+				ReadWriteUtils.orgin(down).text("0-" + (fileSize - 1));
+			} catch (IOException e) {
+				return HttpStatus.SC_REQUEST_TIMEOUT;
 			}
-			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
-			result = statusCodes;
+			down.delete();
+			return response.statusCode();
 		} else {
-			List<Integer> piece = IntStream.rangeClosed(0, MAX_THREADS - 1).boxed().collect(Collectors.toList());
-			result = piece.parallelStream().map(index -> writePiece(index * fileSize / MAX_THREADS, (index + 1) * fileSize / MAX_THREADS - 1)).collect(Collectors.toList());
-		}
-		for (int statusCode : result) {
-			if (!URIUtils.statusIsOK(statusCode)) {
-				return statusCode;
+			List<Integer> result;
+			if (fileSize > PIECE_MAX_SIZE * MAX_THREADS) {
+				List<Integer> statusCodes = new CopyOnWriteArrayList<>();
+				int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
+				ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
+				for (int i = 0; i < MAX_PIECE_COUNT; i++) {
+					executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
+						statusCodes.add(writePiece(index * PIECE_MAX_SIZE, (index + 1) * PIECE_MAX_SIZE - 1));
+					}));
+				}
+				MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
+				result = statusCodes;
+			} else {
+				List<Integer> piece = IntStream.rangeClosed(0, MAX_THREADS - 1).boxed().collect(Collectors.toList());
+				result = piece.parallelStream().map(index -> writePiece(index * fileSize / MAX_THREADS, (index + 1) * fileSize / MAX_THREADS - 1)).collect(Collectors.toList());
+			}
+			for (int statusCode : result) {
+				if (!URIUtils.statusIsOK(statusCode)) {
+					return statusCode;
+				}
 			}
 		}
 		down.delete(); // 删除信息文件
@@ -450,7 +473,6 @@ public final class NetworkFileUtils {
 		if (!downInfo.contains(pointer)) {
 			Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
 					.retry(unlimitedRetry).errorExit(errorExit).GetResponse();
-
 			if (!Judge.isNull(piece)) {
 				if (URIUtils.statusIsOK(piece.statusCode())) {
 					try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
