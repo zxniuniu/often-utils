@@ -351,7 +351,7 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public int download(final @NotNull File folder) {
-		Response response = null;
+		Response response;
 		if (Judge.isNull(down)) { // 获取文件信息
 			response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit)
 					.GetResponse();
@@ -391,14 +391,6 @@ public final class NetworkFileUtils {
 				throw new RuntimeException("Info is error " + down);
 			}
 			file = new File(folder.getPath(), fileName); // 获取其file对象
-			if (Judge.isEmpty(MAX_THREADS)) {
-				response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit)
-						.GetResponse();
-				int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
-				if (!URIUtils.statusIsOK(statusCode)) {
-					return statusCode;
-				}
-			}
 		} else {
 			if (errorExit) {
 				throw new RuntimeException("Not found or not is file " + down);
@@ -408,19 +400,13 @@ public final class NetworkFileUtils {
 		// 开始下载
 		FilesUtils.createFolder(folder);
 		if (Judge.isEmpty(MAX_THREADS)) {
-			try (BufferedInputStream inputStream = Objects.requireNonNull(response).bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
-				output.seek(0);
-				byte[] buffer = new byte[bufferSize];
-				int length;
-				while (!Judge.isMinusOne(length = inputStream.read(buffer))) {
-					output.write(buffer, 0, length);
+			int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
+			for (int i = 0; i < MAX_PIECE_COUNT; i++) {
+				int statusCode = writePiece(i * PIECE_MAX_SIZE, ((i + 1) == MAX_PIECE_COUNT ? fileSize : (i + 1) * PIECE_MAX_SIZE) - 1);
+				if (!URIUtils.statusIsOK(statusCode)) {
+					return statusCode;
 				}
-				ReadWriteUtils.orgin(down).text("0-" + (fileSize - 1));
-			} catch (IOException e) {
-				return HttpStatus.SC_REQUEST_TIMEOUT;
 			}
-			down.delete();
-			return response.statusCode();
 		} else {
 			List<Integer> result;
 			if (fileSize > PIECE_MAX_SIZE * MAX_THREADS) {
@@ -429,7 +415,7 @@ public final class NetworkFileUtils {
 				ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
 				for (int i = 0; i < MAX_PIECE_COUNT; i++) {
 					executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-						statusCodes.add(writePiece(index * PIECE_MAX_SIZE, (index + 1) * PIECE_MAX_SIZE - 1));
+						statusCodes.add(writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1));
 					}));
 				}
 				MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
