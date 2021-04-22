@@ -400,23 +400,25 @@ public final class NetworkFileUtils {
 		// 开始下载
 		FilesUtils.createFolder(folder);
 		bufferSize = Math.min(PIECE_MAX_SIZE, bufferSize);
+		List<Integer> result;
 		if (fileSize > PIECE_MAX_SIZE * MAX_THREADS) {
+			List<Integer> statusCodes = new CopyOnWriteArrayList<>();
 			int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
-			List<Boolean> result = new CopyOnWriteArrayList<>();
 			ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
 			for (int i = 0; i < MAX_PIECE_COUNT; i++) {
 				executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-					result.add(writePiece(index * PIECE_MAX_SIZE, (index + 1) * PIECE_MAX_SIZE - 1));
+					statusCodes.add(writePiece(index * PIECE_MAX_SIZE, (index + 1) * PIECE_MAX_SIZE - 1));
 				}));
 			}
 			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
-			if (result.contains(false)) {
-				return HttpStatus.SC_REQUEST_TIMEOUT;
-			}
+			result = statusCodes;
 		} else {
 			List<Integer> piece = IntStream.rangeClosed(0, MAX_THREADS - 1).boxed().collect(Collectors.toList());
-			if (piece.parallelStream().map(index -> writePiece(index * fileSize / MAX_THREADS, (index + 1) * fileSize / MAX_THREADS - 1)).collect(Collectors.toList()).contains(false)) {
-				return HttpStatus.SC_REQUEST_TIMEOUT;
+			result = piece.parallelStream().map(index -> writePiece(index * fileSize / MAX_THREADS, (index + 1) * fileSize / MAX_THREADS - 1)).collect(Collectors.toList());
+		}
+		for (int statusCode : result) {
+			if (!URIUtils.statusIsOK(statusCode)) {
+				return statusCode;
 			}
 		}
 		down.delete(); // 删除信息文件
@@ -443,28 +445,33 @@ public final class NetworkFileUtils {
 	 *            块结束位
 	 * @return 下载并写入是否成功
 	 */
-	private boolean writePiece(int start, int end) {
+	private int writePiece(int start, int end) {
 		String pointer = start + "-" + end;
 		if (!downInfo.contains(pointer)) {
 			Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
 					.retry(unlimitedRetry).errorExit(errorExit).GetResponse();
-			if (!Judge.isNull(piece) && URIUtils.statusIsOK(piece.statusCode())) {
-				try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
-					output.seek(start);
-					byte[] buffer = new byte[bufferSize];
-					int length;
-					while (!Judge.isMinusOne(length = inputStream.read(buffer))) {
-						output.write(buffer, 0, length);
+
+			if (!Judge.isNull(piece)) {
+				if (URIUtils.statusIsOK(piece.statusCode())) {
+					try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
+						output.seek(start);
+						byte[] buffer = new byte[bufferSize];
+						int length;
+						while (!Judge.isMinusOne(length = inputStream.read(buffer))) {
+							output.write(buffer, 0, length);
+						}
+						ReadWriteUtils.orgin(down).text(pointer);
+					} catch (IOException e) {
+						return HttpStatus.SC_REQUEST_TIMEOUT;
 					}
-					ReadWriteUtils.orgin(down).text(pointer);
-				} catch (IOException e) {
-					return false;
+				} else {
+					return piece.statusCode();
 				}
 			} else {
-				return false;
+				return HttpStatus.SC_REQUEST_TIMEOUT;
 			}
 		}
-		return true;
+		return HttpStatus.SC_PARTIAL_CONTENT;
 	}
 
 }
