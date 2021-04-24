@@ -676,11 +676,10 @@ public final class HtmlUnitUtils {
 			webClient.waitForBackgroundJavaScript(waitJSTime);
 		}
 
-		if (!URIUtils.statusIsError(statusCode())) { // 获取headers和cookies
-			statusCode = page.getWebResponse().getStatusCode();
-			cookies(webClient.getCookieManager().getCookies());
-			headers(page.getWebResponse().getResponseHeaders());
-		}
+		// 获取headers和cookies
+		statusCode = page.getWebResponse().getStatusCode();
+		cookies(webClient.getCookieManager().getCookies());
+		headers(page.getWebResponse().getResponseHeaders());
 
 		webClient.close(); // 关闭webClient
 		return page;
