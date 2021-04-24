@@ -460,13 +460,11 @@ public final class HttpsUtils {
 	@Contract(pure = true)
 	public HttpsUtils execute(final HttpMethod method) {
 		int statusCode = executeProgram(method).statusCode();
-		if (!Judge.isEmpty(retry)) {
-			for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
-				if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
-					MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
-				}
-				statusCode = executeProgram(method).statusCode();
+		for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
+			if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
+				MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
 			}
+			statusCode = executeProgram(method).statusCode();
 		}
 		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
 			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);

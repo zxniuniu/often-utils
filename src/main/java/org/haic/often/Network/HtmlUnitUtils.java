@@ -606,13 +606,11 @@ public final class HtmlUnitUtils {
 	@Contract(pure = true)
 	public Page GetPage(final HttpMethod method) {
 		Page page = executeProgram(method);
-		if (!Judge.isEmpty(retry)) {
-			for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
-				if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
-					MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
-				}
-				page = executeProgram(method);
+		for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
+			if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
+				MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
 			}
+			page = executeProgram(method);
 		}
 		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
 			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);

@@ -568,14 +568,12 @@ public final class JsoupUtils {
 	public Response GetResponse(Method method) {
 		Response response = executeProgram(method);
 		int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : Objects.requireNonNull(response).statusCode();
-		if (!Judge.isEmpty(retry)) {
-			for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
-				if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
-					MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
-				}
-				response = executeProgram(method);
-				statusCode = Judge.isNull(response) ? statusCode : Objects.requireNonNull(response).statusCode();
+		for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
+			if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
+				MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
 			}
+			response = executeProgram(method);
+			statusCode = Judge.isNull(response) ? statusCode : Objects.requireNonNull(response).statusCode();
 		}
 		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
 			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
