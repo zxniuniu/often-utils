@@ -298,7 +298,7 @@ public final class NetworkFileUtils {
 	}
 
 	/**
-	 * 设置多线程下载,线程数不小于1，否则抛出异常
+	 * 设置多线程下载，线程数不小于1，否则抛出异常
 	 *
 	 * @param thread
 	 *            线程最大值
