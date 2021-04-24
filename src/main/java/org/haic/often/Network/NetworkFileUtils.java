@@ -23,7 +23,7 @@ import net.lingala.zip4j.model.enums.RandomAccessFileMode;
  * 网络文件 工具类
  *
  * @author haicdust
- * @version 1.6
+ * @version 1.8
  * @since 2020/2/25 18:45
  */
 public final class NetworkFileUtils {
@@ -45,6 +45,7 @@ public final class NetworkFileUtils {
 	private File file; // 文件
 	private File down; // dwon文件
 	private List<String> downInfo = new ArrayList<>(); // dwon文件信息
+	private Map<String, String> headers = new HashMap<>(); // cookies
 	private Map<String, String> cookies = new HashMap<>(); // cookies
 
 	private NetworkFileUtils() {
@@ -166,6 +167,21 @@ public final class NetworkFileUtils {
 	}
 
 	/**
+	 * 添加 cookie
+	 *
+	 * @param name
+	 *            cookie-名称
+	 * @param value
+	 *            cookie-值
+	 * @return this
+	 */
+	@Contract(pure = true)
+	public NetworkFileUtils cookies(final @NotNull String name, final @NotNull String value) {
+		cookies.put(name, value);
+		return this;
+	}
+
+	/**
 	 * 设置 cookies
 	 *
 	 * @param cookies
@@ -173,8 +189,36 @@ public final class NetworkFileUtils {
 	 * @return this
 	 */
 	@Contract(pure = true)
-	public NetworkFileUtils coolkies(final @NotNull Map<String, String> cookies) {
+	public NetworkFileUtils cookies(final @NotNull Map<String, String> cookies) {
 		this.cookies = cookies;
+		return this;
+	}
+
+	/**
+	 * 添加 请求头
+	 *
+	 * @param name
+	 *            请求头-名称
+	 * @param value
+	 *            请求头-值
+	 * @return this
+	 */
+	@Contract(pure = true)
+	public NetworkFileUtils header(final @NotNull String name, final @NotNull String value) {
+		headers.put(name, value);
+		return this;
+	}
+
+	/**
+	 * 设置 headers
+	 *
+	 * @param headers
+	 *            请求头集合
+	 * @return this
+	 */
+	@Contract(pure = true)
+	public NetworkFileUtils headers(final @NotNull Map<String, String> headers) {
+		this.headers = headers;
 		return this;
 	}
 
@@ -352,8 +396,8 @@ public final class NetworkFileUtils {
 	@Contract(pure = true)
 	public int download(final @NotNull File folder) {
 		if (Judge.isNull(down)) { // 获取文件信息
-			Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit)
-					.GetResponse();
+			Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
+					.errorExit(errorExit).GetResponse();
 			int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
 			if (!URIUtils.statusIsOK(statusCode)) {
 				return statusCode;
@@ -456,8 +500,8 @@ public final class NetworkFileUtils {
 	private int writePiece(int start, int end) {
 		String pointer = start + "-" + end;
 		if (!downInfo.contains(pointer)) {
-			Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
-					.retry(unlimitedRetry).errorExit(errorExit).GetResponse();
+			Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).header("Range", "bytes=" + pointer).headers(headers).cookies(cookies).referrer(referrer)
+					.retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).GetResponse();
 			if (!Judge.isNull(piece)) {
 				if (URIUtils.statusIsOK(piece.statusCode())) {
 					try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
