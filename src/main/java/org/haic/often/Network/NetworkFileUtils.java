@@ -463,11 +463,15 @@ public final class NetworkFileUtils {
 					try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
 						output.seek(start);
 						byte[] buffer = new byte[bufferSize];
-						int length;
-						while (!Judge.isMinusOne(length = inputStream.read(buffer))) {
+						int sum = 0;
+						for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); sum += length) {
 							output.write(buffer, 0, length);
 						}
-						ReadWriteUtils.orgin(down).text(pointer);
+						if (end - start + 1 == sum) {
+							ReadWriteUtils.orgin(down).text(pointer);
+						} else {
+							return HttpStatus.SC_REQUEST_TIMEOUT;
+						}
 					} catch (IOException e) {
 						return HttpStatus.SC_REQUEST_TIMEOUT;
 					}

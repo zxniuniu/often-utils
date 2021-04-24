@@ -1,5 +1,9 @@
 Java常用工具类
 
+时间：2021/4/24 14:27  
+-NetworkFileUtils  
+--修复文件下载未获取全部数据却返回成功的BUG
+
 时间：2021/4/19 21:56  
 -HtmlUnitUtils  
 -HttpsUtils  
