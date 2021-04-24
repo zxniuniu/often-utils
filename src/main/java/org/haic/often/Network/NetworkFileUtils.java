@@ -500,7 +500,7 @@ public final class NetworkFileUtils {
 	private int writePiece(int start, int end) {
 		String pointer = start + "-" + end;
 		if (!downInfo.contains(pointer)) {
-			Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).header("Range", "bytes=" + pointer).headers(headers).cookies(cookies).referrer(referrer)
+			Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer)
 					.retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).GetResponse();
 			if (!Judge.isNull(piece)) {
 				if (URIUtils.statusIsOK(piece.statusCode())) {
