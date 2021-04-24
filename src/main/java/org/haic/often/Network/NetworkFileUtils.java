@@ -49,6 +49,7 @@ public final class NetworkFileUtils {
 	private Map<String, String> cookies = new HashMap<>(); // cookies
 
 	private NetworkFileUtils() {
+		MAX_THREADS = 1; // 默认单线程下载
 		bufferSize = 8192; // 默认缓冲区大小
 		PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
 	}
@@ -297,7 +298,7 @@ public final class NetworkFileUtils {
 	}
 
 	/**
-	 * 设置多线程下载，默认16线程
+	 * 设置多线程下载,线程数不小于1，否则抛出异常
 	 *
 	 * @param thread
 	 *            线程最大值
@@ -305,6 +306,9 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public NetworkFileUtils multithread(final int thread) {
+		if (thread < 1) {
+			throw new RuntimeException("thread Less than 1");
+		}
 		this.MAX_THREADS = thread;
 		return this;
 	}
@@ -395,37 +399,45 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public int download(final @NotNull File folder) {
-		if (Judge.isNull(down)) { // 获取文件信息
+		if (Judge.isNull(down)) {
+			// 获取文件信息
 			Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
 					.errorExit(errorExit).GetResponse();
+			// 获取URL连接状态
 			int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
 			if (!URIUtils.statusIsOK(statusCode)) {
 				return statusCode;
 			}
+			// 获取文件名
 			if (Judge.isEmpty(fileName)) {
 				String content_disposition = Objects.requireNonNull(response).header("Content-Disposition");
 				fileName = Judge.isNull(content_disposition) ? url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)
 						: content_disposition.substring(content_disposition.indexOf("filename=") + 10);
 				fileName = TranscodUtils.decodeByURL(fileName);
 			}
+			// 文件名排除非法字符
 			fileName = FilesUtils.illegalFileName(fileName);
+			// 文件名长度检验
 			if (fileName.length() > 200) {
 				throw new RuntimeException("URL: " + url + " Error: File name length is greater than 200");
 			}
+			// 获取待下载文件和down文件对象
 			file = new File(folder.getPath(), fileName); // 获取其file对象
 			down = new File(folder.getPath(), fileName + ".down");
+			// 文件已存在，结束下载
 			if (file.isFile() && !down.exists()) {
 				return statusCode;
 			}
+			// 获取文件大小
 			fileSize = Integer.parseInt(Objects.requireNonNull(response).header("Content-Length"));
-			if (down.isFile()) {
+			if (down.isFile()) { // 读取down文件信息
 				downInfo = ReadWriteUtils.orgin(down).list();
-			} else if (down.exists()) {
+			} else if (down.exists()) { // 文件存在但不是文件，抛出异常
 				throw new RuntimeException("Not is file " + down);
-			} else {
+			} else { // 创建并写入down文件信息
 				ReadWriteUtils.orgin(down).text("URL=" + url + StringUtils.LF + "fileName=" + fileName + StringUtils.LF + "fileSize=" + fileSize);
 			}
-		} else if (down.isFile()) {
+		} else if (down.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
 			downInfo = ReadWriteUtils.orgin(down).list();
 			url = downInfo.get(0).split(StringUtils.EQUAL_SIGN)[1];
 			fileName = downInfo.get(1).split(StringUtils.EQUAL_SIGN)[1];
@@ -434,43 +446,38 @@ public final class NetworkFileUtils {
 				throw new RuntimeException("Info is error " + down);
 			}
 			file = new File(folder.getPath(), fileName); // 获取其file对象
-		} else {
-			if (errorExit) {
+		} else { // down文件不存在，返回404错误
+			if (errorExit) { // 结束抛出
 				throw new RuntimeException("Not found or not is file " + down);
 			}
 			return HttpStatus.SC_NOT_FOUND;
 		}
 		// 开始下载
 		FilesUtils.createFolder(folder);
-		if (Judge.isEmpty(MAX_THREADS)) {
+		List<Integer> statusCodes;
+		if (fileSize > PIECE_MAX_SIZE * MAX_THREADS) { // 大文件分块下载
+			List<Integer> result = new CopyOnWriteArrayList<>();
 			int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
+			ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
 			for (int i = 0; i < MAX_PIECE_COUNT; i++) {
-				int statusCode = writePiece(i * PIECE_MAX_SIZE, ((i + 1) == MAX_PIECE_COUNT ? fileSize : (i + 1) * PIECE_MAX_SIZE) - 1);
-				if (!URIUtils.statusIsOK(statusCode)) {
-					return statusCode;
-				}
+				executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
+					int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
+					result.add(statusCode);
+					if (!URIUtils.statusIsOK(statusCode)) {
+						executorService.shutdownNow();
+					}
+				}));
 			}
-		} else {
-			List<Integer> result;
-			if (fileSize > PIECE_MAX_SIZE * MAX_THREADS) {
-				List<Integer> statusCodes = new CopyOnWriteArrayList<>();
-				int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
-				ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
-				for (int i = 0; i < MAX_PIECE_COUNT; i++) {
-					executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-						statusCodes.add(writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1));
-					}));
-				}
-				MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
-				result = statusCodes;
-			} else {
-				List<Integer> piece = IntStream.rangeClosed(0, MAX_THREADS - 1).boxed().collect(Collectors.toList());
-				result = piece.parallelStream().map(index -> writePiece(index * fileSize / MAX_THREADS, (index + 1) * fileSize / MAX_THREADS - 1)).collect(Collectors.toList());
-			}
-			for (int statusCode : result) {
-				if (!URIUtils.statusIsOK(statusCode)) {
-					return statusCode;
-				}
+			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
+			statusCodes = result;
+		} else { // 小文件满线程下载
+			List<Integer> piece = IntStream.rangeClosed(0, MAX_THREADS - 1).boxed().collect(Collectors.toList());
+			statusCodes = piece.parallelStream().map(index -> writePiece(index * fileSize / MAX_THREADS, (index + 1) * fileSize / MAX_THREADS - 1)).collect(Collectors.toList());
+		}
+		// 判断下载状态
+		for (int statusCode : statusCodes) {
+			if (!URIUtils.statusIsOK(statusCode)) {
+				return statusCode;
 			}
 		}
 		down.delete(); // 删除信息文件

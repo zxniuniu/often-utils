@@ -44,11 +44,11 @@ public final class HtmlUnitUtils {
 	private int retry; // 请求异常重试次数
 	private int MILLISECONDS_SLEEP; // 重试等待时间
 	private int timeout; // 连接超时时间
+	private int statusCode; // 状态码
 	private Map<String, String> headers = new HashMap<>(); // 请求头参数
 	private Map<String, String> cookies = new HashMap<>(); // cookies
 	private final List<NameValuePair> params = new ArrayList<>(); // params
 	private WebRequest request; // 会话
-	private Page page; // Page
 
 	private HtmlUnitUtils() {
 		followRedirects = true;
@@ -517,7 +517,7 @@ public final class HtmlUnitUtils {
 
 	@Contract(pure = true)
 	public int statusCode() {
-		return Judge.isNull(page) ? HttpStatus.SC_REQUEST_TIMEOUT : page.getWebResponse().getStatusCode();
+		return statusCode;
 	}
 
 	/**
@@ -570,7 +570,7 @@ public final class HtmlUnitUtils {
 	 */
 	@Contract(pure = true)
 	public HtmlPage GetHtmlPage() {
-		return (HtmlPage) GetPage(HttpMethod.GET);
+		return GetHtmlPage(HttpMethod.GET);
 	}
 
 	/**
@@ -582,7 +582,8 @@ public final class HtmlUnitUtils {
 	 */
 	@Contract(pure = true)
 	public HtmlPage GetHtmlPage(final HttpMethod method) {
-		return (HtmlPage) GetPage(method);
+		Page page = GetPage(method);
+		return Judge.isNull(page) ? null : (HtmlPage) page;
 	}
 
 	/**
@@ -592,7 +593,7 @@ public final class HtmlUnitUtils {
 	 */
 	@Contract(pure = true)
 	public Page GetPage() {
-		return GetObject(HttpMethod.GET).page;
+		return GetPage(HttpMethod.GET);
 	}
 
 	/**
@@ -604,41 +605,19 @@ public final class HtmlUnitUtils {
 	 */
 	@Contract(pure = true)
 	public Page GetPage(final HttpMethod method) {
-		return GetObject(method).page;
-	}
-
-	/**
-	 * 获取对象
-	 *
-	 * @return this
-	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils GetObject() {
-		return GetObject(HttpMethod.GET);
-	}
-
-	/**
-	 * 获取对象
-	 *
-	 * @param method
-	 *            HttpMethod类型
-	 * @return this
-	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils GetObject(final HttpMethod method) {
-		executeProgram(method);
+		Page page = executeProgram(method);
 		if (!Judge.isEmpty(retry)) {
-			for (int i = 0; !URIUtils.statusIsOK(statusCode()) && !URIUtils.statusIsRedirect(statusCode()) && (i < retry || unlimitedRetry); i++) {
+			for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
 				if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
 					MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
 				}
-				executeProgram(method);
+				page = executeProgram(method);
 			}
 		}
-		if (errorExit && !URIUtils.statusIsOK(statusCode())) {
-			throw new RuntimeException("连接URL失败 Error: " + statusCode() + " URL: " + url);
+		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
+			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
 		}
-		return this;
+		return page;
 	}
 
 	/**
@@ -648,7 +627,7 @@ public final class HtmlUnitUtils {
 	 *            HttpMethod类型
 	 */
 	@Contract(pure = true)
-	private void executeProgram(final HttpMethod method) {
+	private Page executeProgram(final HttpMethod method) {
 		// 屏蔽HtmlUnit等系统 log
 		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
@@ -687,10 +666,12 @@ public final class HtmlUnitUtils {
 			}
 		}
 
+		Page page;
 		try { // 获取网页信息
 			page = webClient.getPage(GetWebRequest(method));
 		} catch (final IOException e) {
-			return;
+			statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
+			return null;
 		}
 
 		if (!Judge.isEmpty(waitJSTime)) { // 设置JS运行时间
@@ -698,10 +679,13 @@ public final class HtmlUnitUtils {
 		}
 
 		if (!URIUtils.statusIsError(statusCode())) { // 获取headers和cookies
+			statusCode = page.getWebResponse().getStatusCode();
 			cookies(webClient.getCookieManager().getCookies());
 			headers(page.getWebResponse().getResponseHeaders());
 		}
-		webClient.close();
+
+		webClient.close(); // 关闭webClient
+		return page;
 	}
 
 	/**

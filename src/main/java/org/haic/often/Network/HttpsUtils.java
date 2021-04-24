@@ -429,7 +429,7 @@ public final class HttpsUtils {
 	 */
 	@Contract(pure = true)
 	public String GetResult(final HttpMethod method) {
-		HttpURLConnection conn = GetHttpsUtils(method).conn();
+		HttpURLConnection conn = execute(method).conn();
 		String result;
 		try (InputStreamReader inputStream = URIUtils.statusIsOK(conn.getResponseCode()) ? new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8)
 				: new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8)) {
@@ -446,8 +446,8 @@ public final class HttpsUtils {
 	 * @return 响应结果
 	 */
 	@Contract(pure = true)
-	public HttpsUtils GetHttpsUtils() {
-		return GetHttpsUtils(HttpMethod.GET);
+	public HttpsUtils execute() {
+		return execute(HttpMethod.GET);
 	}
 
 	/**
@@ -458,7 +458,7 @@ public final class HttpsUtils {
 	 * @return 响应结果
 	 */
 	@Contract(pure = true)
-	public HttpsUtils GetHttpsUtils(final HttpMethod method) {
+	public HttpsUtils execute(final HttpMethod method) {
 		int statusCode = executeProgram(method).statusCode();
 		if (!Judge.isEmpty(retry)) {
 			for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
@@ -468,8 +468,8 @@ public final class HttpsUtils {
 				statusCode = executeProgram(method).statusCode();
 			}
 		}
-		if (errorExit && !URIUtils.statusIsOK(statusCode)) {
-			throw new RuntimeException("连接URL失败 Error: " + statusCode() + " URL: " + url);
+		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
+			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
 		}
 		return this;
 	}

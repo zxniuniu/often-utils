@@ -577,8 +577,8 @@ public final class JsoupUtils {
 				statusCode = Judge.isNull(response) ? statusCode : Objects.requireNonNull(response).statusCode();
 			}
 		}
-		if (errorExit && !URIUtils.statusIsOK(statusCode)) {
-			throw new RuntimeException("连接URL失败 Error: " + statusCode + " URL: " + url());
+		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
+			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
 		}
 		return response;
 	}
