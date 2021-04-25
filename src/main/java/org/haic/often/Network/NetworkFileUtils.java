@@ -506,34 +506,32 @@ public final class NetworkFileUtils {
 	 */
 	private int writePiece(int start, int end) {
 		String pointer = start + "-" + end;
-		if (!downInfo.contains(pointer)) {
-			Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer)
-					.retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).GetResponse();
-			if (!Judge.isNull(piece)) {
-				if (URIUtils.statusIsOK(piece.statusCode())) {
-					try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
-						output.seek(start);
-						byte[] buffer = new byte[bufferSize];
-						int sum = 0;
-						for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); sum += length) {
-							output.write(buffer, 0, length);
-						}
-						if (end - start + 1 == sum) {
-							ReadWriteUtils.orgin(down).text(pointer);
-						} else {
-							return HttpStatus.SC_REQUEST_TIMEOUT;
-						}
-					} catch (IOException e) {
-						return HttpStatus.SC_REQUEST_TIMEOUT;
+		if (downInfo.contains(pointer)) {
+			return HttpStatus.SC_PARTIAL_CONTENT;
+		}
+		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
+				.retry(unlimitedRetry).errorExit(errorExit).GetResponse();
+		if (!Judge.isNull(piece)) {
+			if (URIUtils.statusIsOK(piece.statusCode())) {
+				try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
+					output.seek(start);
+					byte[] buffer = new byte[bufferSize];
+					int sum = 0;
+					for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); sum += length) {
+						output.write(buffer, 0, length);
 					}
-				} else {
-					return piece.statusCode();
+					if (end - start + 1 == sum) {
+						ReadWriteUtils.orgin(down).text(pointer);
+						return HttpStatus.SC_PARTIAL_CONTENT;
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			} else {
-				return HttpStatus.SC_REQUEST_TIMEOUT;
+				return piece.statusCode();
 			}
 		}
-		return HttpStatus.SC_PARTIAL_CONTENT;
+		return HttpStatus.SC_REQUEST_TIMEOUT;
 	}
 
 }
