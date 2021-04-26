@@ -193,7 +193,7 @@ public class FilesUtils {
 	 */
 	@Contract(pure = true)
 	public static boolean isSuffixFile(final @NotNull String filePath, final @NotNull String suffix) {
-		return filePath.endsWith("." + suffix);
+		return filePath.endsWith((char) 46 + suffix);
 	}
 
 	/**
@@ -219,7 +219,7 @@ public class FilesUtils {
 	 */
 	@Contract(pure = true)
 	public static String GetFileSuffix(final @NotNull String fileName) {
-		return fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(".") + 1) : null;
+		return fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(46) + 1) : null;
 	}
 
 	/**
@@ -248,9 +248,9 @@ public class FilesUtils {
 		final String fileName = file.getName();
 		final File newfile;
 		if (fileName.contains(".")) {
-			newfile = new File(file.getParent(), fileName.substring(0, fileName.lastIndexOf(".") + 1) + suffix);
+			newfile = new File(file.getParent(), fileName.substring(0, fileName.lastIndexOf(46) + 1) + suffix);
 		} else {
-			newfile = new File(file.getParent(), fileName + "." + suffix);
+			newfile = new File(file.getParent(), fileName + (char) 46 + suffix);
 		}
 		return !newfile.exists() && file.renameTo(newfile);
 	}

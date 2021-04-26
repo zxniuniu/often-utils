@@ -61,7 +61,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 */
 	@Contract(pure = true)
 	public static String randomEmail() {
-		return (RandomStringUtils.randomAlphanumeric(8, 16) + "@" + RandomStringUtils.randomAlphabetic(4, 8) + "." + RandomStringUtils.randomAlphabetic(2, 4)).toLowerCase();
+		return (RandomStringUtils.randomAlphanumeric(8, 16) + (char) 64 + RandomStringUtils.randomAlphabetic(4, 8) + (char) 46 + RandomStringUtils.randomAlphabetic(2, 4)).toLowerCase();
 	}
 
 	/**
@@ -73,13 +73,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 */
 	@Contract(pure = true)
 	public static String randomEmail(@NotNull String domain) {
-		domain = Judge.isEmpty(domain.indexOf(".")) ? domain.substring(1) : domain;
-		int count = org.apache.commons.lang3.StringUtils.countMatches(domain, ".");
+		domain = Judge.isEmpty(domain.indexOf(46)) ? domain.substring(1) : domain;
+		int count = StringUtils.countMatches(domain, (char) 46);
 		if (Judge.isEmpty(count)) {
 			throw new RuntimeException(domain + " not is domain");
 		}
 		String[] subdomain = domain.split("\\.");
-		return (RandomStringUtils.randomAlphanumeric(8, 16) + "@" + subdomain[subdomain.length - 2] + "." + subdomain[subdomain.length - 1]).toLowerCase();
+		return (RandomStringUtils.randomAlphanumeric(8, 16) + (char) 64 + subdomain[subdomain.length - 2] + (char) 46 + subdomain[subdomain.length - 1]).toLowerCase();
 	}
 
 	/**
