@@ -494,6 +494,9 @@ public final class NetworkFileUtils {
 		// 判断下载状态
 		for (int statusCode : statusCodes) {
 			if (!URIUtils.statusIsOK(statusCode)) {
+				if (errorExit) {
+					throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
+				}
 				return statusCode;
 			}
 		}
@@ -501,6 +504,9 @@ public final class NetworkFileUtils {
 		// 效验文件完整性
 		if (!Judge.isEmpty(hash) && FilesUtils.GetMD5(file).equals(hash)) {
 			file.delete();
+			if (errorExit) {
+				throw new RuntimeException("文件效验失败 URL: " + url);
+			}
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
 		return HttpStatus.SC_OK;
