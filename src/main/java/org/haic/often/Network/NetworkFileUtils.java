@@ -300,16 +300,16 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置多线程下载，线程数不小于1，否则抛出异常
 	 *
-	 * @param thread
+	 * @param nThread
 	 *            线程最大值
 	 * @return this
 	 */
 	@Contract(pure = true)
-	public NetworkFileUtils multithread(final int thread) {
-		if (thread < 1) {
+	public NetworkFileUtils multithread(final int nThread) {
+		if (nThread < 1) {
 			throw new RuntimeException("thread Less than 1");
 		}
-		this.MAX_THREADS = thread;
+		this.MAX_THREADS = nThread;
 		return this;
 	}
 
