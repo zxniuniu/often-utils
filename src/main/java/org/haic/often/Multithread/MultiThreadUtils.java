@@ -19,14 +19,14 @@ public class MultiThreadUtils {
 	/**
 	 * 关闭线程池,并等待结束
 	 *
-	 * @param executorService
+	 * @param executor
 	 *            线程池对象
 	 */
 	@Contract(pure = true)
-	public static void WaitForEnd(final @NotNull ExecutorService executorService) {
-		executorService.shutdown(); // 关闭线程
+	public static void WaitForEnd(final @NotNull ExecutorService executor) {
+		executor.shutdown(); // 关闭线程
 		try { // 等待线程结束
-			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -35,13 +35,13 @@ public class MultiThreadUtils {
 	/**
 	 * 线程等待 MILLISECONDS_SLEEP (毫秒)
 	 *
-	 * @param MILLISECONDS_SLEEP
+	 * @param time
 	 *            线程等待时间
 	 */
 	@Contract(pure = true)
-	public static void WaitForThread(final int MILLISECONDS_SLEEP) {
+	public static void WaitForThread(final int time) {
 		try { // 程序等待
-			TimeUnit.MILLISECONDS.sleep(MILLISECONDS_SLEEP);
+			TimeUnit.MILLISECONDS.sleep(time);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

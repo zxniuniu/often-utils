@@ -464,9 +464,10 @@ public final class NetworkFileUtils {
 					int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
 					result.add(statusCode);
 					if (!URIUtils.statusIsOK(statusCode)) {
-						executorService.shutdownNow();
+						executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
 					}
 				}));
+				MultiThreadUtils.WaitForThread(1); // 异步访问，防止数据丢失
 			}
 			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
 			statusCodes = result;
