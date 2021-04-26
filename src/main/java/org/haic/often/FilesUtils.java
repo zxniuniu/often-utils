@@ -1,7 +1,9 @@
 package org.haic.often;
 
 import java.awt.*;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.stream.Stream;
 
 import javax.swing.filechooser.FileSystemView;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -502,6 +505,38 @@ public class FilesUtils {
 	@Contract(pure = true)
 	public static String GetAbsolutePath(final @NotNull String path) {
 		return new File(path).getAbsolutePath();
+	}
+
+	/**
+	 * 获取文件MD5值
+	 *
+	 * @param filePath
+	 *            文件路径
+	 * @return MD5值
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public static String GetMD5(final @NotNull String filePath) {
+		return GetMD5(new File(filePath));
+	}
+
+	/**
+	 * 获取文件MD5值
+	 *
+	 * @param file
+	 *            文件
+	 * @return MD5值
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public static String GetMD5(final @NotNull File file) {
+		String md5 = "";
+		try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
+			md5 = DigestUtils.md5Hex(inputStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return md5;
 	}
 
 }

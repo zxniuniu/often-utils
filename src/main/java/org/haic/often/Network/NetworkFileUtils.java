@@ -1,6 +1,9 @@
 package org.haic.often.Network;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -8,7 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpStatus;
 import org.haic.often.*;
 import org.haic.often.Multithread.MultiThreadUtils;
@@ -40,6 +42,7 @@ public final class NetworkFileUtils {
 	private int bufferSize; // 缓冲区大小
 	private int fileSize; // 文件大小
 	private int PIECE_MAX_SIZE; // 块最大值
+	private int interval; // 异步访问间隔
 	private boolean unlimitedRetry;// 请求异常无限重试
 	private boolean errorExit; // 错误退出
 	private File file; // 文件
@@ -50,6 +53,7 @@ public final class NetworkFileUtils {
 
 	private NetworkFileUtils() {
 		MAX_THREADS = 1; // 默认单线程下载
+		interval = 32; // 默认异步访问间隔32毫秒
 		bufferSize = 8192; // 默认缓冲区大小
 		PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
 	}
@@ -314,6 +318,19 @@ public final class NetworkFileUtils {
 	}
 
 	/**
+	 * 多线程下载使用并发访问，会导致数据丢失，使用异步访问可以解决数据丢失、数据错误问题，如果存在问题，请增大访问间隔（默认32毫秒）
+	 *
+	 * @param interval
+	 *            异步访问间隔
+	 * @return this
+	 */
+	@Contract(pure = true)
+	public NetworkFileUtils interval(final int interval) {
+		this.interval = interval;
+		return this;
+	}
+
+	/**
 	 * 设置写入文件时缓冲区大小
 	 *
 	 * @param bufferSize
@@ -458,8 +475,8 @@ public final class NetworkFileUtils {
 		if (fileSize > PIECE_MAX_SIZE * MAX_THREADS) { // 大文件分块下载
 			List<Integer> result = new CopyOnWriteArrayList<>();
 			int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
-			ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程
-			for (int i = 0; i < MAX_PIECE_COUNT; i++) {
+			ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
+			for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
 				executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
 					int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
 					result.add(statusCode);
@@ -467,7 +484,6 @@ public final class NetworkFileUtils {
 						executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
 					}
 				}));
-				MultiThreadUtils.WaitForThread(1); // 异步访问，防止数据丢失
 			}
 			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
 			statusCodes = result;
@@ -483,15 +499,9 @@ public final class NetworkFileUtils {
 		}
 		down.delete(); // 删除信息文件
 		// 效验文件完整性
-		if (!Judge.isEmpty(hash)) {
-			try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
-				if (!DigestUtils.md5Hex(inputStream).equals(hash)) {
-					file.delete();
-					return HttpStatus.SC_REQUEST_TIMEOUT;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		if (!Judge.isEmpty(hash) && FilesUtils.GetMD5(file).equals(hash)) {
+			file.delete();
+			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
 		return HttpStatus.SC_OK;
 	}
