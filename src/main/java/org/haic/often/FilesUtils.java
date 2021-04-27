@@ -102,7 +102,7 @@ public class FilesUtils {
 	public static List<String> deleteBlankDirectory(final @NotNull File files) {
 		return files.exists() && !files.isFile()
 				? Arrays.stream(Objects.requireNonNull(files.listFiles())).parallel()
-						.flatMap(file -> isBlankDirectory(file) && file.delete() ? Stream.of(file.getPath()) : deleteBlankDirectory(file).parallelStream()).collect(Collectors.toList())
+				.flatMap(file -> isBlankDirectory(file) && file.delete() ? Stream.of(file.getPath()) : deleteBlankDirectory(file).parallelStream()).collect(Collectors.toList())
 				: new ArrayList<>();
 
 	}

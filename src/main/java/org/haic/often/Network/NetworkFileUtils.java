@@ -19,6 +19,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Connection.Response;
 
+import com.alibaba.fastjson.JSONObject;
+
 import net.lingala.zip4j.model.enums.RandomAccessFileMode;
 
 /**
@@ -35,6 +37,7 @@ public final class NetworkFileUtils {
 	private String referrer; // 上一页
 	private String proxyHost; // 代理服务器地址
 	private String hash; // hash值,md5算法
+	private String authorization; // 授权码
 	private int proxyPort; // 代理服务器端口
 	private int MILLISECONDS_SLEEP; // 重试等待时间
 	private int retry; // 请求异常重试次数
@@ -302,6 +305,19 @@ public final class NetworkFileUtils {
 	}
 
 	/**
+	 * 上传文件时，设置服务器需要的授权码
+	 *
+	 * @param auth
+	 *            授权码
+	 * @return this
+	 */
+	@Contract(pure = true)
+	public NetworkFileUtils authorization(String auth) {
+		this.authorization = auth;
+		return this;
+	}
+
+	/**
 	 * 设置多线程下载，线程数不小于1，否则抛出异常
 	 *
 	 * @param nThread
@@ -390,7 +406,10 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public int Upload(final @NotNull File file) {
-		Response response = JsoupUtils.connect(url).header("Content-Type", "multipart/form-data").file(file).proxy(proxyHost, proxyPort).cookies(cookies).referrer(referrer)
+		if (!Judge.isEmpty(authorization)) {
+			headers.put("Authorization", authorization);
+		}
+		Response response = JsoupUtils.connect(url).headers(headers).header("Content-Type", "multipart/form-data").file(file).proxy(proxyHost, proxyPort).cookies(cookies).referrer(referrer)
 				.retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).GetResponse();
 		return Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
 	}
@@ -427,9 +446,9 @@ public final class NetworkFileUtils {
 			}
 			// 获取文件名
 			if (Judge.isEmpty(fileName)) {
-				String content_disposition = Objects.requireNonNull(response).header("Content-Disposition");
-				fileName = Judge.isNull(content_disposition) ? url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)
-						: content_disposition.substring(content_disposition.indexOf("filename=") + 10);
+				String disposition = Objects.requireNonNull(response).header("Content-Disposition");
+				fileName = Judge.isNull(disposition) ? url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)
+						: disposition.substring(disposition.indexOf("filename=") + 10);
 				fileName = TranscodUtils.decodeByURL(fileName);
 			}
 			// 文件名排除非法字符
@@ -445,24 +464,33 @@ public final class NetworkFileUtils {
 			if (file.isFile() && !down.exists()) {
 				return statusCode;
 			}
-			// 获取文件大小
-			fileSize = Integer.parseInt(Objects.requireNonNull(response).header("Content-Length"));
+			fileSize = Integer.parseInt(Objects.requireNonNull(response).header("Content-Length")); // 获取文件大小
+			hash = response.header("X-COS-META-MD5"); // 获取文件MD5
 			if (down.isFile()) { // 读取down文件信息
 				downInfo = ReadWriteUtils.orgin(down).list();
+				downInfo.remove(0); // 删除信息行
 			} else if (down.exists()) { // 文件存在但不是文件，抛出异常
 				throw new RuntimeException("Not is file " + down);
 			} else { // 创建并写入down文件信息
-				ReadWriteUtils.orgin(down).text("URL=" + url + StringUtils.LF + "fileName=" + fileName + StringUtils.LF + "fileSize=" + fileSize);
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("URL", url);
+				jsonObject.put("fileName", fileName);
+				jsonObject.put("fileSize", String.valueOf(fileSize));
+				jsonObject.put("md5", hash);
+				ReadWriteUtils.orgin(down).text(jsonObject.toJSONString());
 			}
 		} else if (down.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
 			downInfo = ReadWriteUtils.orgin(down).list();
-			url = downInfo.get(0).split(StringUtils.EQUAL_SIGN)[1];
-			fileName = downInfo.get(1).split(StringUtils.EQUAL_SIGN)[1];
-			fileSize = Integer.parseInt(downInfo.get(2).split(StringUtils.EQUAL_SIGN)[1]);
+			JSONObject jsonObject = JSONObject.parseObject(downInfo.get(0));
+			url = jsonObject.getString("URL");
+			fileName = jsonObject.getString("fileName");
+			fileSize = jsonObject.getInteger("fileSize");
+			hash = jsonObject.getString("md5");
 			if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
-				throw new RuntimeException("Info is error " + down);
+				throw new RuntimeException("Info is error -> " + down);
 			}
 			file = new File(folder.getPath(), fileName); // 获取其file对象
+			downInfo.remove(0); // 删除信息行
 		} else { // down文件不存在，返回404错误
 			if (errorExit) { // 结束抛出
 				throw new RuntimeException("Not found or not is file " + down);
@@ -502,10 +530,10 @@ public final class NetworkFileUtils {
 		}
 		down.delete(); // 删除信息文件
 		// 效验文件完整性
-		if (!Judge.isEmpty(hash) && FilesUtils.GetMD5(file).equals(hash)) {
+		if (!Judge.isEmpty(hash) && !FilesUtils.GetMD5(file).equals(hash)) {
 			file.delete();
 			if (errorExit) {
-				throw new RuntimeException("文件效验失败 URL: " + url);
+				throw new RuntimeException("文件效验不正确 URL: " + url);
 			}
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
