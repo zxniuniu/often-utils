@@ -285,11 +285,7 @@ public class URIUtils {
 		params.put("pg", pgs);
 		params.put("t", t);
 		params.put("k", k);
-		if (Judge.isEmpty(passwd)) {
-			params.put("pwd", "");
-		} else {
-			params.put("pwd", passwd);
-		}
+		params.put("pwd", passwd);
 		// 处理json数据
 		JSONArray jsonArray = JSONObject.parseObject(JsoupUtils.connect("https://wws.lanzous.com/filemoreajax.php").data(params).retry(true).GetResponse(Connection.Method.POST).body())
 				.getJSONArray("text");
