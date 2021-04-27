@@ -3,7 +3,8 @@ Java常用工具类
 时间：2021/4/27 14:39  
 -NetworkFileUtils  
 --异步访问，解决多线程导致数据丢失问题  
---改进down存放url信息方式为为json --自动从请求头获取md5进行验证
+--改进down存放url信息方式为为json  
+--自动从请求头获取md5进行验证
 
 时间：2021/4/24 14:27  
 -NetworkFileUtils  
