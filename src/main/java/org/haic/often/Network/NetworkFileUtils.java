@@ -8,8 +8,6 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.apache.http.HttpStatus;
 import org.haic.often.*;
@@ -499,26 +497,19 @@ public final class NetworkFileUtils {
 		}
 		// 开始下载
 		FilesUtils.createFolder(folder);
-		List<Integer> statusCodes;
-		if (fileSize > PIECE_MAX_SIZE * MAX_THREADS) { // 大文件分块下载
-			List<Integer> result = new CopyOnWriteArrayList<>();
-			int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
-			ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
-			for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
-				executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-					int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
-					result.add(statusCode);
-					if (!URIUtils.statusIsOK(statusCode)) {
-						executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
-					}
-				}));
-			}
-			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
-			statusCodes = result;
-		} else { // 小文件满线程下载
-			List<Integer> piece = IntStream.rangeClosed(0, MAX_THREADS - 1).boxed().collect(Collectors.toList());
-			statusCodes = piece.parallelStream().map(index -> writePiece(index * fileSize / MAX_THREADS, (index + 1) * fileSize / MAX_THREADS - 1)).collect(Collectors.toList());
+		List<Integer> statusCodes = new CopyOnWriteArrayList<>();
+		int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
+		ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
+		for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
+			executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
+				int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
+				statusCodes.add(statusCode);
+				if (!URIUtils.statusIsOK(statusCode)) {
+					executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
+				}
+			}));
 		}
+		MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
 		// 判断下载状态
 		for (int statusCode : statusCodes) {
 			if (!URIUtils.statusIsOK(statusCode)) {
