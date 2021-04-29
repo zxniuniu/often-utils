@@ -503,6 +503,12 @@ public final class NetworkFileUtils {
 		for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
 			executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
 				int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
+				for (int j = 0; !URIUtils.statusIsOK(statusCode) && (j < retry || unlimitedRetry); j++) {
+					if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
+						MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
+					}
+					statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
+				}
 				statusCodes.add(statusCode);
 				if (!URIUtils.statusIsOK(statusCode)) {
 					executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
@@ -514,6 +520,7 @@ public final class NetworkFileUtils {
 		for (int statusCode : statusCodes) {
 			if (!URIUtils.statusIsOK(statusCode)) {
 				if (errorExit) {
+					System.exit(1);
 					throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
 				}
 				return statusCode;
@@ -545,8 +552,8 @@ public final class NetworkFileUtils {
 		if (downInfo.contains(pointer)) {
 			return HttpStatus.SC_PARTIAL_CONTENT;
 		}
-		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
-				.retry(unlimitedRetry).errorExit(errorExit).GetResponse();
+		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer).errorExit(errorExit)
+				.GetResponse();
 		if (!Judge.isNull(piece)) {
 			if (URIUtils.statusIsOK(piece.statusCode())) {
 				try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
