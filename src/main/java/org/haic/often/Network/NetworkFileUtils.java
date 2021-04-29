@@ -501,7 +501,7 @@ public final class NetworkFileUtils {
 		int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
 		ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
 		for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
-			executorService.submit(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
+			executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
 				int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
 				statusCodes.add(statusCode);
 				if (!URIUtils.statusIsOK(statusCode)) {
