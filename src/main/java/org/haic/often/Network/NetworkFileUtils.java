@@ -555,8 +555,7 @@ public final class NetworkFileUtils {
 		if (downInfo.contains(pointer)) {
 			return HttpStatus.SC_PARTIAL_CONTENT;
 		}
-		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer).errorExit(errorExit)
-				.GetResponse();
+		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer).GetResponse();
 		if (!Judge.isNull(piece)) {
 			if (URIUtils.statusIsOK(piece.statusCode())) {
 				try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
