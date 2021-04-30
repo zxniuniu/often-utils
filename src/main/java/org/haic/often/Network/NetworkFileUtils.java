@@ -523,7 +523,6 @@ public final class NetworkFileUtils {
 		for (int statusCode : statusCodes) {
 			if (!URIUtils.statusIsOK(statusCode)) {
 				if (errorExit) {
-					System.exit(1);
 					throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
 				}
 				return statusCode;
