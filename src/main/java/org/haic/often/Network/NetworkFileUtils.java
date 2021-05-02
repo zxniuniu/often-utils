@@ -516,9 +516,7 @@ public final class NetworkFileUtils {
 					executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
 				}
 			}));
-			if (MAX_THREADS > 1) {
-				MultiThreadUtils.WaitForThread(interval);
-			}
+			MultiThreadUtils.WaitForThread(interval);
 		}
 		MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
 		// 判断下载状态
