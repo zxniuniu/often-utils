@@ -57,6 +57,8 @@ public final class NetworkFileUtils {
 		interval = 32; // 默认异步访问间隔32毫秒
 		bufferSize = 8192; // 默认缓冲区大小
 		PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
+		headers.put("accept-encoding", "gzip, deflate, br");
+		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 	}
 
 	/**
