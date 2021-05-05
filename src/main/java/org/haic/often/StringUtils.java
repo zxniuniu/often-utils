@@ -48,6 +48,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 *            待匹配的字符串
 	 * @param replacement
 	 *            替换的字符串
+	 * @return 替换后的字符串
 	 */
 	@Contract(pure = true)
 	public static String replaceLast(final @NotNull String str, final @NotNull @NonNls String regex, final String replacement) {

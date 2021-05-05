@@ -53,6 +53,7 @@ public class FilesUtils {
 	 *
 	 * @param files
 	 *            文件列表
+	 * @return 删除的文件列表
 	 */
 	@Contract(pure = true)
 	public static List<String> deteleFiles(List<File> files) {
@@ -64,6 +65,7 @@ public class FilesUtils {
 	 *
 	 * @param folderPath
 	 *            文件夹路径
+	 * @return 操作是否成功
 	 */
 	@Contract(pure = true)
 	public static boolean openDesktop(final @NotNull String folderPath) {
@@ -84,6 +86,7 @@ public class FilesUtils {
 	 *
 	 * @param filesPath
 	 *            文件夹路径
+	 * @return 删除的空文件夹路径列表
 	 */
 	@NotNull
 	@Contract(pure = true)
@@ -96,13 +99,14 @@ public class FilesUtils {
 	 *
 	 * @param files
 	 *            文件夹
+	 * @return 删除的空文件夹路径列表
 	 */
 	@NotNull
 	@Contract(pure = true)
 	public static List<String> deleteBlankDirectory(final @NotNull File files) {
 		return files.exists() && !files.isFile()
 				? Arrays.stream(Objects.requireNonNull(files.listFiles())).parallel()
-				.flatMap(file -> isBlankDirectory(file) && file.delete() ? Stream.of(file.getPath()) : deleteBlankDirectory(file).parallelStream()).collect(Collectors.toList())
+						.flatMap(file -> isBlankDirectory(file) && file.delete() ? Stream.of(file.getPath()) : deleteBlankDirectory(file).parallelStream()).collect(Collectors.toList())
 				: new ArrayList<>();
 
 	}
@@ -136,6 +140,7 @@ public class FilesUtils {
 	 *
 	 * @param folderPath
 	 *            文件夹路径
+	 * @return 删除文件夹是否成功
 	 */
 	@Contract(pure = true)
 	public static boolean deleteDirectory(final @NotNull String folderPath) {
@@ -147,6 +152,7 @@ public class FilesUtils {
 	 *
 	 * @param folder
 	 *            文件夹对象
+	 * @return 删除文件夹是否成功
 	 */
 	@Contract(pure = true)
 	public static boolean deleteDirectory(final @NotNull File folder) {
@@ -161,6 +167,7 @@ public class FilesUtils {
 	 *            文件夹路径
 	 * @param suffix
 	 *            后缀
+	 * @return 删除的文件路径列表
 	 */
 	@NotNull
 	@Contract(pure = true)
@@ -175,6 +182,7 @@ public class FilesUtils {
 	 *            文件夹对象
 	 * @param suffix
 	 *            后缀
+	 * @return 删除的文件路径列表
 	 */
 	@NotNull
 	@Contract(pure = true)
@@ -463,6 +471,7 @@ public class FilesUtils {
 	 *
 	 * @param folder
 	 *            文件夹对象
+	 * @return 创建文件是否成功
 	 */
 	@Contract(pure = true)
 	public static boolean createFolder(final @NotNull File folder) {

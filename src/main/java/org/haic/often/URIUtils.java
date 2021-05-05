@@ -27,28 +27,6 @@ import com.alibaba.fastjson.JSONObject;
  */
 public class URIUtils {
 
-	public enum AuditState {
-
-		UNAUDIT(1),
-
-		AUDITING(2),
-
-		AUDIT_SUCCESS(3),
-
-		AUDIT_FAIL(4);
-
-		private final int statenum;
-
-		AuditState(final int statenum) {
-			this.statenum = statenum;
-		}
-
-		public int GetStatenum() {
-			return statenum;
-		}
-
-	}
-
 	/**
 	 * 获取URI
 	 *

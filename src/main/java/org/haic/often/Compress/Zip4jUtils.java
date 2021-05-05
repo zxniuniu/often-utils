@@ -292,6 +292,15 @@ public class Zip4jUtils {
 		return compress(origin);
 	}
 
+	/**
+	 * 添加流至压缩包
+	 *
+	 * @param inputStream
+	 *            流
+	 * @param entryName
+	 *            文件名或路径
+	 * @return 添加的文件列表
+	 */
 	public String addStream(final @NotNull ByteArrayInputStream inputStream, String entryName) {
 		ZipFile zipFile = new ZipFile(archive);
 		zipFile.setCharset(charset);
@@ -307,6 +316,13 @@ public class Zip4jUtils {
 		return entryName;
 	}
 
+	/**
+	 * 添加流至压缩包
+	 *
+	 * @param origin
+	 *            集合 -> 文件名或路径、byte数组
+	 * @return 添加的文件列表
+	 */
 	public List<String> addStream(final @NotNull Map<String, byte[]> origin) {
 		return origin.entrySet().parallelStream().map(entry -> addStream(new ByteArrayInputStream(entry.getValue()), entry.getKey())).collect(Collectors.toList());
 	}

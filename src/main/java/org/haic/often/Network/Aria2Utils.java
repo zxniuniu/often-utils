@@ -347,6 +347,8 @@ public final class Aria2Utils {
 
 	/**
 	 * Socket推送 JSON数据
+	 *
+	 * @return 返回的json信息
 	 */
 	@Contract(pure = true)
 	public String send() {

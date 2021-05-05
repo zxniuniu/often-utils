@@ -111,6 +111,8 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 	 *            动态数组
 	 * @param <E>
 	 *            泛型
+	 * @param comparator
+	 *            Comparator排序参数
 	 * @return 无排序的数组
 	 */
 	@NotNull
