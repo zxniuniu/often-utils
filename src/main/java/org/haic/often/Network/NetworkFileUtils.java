@@ -44,6 +44,7 @@ public final class NetworkFileUtils {
 	private int fileSize; // 文件大小
 	private int PIECE_MAX_SIZE; // 块最大值
 	private int interval; // 异步访问间隔
+	private int mode; // 下载模式
 	private boolean unlimitedRetry;// 请求异常无限重试
 	private boolean errorExit; // 错误退出
 	private File file; // 文件
@@ -121,6 +122,7 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public NetworkFileUtils setDown(final File down) {
+		this.mode = 1;
 		this.down = down;
 		return this;
 	}
@@ -435,7 +437,8 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public int download(final @NotNull File folder) {
-		if (Judge.isNull(down)) {
+		switch (mode) {
+		case 0 -> {
 			// 获取文件信息
 			Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
 					.errorExit(errorExit).GetResponse();
@@ -479,23 +482,27 @@ public final class NetworkFileUtils {
 				jsonObject.put("md5", hash);
 				ReadWriteUtils.orgin(down).text(jsonObject.toJSONString());
 			}
-		} else if (down.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
-			downInfo = ReadWriteUtils.orgin(down).list();
-			JSONObject jsonObject = JSONObject.parseObject(downInfo.get(0));
-			url = jsonObject.getString("URL");
-			fileName = jsonObject.getString("fileName");
-			fileSize = jsonObject.getInteger("fileSize");
-			hash = jsonObject.getString("md5");
-			if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
-				throw new RuntimeException("Info is error -> " + down);
+		}
+		case 1 -> {
+			if (down.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
+				downInfo = ReadWriteUtils.orgin(down).list();
+				JSONObject jsonObject = JSONObject.parseObject(downInfo.get(0));
+				url = jsonObject.getString("URL");
+				fileName = jsonObject.getString("fileName");
+				fileSize = jsonObject.getInteger("fileSize");
+				hash = jsonObject.getString("md5");
+				if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
+					throw new RuntimeException("Info is error -> " + down);
+				}
+				file = new File(folder.getPath(), fileName); // 获取其file对象
+				downInfo.remove(0); // 删除信息行
+			} else { // down文件不存在，返回404错误
+				if (errorExit) { // 结束抛出
+					throw new RuntimeException("Not found or not is file " + down);
+				}
+				return HttpStatus.SC_NOT_FOUND;
 			}
-			file = new File(folder.getPath(), fileName); // 获取其file对象
-			downInfo.remove(0); // 删除信息行
-		} else { // down文件不存在，返回404错误
-			if (errorExit) { // 结束抛出
-				throw new RuntimeException("Not found or not is file " + down);
-			}
-			return HttpStatus.SC_NOT_FOUND;
+		}
 		}
 		// 开始下载
 		FilesUtils.createFolder(folder);
@@ -528,7 +535,6 @@ public final class NetworkFileUtils {
 				return statusCode;
 			}
 		}
-		down.delete(); // 删除信息文件
 		// 效验文件完整性
 		if (!Judge.isEmpty(hash) && !FilesUtils.GetMD5(file).equals(hash)) {
 			file.delete();
@@ -537,6 +543,7 @@ public final class NetworkFileUtils {
 			}
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
+		down.delete(); // 删除信息文件
 		return HttpStatus.SC_OK;
 	}
 
