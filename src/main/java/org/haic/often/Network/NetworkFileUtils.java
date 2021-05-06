@@ -509,7 +509,7 @@ public final class NetworkFileUtils {
 		List<Integer> statusCodes = new CopyOnWriteArrayList<>();
 		int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
 		ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
-		for (int i = 0; i < MAX_PIECE_COUNT; i++) {
+		for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
 			executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
 				int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
 				for (int j = 0; !URIUtils.statusIsOK(statusCode) && (j < retry || unlimitedRetry); j++) {
@@ -523,7 +523,6 @@ public final class NetworkFileUtils {
 					executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
 				}
 			}));
-			MultiThreadUtils.WaitForThread(interval);
 		}
 		MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
 		// 判断下载状态
