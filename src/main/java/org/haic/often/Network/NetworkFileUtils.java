@@ -437,6 +437,7 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public int download(final @NotNull File folder) {
+		JSONObject fileInfo = new JSONObject();
 		switch (mode) {
 		case 0 -> {
 			// 获取文件信息
@@ -475,22 +476,21 @@ public final class NetworkFileUtils {
 			} else if (down.exists()) { // 文件存在但不是文件，抛出异常
 				throw new RuntimeException("Not is file " + down);
 			} else { // 创建并写入down文件信息
-				JSONObject jsonObject = new JSONObject();
-				jsonObject.put("URL", url);
-				jsonObject.put("fileName", fileName);
-				jsonObject.put("fileSize", String.valueOf(fileSize));
-				jsonObject.put("md5", hash);
-				ReadWriteUtils.orgin(down).text(jsonObject.toJSONString());
+				fileInfo.put("URL", url);
+				fileInfo.put("fileName", fileName);
+				fileInfo.put("fileSize", String.valueOf(fileSize));
+				fileInfo.put("md5", hash);
+				ReadWriteUtils.orgin(down).text(fileInfo.toJSONString());
 			}
 		}
 		case 1 -> {
 			if (down.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
 				downInfo = ReadWriteUtils.orgin(down).list();
-				JSONObject jsonObject = JSONObject.parseObject(downInfo.get(0));
-				url = jsonObject.getString("URL");
-				fileName = jsonObject.getString("fileName");
-				fileSize = jsonObject.getInteger("fileSize");
-				hash = jsonObject.getString("md5");
+				fileInfo = JSONObject.parseObject(downInfo.get(0));
+				url = fileInfo.getString("URL");
+				fileName = fileInfo.getString("fileName");
+				fileSize = fileInfo.getInteger("fileSize");
+				hash = fileInfo.getString("md5");
 				if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
 					throw new RuntimeException("Info is error -> " + down);
 				}
@@ -537,8 +537,8 @@ public final class NetworkFileUtils {
 		// 效验文件完整性
 		String md5;
 		if (!Judge.isEmpty(hash) && !(md5 = FilesUtils.GetMD5(file)).equals(hash)) {
-			file.delete();
-			down.delete();
+			file.delete(); // 删除下载错误的文件
+			ReadWriteUtils.orgin(down).append(false).text(fileInfo.toJSONString()); // 重置信息文件
 			if (errorExit) {
 				throw new RuntimeException("文件效验不正确 md5: " + md5 + " URL: " + url);
 			}
