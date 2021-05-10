@@ -535,10 +535,12 @@ public final class NetworkFileUtils {
 			}
 		}
 		// 效验文件完整性
-		if (!Judge.isEmpty(hash) && !FilesUtils.GetMD5(file).equals(hash)) {
+		String md5;
+		if (!Judge.isEmpty(hash) && !(md5 = FilesUtils.GetMD5(file)).equals(hash)) {
 			file.delete();
+			down.delete();
 			if (errorExit) {
-				throw new RuntimeException("文件效验不正确 URL: " + url);
+				throw new RuntimeException("文件效验不正确 md5: " + md5 + " URL: " + url);
 			}
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}

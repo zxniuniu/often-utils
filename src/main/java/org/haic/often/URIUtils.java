@@ -12,8 +12,6 @@ import org.haic.often.Network.JsoupUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Connection;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -214,7 +212,7 @@ public class URIUtils {
 	 */
 	@Contract(pure = true)
 	public static String lanzouStraight(final @NotNull String lanzouUrl) {
-		return JsoupUtils.connect(HtmlUnitUtils.connect("https://www.lanzous.com" + JsoupUtils.connect(lanzouUrl).retry(true).GetDocument().selectFirst("iframe[class='ifr2']").attr("src"))
+		return JsoupUtils.connect(HtmlUnitUtils.connect("https://wws.lanzous.com" + JsoupUtils.connect(lanzouUrl).retry(true).GetDocument().selectFirst("iframe[class='ifr2']").attr("src"))
 				.waitJSTime(1000).retry(true).GetDocument().selectFirst("div[id='go'] a").attr("href")).followRedirects(false).retry(true).GetResponse().header("Location");
 	}
 
@@ -227,10 +225,8 @@ public class URIUtils {
 	 */
 	public static Map<String, String> lanzouPageInfos(String lanzurl) {
 		Map<String, String> result = new HashMap<>();
-		Document doc = HtmlUnitUtils.connect(lanzurl).waitJSTime(1000).retry(true).GetDocument();
-		for (Element name : doc.select("div[id='name']")) {
-			result.put(name.text(), "https://www.lanzous.com" + name.select("a").attr("href"));
-		}
+		HtmlUnitUtils.connect(lanzurl).waitJSTime(1000).retry(true).GetDocument().select("div[id='name']")
+				.forEach(name -> result.put(name.text(), "https://wws.lanzous.com" + name.select("a").attr("href")));
 		return result;
 	}
 
@@ -270,7 +266,7 @@ public class URIUtils {
 		Map<String, String> result = new HashMap<>();
 		for (int i = 0; i < jsonArray.size(); i++) {
 			JSONObject info = jsonArray.getJSONObject(i);
-			result.put(info.getString("name_all"), "https://www.lanzous.com/" + info.getString("id"));
+			result.put(info.getString("name_all"), "https://wws.lanzous.com/" + info.getString("id"));
 		}
 		return result;
 	}
