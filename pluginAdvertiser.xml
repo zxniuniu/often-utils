@@ -107,6 +107,26 @@
                       <FeaturePluginData displayName="Firefox Remote" pluginName="JavaScript Debugger" pluginId="JavaScriptDebugger" bundled="true" />
                     </value>
                   </entry>
+                  <entry key="FlutterBazelRunConfigurationType">
+                    <value>
+                      <FeaturePluginData displayName="Flutter (Bazel)" pluginName="Flutter" pluginId="io.flutter" />
+                    </value>
+                  </entry>
+                  <entry key="FlutterBazelTestConfigurationType">
+                    <value>
+                      <FeaturePluginData displayName="Flutter Test (Bazel)" pluginName="Flutter" pluginId="io.flutter" />
+                    </value>
+                  </entry>
+                  <entry key="FlutterRunConfigurationType">
+                    <value>
+                      <FeaturePluginData displayName="Flutter" pluginName="Flutter" pluginId="io.flutter" />
+                    </value>
+                  </entry>
+                  <entry key="FlutterTestConfigType">
+                    <value>
+                      <FeaturePluginData displayName="Flutter Test" pluginName="Flutter" pluginId="io.flutter" />
+                    </value>
+                  </entry>
                   <entry key="GlassfishConfiguration">
                     <value>
                       <FeaturePluginData displayName="GlassFish 服务器" pluginName="GlassFish" pluginId="GlassFish" bundled="true" />
