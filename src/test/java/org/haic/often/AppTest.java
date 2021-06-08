@@ -10,8 +10,6 @@ public class AppTest {
 
 	public static void main(String[] args) {
 		String path = "F:\\Downloads\\123.down";
-		ReadWriteUtils.orgin(path).binary(path);
-		System.out.println(ReadWriteUtils.orgin(path).binary());
 	}
 
 }
