@@ -44,9 +44,10 @@ public final class NetworkFileUtils {
 	private int fileSize; // 文件大小
 	private int PIECE_MAX_SIZE; // 块最大值
 	private int interval; // 异步访问间隔
-	private int mode; // 下载模式
 	private boolean unlimitedRetry;// 请求异常无限重试
 	private boolean errorExit; // 错误退出
+	private boolean downMode; // 使用down文件下载
+	private boolean fullMode; // 全量下载模式
 	private File file; // 文件
 	private File down; // dwon文件
 	private List<String> downInfo = new ArrayList<>(); // dwon文件信息
@@ -55,7 +56,7 @@ public final class NetworkFileUtils {
 
 	private NetworkFileUtils() {
 		MAX_THREADS = 1; // 默认单线程下载
-		interval = 32; // 默认异步访问间隔32毫秒
+		interval = 36; // 默认异步访问间隔36毫秒
 		bufferSize = 8192; // 默认缓冲区大小
 		PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
 		headers.put("accept-encoding", "gzip, deflate, br");
@@ -122,7 +123,7 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public NetworkFileUtils setDown(final File down) {
-		this.mode = 1;
+		this.downMode = true;
 		this.down = down;
 		return this;
 	}
@@ -135,6 +136,17 @@ public final class NetworkFileUtils {
 	@Contract(pure = true)
 	private static NetworkFileUtils config() {
 		return new NetworkFileUtils();
+	}
+
+	/**
+	 * 全量下载模式
+	 *
+	 * @return this
+	 */
+	@Contract(pure = true)
+	public NetworkFileUtils fullMode(final boolean fullMode) {
+		this.fullMode = fullMode;
+		return this;
 	}
 
 	/**
@@ -336,7 +348,7 @@ public final class NetworkFileUtils {
 	}
 
 	/**
-	 * 多线程下载使用并发访问，会导致数据丢失，使用异步访问可以解决数据丢失、数据错误问题，如果存在问题，请增大访问间隔（默认32毫秒）
+	 * 多线程下载使用并发访问，会导致数据丢失，使用异步访问可以解决数据丢失、数据错误问题，如果存在问题，请增大访问间隔（默认36毫秒）
 	 *
 	 * @param interval
 	 *            异步访问间隔
@@ -438,8 +450,26 @@ public final class NetworkFileUtils {
 	@Contract(pure = true)
 	public int download(final @NotNull File folder) {
 		JSONObject fileInfo = new JSONObject();
-		switch (mode) {
-		case 0 -> {
+		if (downMode) {
+			if (down.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
+				downInfo = ReadWriteUtils.orgin(down).list();
+				fileInfo = JSONObject.parseObject(downInfo.get(0));
+				url = fileInfo.getString("URL");
+				fileName = fileInfo.getString("fileName");
+				fileSize = fileInfo.getInteger("fileSize");
+				hash = fileInfo.getString("md5");
+				if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
+					throw new RuntimeException("Info is error -> " + down);
+				}
+				file = new File(folder.getPath(), fileName); // 获取其file对象
+				downInfo.remove(0); // 删除信息行
+			} else { // down文件不存在，返回404错误
+				if (errorExit) { // 结束抛出
+					throw new RuntimeException("Not found or not is file " + down);
+				}
+				return HttpStatus.SC_NOT_FOUND;
+			}
+		} else {
 			// 获取文件信息
 			Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
 					.errorExit(errorExit).GetResponse();
@@ -483,55 +513,41 @@ public final class NetworkFileUtils {
 				ReadWriteUtils.orgin(down).text(fileInfo.toJSONString());
 			}
 		}
-		case 1 -> {
-			if (down.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
-				downInfo = ReadWriteUtils.orgin(down).list();
-				fileInfo = JSONObject.parseObject(downInfo.get(0));
-				url = fileInfo.getString("URL");
-				fileName = fileInfo.getString("fileName");
-				fileSize = fileInfo.getInteger("fileSize");
-				hash = fileInfo.getString("md5");
-				if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
-					throw new RuntimeException("Info is error -> " + down);
-				}
-				file = new File(folder.getPath(), fileName); // 获取其file对象
-				downInfo.remove(0); // 删除信息行
-			} else { // down文件不存在，返回404错误
-				if (errorExit) { // 结束抛出
-					throw new RuntimeException("Not found or not is file " + down);
-				}
-				return HttpStatus.SC_NOT_FOUND;
-			}
-		}
-		}
 		// 开始下载
 		FilesUtils.createFolder(folder);
-		List<Integer> statusCodes = new CopyOnWriteArrayList<>();
-		int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
-		ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
-		for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
-			executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-				int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
-				for (int j = 0; !URIUtils.statusIsOK(statusCode) && (j < retry || unlimitedRetry); j++) {
-					if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
-						MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
-					}
-					statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
-				}
-				statusCodes.add(statusCode);
-				if (!URIUtils.statusIsOK(statusCode)) {
-					executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
-				}
-			}));
-		}
-		MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
-		// 判断下载状态
-		for (int statusCode : statusCodes) {
-			if (!URIUtils.statusIsOK(statusCode)) {
-				if (errorExit) {
-					throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
-				}
+		if (fullMode) {
+			int statusCode = writePiece(0, fileSize - 1);
+			if (!URIUtils.statusIsOK(writePiece(0, fileSize - 1))) {
 				return statusCode;
+			}
+		} else {
+			List<Integer> statusCodes = new CopyOnWriteArrayList<>();
+			int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
+			ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
+			for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
+				executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
+					int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
+					for (int j = 0; !URIUtils.statusIsOK(statusCode) && (j < retry || unlimitedRetry); j++) {
+						if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
+							MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
+						}
+						statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
+					}
+					statusCodes.add(statusCode);
+					if (!URIUtils.statusIsOK(statusCode)) {
+						executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
+					}
+				}));
+			}
+			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
+			// 判断下载状态
+			for (int statusCode : statusCodes) {
+				if (!URIUtils.statusIsOK(statusCode)) {
+					if (errorExit) {
+						throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
+					}
+					return statusCode;
+				}
 			}
 		}
 		// 效验文件完整性
@@ -540,7 +556,7 @@ public final class NetworkFileUtils {
 			file.delete(); // 删除下载错误的文件
 			ReadWriteUtils.orgin(down).append(false).text(fileInfo.toJSONString()); // 重置信息文件
 			if (errorExit) {
-				throw new RuntimeException("文件效验不正确 md5: " + md5 + " URL: " + url);
+				throw new RuntimeException("文件效验不正确，URL md5:" + hash + " 本地文件 md5: " + md5 + " URL: " + url);
 			}
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
@@ -574,7 +590,7 @@ public final class NetworkFileUtils {
 					}
 					if (end - start + 1 == sum) {
 						ReadWriteUtils.orgin(down).text(pointer);
-						return HttpStatus.SC_PARTIAL_CONTENT;
+						return piece.statusCode();
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
