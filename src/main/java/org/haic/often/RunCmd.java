@@ -20,40 +20,14 @@ public class RunCmd {
 	 *
 	 * @param dos
 	 *            cmd命令
-	 * @param CharsetName
-	 *            字符集格式名称
-	 * @return 命令执行后返回的信息
-	 */
-	public static String readInfo(final @NotNull String dos, final @NotNull String CharsetName) {
-		return readInfo(dos, Charset.forName(CharsetName));
-	}
-
-	/**
-	 * 执行CMD命令并返回信息
-	 *
-	 * @param dos
-	 *            cmd命令
-	 * @return 命令执行后返回的信息
-	 */
-	public static String readInfo(final @NotNull String dos) {
-		return readInfo(dos, Charset.forName("GBK"));
-	}
-
-	/**
-	 * 执行CMD命令并返回信息
-	 *
-	 * @param dos
-	 *            cmd命令
-	 * @param charset
-	 *            字符集格式
 	 * @return 命令执行后返回的信息
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String readInfo(final @NotNull String dos, final @NotNull Charset charset) {
+	public static String readInfo(final @NotNull String dos) {
 		String result = "";
 		Process process;
-		try (InputStreamReader inputStream = new InputStreamReader((process = Runtime.getRuntime().exec(dos)).getInputStream(), charset)) {
+		try (InputStreamReader inputStream = new InputStreamReader((process = Runtime.getRuntime().exec(dos)).getInputStream(), Charset.forName("GBK"))) {
 			result = IOUtils.streamToString(inputStream);
 			process.waitFor();
 		} catch (Exception e) {
