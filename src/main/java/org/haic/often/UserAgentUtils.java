@@ -14,8 +14,8 @@ import org.jetbrains.annotations.NotNull;
  * @since 2020/3/7 20:18
  */
 public class UserAgentUtils {
-	private static List<String> userAgentPCList = new ArrayList<>();
-	private static List<String> userAgentPEList = new ArrayList<>();
+	private static final List<String> userAgentPCList = new ArrayList<>();
+	private static final List<String> userAgentPEList = new ArrayList<>();
 
 	/**
 	 * 获取随机Agent
