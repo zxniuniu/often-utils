@@ -1,0 +1,6 @@
+<keymap version="1" name="Eclipse 副本" parent="Eclipse">
+  <action id="RevealIn">
+    <keyboard-shortcut first-keystroke="alt b" />
+    <mouse-shortcut keystroke="control button1" />
+  </action>
+</keymap>
