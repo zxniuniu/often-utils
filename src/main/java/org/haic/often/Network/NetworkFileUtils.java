@@ -567,6 +567,11 @@ public final class NetworkFileUtils {
 		return HttpStatus.SC_OK;
 	}
 
+	/**
+	 * 全量下载，下载获取文件信息并写入文件
+	 *
+	 * @return 下载并写入是否成功(状态码)
+	 */
 	private int writeFull() {
 		Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
 				.errorExit(errorExit).GetResponse();
@@ -579,13 +584,13 @@ public final class NetworkFileUtils {
 	}
 
 	/**
-	 * 下载获取文件区块信息并写入文件
+	 * 分块下载，下载获取文件区块信息并写入文件
 	 *
 	 * @param start
 	 *            块起始位
 	 * @param end
 	 *            块结束位
-	 * @return 下载并写入是否成功
+	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writePiece(int start, int end) {
 		String pointer = start + "-" + end;
