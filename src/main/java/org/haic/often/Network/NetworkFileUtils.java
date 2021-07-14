@@ -571,12 +571,7 @@ public final class NetworkFileUtils {
 		Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
 				.errorExit(errorExit).GetResponse();
 		try (BufferedInputStream bufferedInputStream = response.bodyStream(); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file))) {
-			byte[] buffer = new byte[bufferSize];
-			int readLenghth; // 实际读取的长度
-			// 文件逐步写入本地
-			while ((readLenghth = bufferedInputStream.read(buffer, 0, 1024)) != -1) {// 先读出来，保存在buffer数组中
-				bufferedOutputStream.write(buffer, 0, readLenghth);// 再从buffer中取出来保存到本地
-			}
+			IOUtils.copy(bufferedInputStream, bufferedOutputStream, bufferSize);
 		} catch (Exception e) {
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
