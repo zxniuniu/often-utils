@@ -1,9 +1,6 @@
 package org.haic.often.Network;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -498,7 +495,9 @@ public final class NetworkFileUtils {
 			if (file.isFile() && !down.exists()) {
 				return statusCode;
 			}
-			fileSize = Integer.parseInt(Objects.requireNonNull(response).header("Content-Length")); // 获取文件大小
+			// 获取文件大小
+			String contentLength = response.header("Content-Length");
+			fileSize = Judge.isEmpty(contentLength) ? 0 : Integer.parseInt(contentLength);
 			hash = response.header("X-COS-META-MD5"); // 获取文件MD5
 			if (down.isFile()) { // 读取down文件信息
 				downInfo = ReadWriteUtils.orgin(down).list();
@@ -513,11 +512,15 @@ public final class NetworkFileUtils {
 				ReadWriteUtils.orgin(down).text(fileInfo.toJSONString());
 			}
 		}
+		// 如果文件大小获取失败，使用全量下载模式
+		if (Judge.isEmpty(fileSize)) {
+			fullMode = true;
+		}
 		// 开始下载
 		FilesUtils.createFolder(folder);
 		if (fullMode) {
-			int statusCode = writePiece(0, fileSize - 1);
-			if (!URIUtils.statusIsOK(writePiece(0, fileSize - 1))) {
+			int statusCode = writeFull();
+			if (!URIUtils.statusIsOK(statusCode)) {
 				return statusCode;
 			}
 		} else {
@@ -561,6 +564,22 @@ public final class NetworkFileUtils {
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
 		down.delete(); // 删除信息文件
+		return HttpStatus.SC_OK;
+	}
+
+	private int writeFull() {
+		Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
+				.errorExit(errorExit).GetResponse();
+		try (BufferedInputStream bufferedInputStream = response.bodyStream(); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file))) {
+			byte[] buffer = new byte[bufferSize];
+			int readLenghth; // 实际读取的长度
+			// 文件逐步写入本地
+			while ((readLenghth = bufferedInputStream.read(buffer, 0, 1024)) != -1) {// 先读出来，保存在buffer数组中
+				bufferedOutputStream.write(buffer, 0, readLenghth);// 再从buffer中取出来保存到本地
+			}
+		} catch (Exception e) {
+			return HttpStatus.SC_REQUEST_TIMEOUT;
+		}
 		return HttpStatus.SC_OK;
 	}
 
