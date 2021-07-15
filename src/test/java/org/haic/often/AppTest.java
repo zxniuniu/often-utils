@@ -9,7 +9,6 @@ public class AppTest {
 	private static final int proxyPort = 7890;
 
 	public static void main(String[] args) {
-		String path = "F:\\Downloads\\123.down";
 	}
 
 }
