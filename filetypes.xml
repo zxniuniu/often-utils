@@ -3,6 +3,7 @@
     <extensionMap>
       <mapping pattern="ImageInfo" type="AUTO_DETECTED" />
       <mapping pattern="Pixiv_WhiteLabels" type="AUTO_DETECTED" />
+      <mapping pattern="Pixiv_AlreadyUsedId" type="AUTO_DETECTED" />
       <mapping pattern="Pixiv_RecordDate" type="AUTO_DETECTED" />
       <mapping pattern="Pixiv_UID" type="AUTO_DETECTED" />
       <mapping pattern="Pixiv_AuthorUIDs" type="AUTO_DETECTED" />
