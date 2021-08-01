@@ -53,7 +53,6 @@ public final class HtmlUnitUtils {
 	private HtmlUnitUtils() {
 		followRedirects = true;
 		headers.put("User-Agent", UserAgentUtils.randomPCUserAgent()); // 设置随机请求头
-		headers.put("accept-encoding", "gzip, deflate, br");
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 	}
 
