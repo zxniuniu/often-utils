@@ -1,7 +1,0 @@
-<application>
-  <component name="OverrideFileTypeManager">
-    <file url="file://F:/Project/IDEA/PngAcc/data/PixivData/Pixiv_AuthorUIDs" value="textmate" />
-    <file url="file://F:/Project/IDEA/PngAcc/data/PixivData/Pixiv_RecordDate" value="textmate" />
-    <file url="file://F:/Project/IDEA/PngAcc/data/PixivData/Pixiv_WhiteLabels" value="textmate" />
-  </component>
-</application>
