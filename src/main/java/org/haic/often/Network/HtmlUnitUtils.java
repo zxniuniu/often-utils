@@ -606,9 +606,7 @@ public final class HtmlUnitUtils {
 	public Page GetPage(final HttpMethod method) {
 		Page page = executeProgram(method);
 		for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
-			if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
-				MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
-			}
+			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
 			page = executeProgram(method);
 		}
 		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {

@@ -446,6 +446,7 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public int download(final @NotNull File folder) {
+		Response response = null;
 		JSONObject fileInfo = new JSONObject();
 		if (downMode) {
 			if (down.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
@@ -468,7 +469,7 @@ public final class NetworkFileUtils {
 			}
 		} else {
 			// 获取文件信息
-			Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
+			response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
 					.errorExit(errorExit).GetResponse();
 			// 获取URL连接状态
 			int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
@@ -512,15 +513,15 @@ public final class NetworkFileUtils {
 				ReadWriteUtils.orgin(down).text(fileInfo.toJSONString());
 			}
 		}
-		// 如果文件大小获取失败，使用全量下载模式
-		if (Judge.isEmpty(fileSize)) {
-			fullMode = true;
-		}
 		// 开始下载
+		fullMode = Judge.isEmpty(fileSize) || fullMode; // 如果文件大小获取失败，使用全量下载模式
 		FilesUtils.createFolder(folder);
 		if (fullMode) {
-			int statusCode = writeFull();
+			int statusCode = Judge.isNull(response) ? writeFull() : Judge.isEmpty(fileSize) ? writeFull(response) : writePiece(0, fileSize - 1);
 			if (!URIUtils.statusIsOK(statusCode)) {
+				if (errorExit) {
+					throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
+				}
 				return statusCode;
 			}
 		} else {
@@ -529,12 +530,15 @@ public final class NetworkFileUtils {
 			ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
 			for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
 				executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-					int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
+					int start = index * PIECE_MAX_SIZE;
+					int end = ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1;
+					if (downInfo.contains(start + "-" + end)) {
+						return;
+					}
+					int statusCode = writePiece(start, end);
 					for (int j = 0; !URIUtils.statusIsOK(statusCode) && (j < retry || unlimitedRetry); j++) {
-						if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
-							MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
-						}
-						statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
+						MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
+						statusCode = writePiece(start, end);
 					}
 					statusCodes.add(statusCode);
 					if (!URIUtils.statusIsOK(statusCode)) {
@@ -547,7 +551,7 @@ public final class NetworkFileUtils {
 			for (int statusCode : statusCodes) {
 				if (!URIUtils.statusIsOK(statusCode)) {
 					if (errorExit) {
-						throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
+						throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
 					}
 					return statusCode;
 				}
@@ -575,6 +579,17 @@ public final class NetworkFileUtils {
 	private int writeFull() {
 		Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
 				.errorExit(errorExit).GetResponse();
+		return writeFull(response);
+	}
+
+	/**
+	 * 全量下载，下载获取文件信息并写入文件
+	 *
+	 * @param response
+	 *            网页Response对象
+	 * @return 下载并写入是否成功(状态码)
+	 */
+	private int writeFull(Response response) {
 		try (BufferedInputStream bufferedInputStream = response.bodyStream(); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file))) {
 			IOUtils.copy(bufferedInputStream, bufferedOutputStream, bufferSize);
 		} catch (Exception e) {
@@ -593,30 +608,39 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writePiece(int start, int end) {
-		String pointer = start + "-" + end;
-		if (downInfo.contains(pointer)) {
-			return HttpStatus.SC_PARTIAL_CONTENT;
-		}
-		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer).GetResponse();
-		if (!Judge.isNull(piece)) {
-			if (URIUtils.statusIsOK(piece.statusCode())) {
-				try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
-					output.seek(start);
-					byte[] buffer = new byte[bufferSize];
-					int sum = 0;
-					for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); sum += length) {
-						output.write(buffer, 0, length);
-					}
-					if (end - start + 1 == sum) {
-						ReadWriteUtils.orgin(down).text(pointer);
-						return piece.statusCode();
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
+		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer).GetResponse();
+		return Judge.isNull(piece) ? HttpStatus.SC_REQUEST_TIMEOUT : writePiece(start, end, piece);
+	}
+
+	/**
+	 * 下载获取文件区块信息并写入文件
+	 *
+	 * @param start
+	 *            块起始位
+	 * @param end
+	 *            块结束位
+	 * @param piece
+	 *            块Response对象
+	 * @return 下载并写入是否成功(状态码)
+	 */
+	private int writePiece(int start, int end, Response piece) {
+		if (URIUtils.statusIsOK(piece.statusCode())) {
+			try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
+				output.seek(start);
+				byte[] buffer = new byte[bufferSize];
+				int count = 0;
+				for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); count += length) {
+					output.write(buffer, 0, length);
 				}
-			} else {
-				return piece.statusCode();
+				if (end - start + 1 == count) {
+					ReadWriteUtils.orgin(down).text(start + "-" + end);
+					return piece.statusCode();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+		} else {
+			return piece.statusCode();
 		}
 		return HttpStatus.SC_REQUEST_TIMEOUT;
 	}
