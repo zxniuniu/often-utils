@@ -460,9 +460,7 @@ public final class HttpsUtils {
 	public HttpsUtils execute(final HttpMethod method) {
 		int statusCode = executeProgram(method).statusCode();
 		for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
-			if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
-				MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
-			}
+			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
 			statusCode = executeProgram(method).statusCode();
 		}
 		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
