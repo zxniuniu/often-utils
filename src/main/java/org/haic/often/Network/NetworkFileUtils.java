@@ -47,7 +47,7 @@ public final class NetworkFileUtils {
 	private boolean fullMode; // 全量下载模式
 	private File file; // 文件
 	private File down; // dwon文件
-	private List<String> downInfo = new ArrayList<>(); // dwon文件信息
+	private List<String> infos = new ArrayList<>(); // 文件信息
 	private Map<String, String> headers = new HashMap<>(); // cookies
 	private Map<String, String> cookies = new HashMap<>(); // cookies
 
@@ -450,17 +450,17 @@ public final class NetworkFileUtils {
 		JSONObject fileInfo = new JSONObject();
 		if (downMode) {
 			if (down.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
-				downInfo = ReadWriteUtils.orgin(down).list();
-				fileInfo = JSONObject.parseObject(downInfo.get(0));
+				infos = ReadWriteUtils.orgin(down).list();
+				fileInfo = JSONObject.parseObject(infos.get(0));
 				url = fileInfo.getString("URL");
 				fileName = fileInfo.getString("fileName");
-				fileSize = fileInfo.getInteger("fileSize");
-				hash = fileInfo.getString("md5");
+				fileSize = fileInfo.getInteger("Content-Length");
+				hash = fileInfo.getString("X-COS-META-MD5");
 				if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
 					throw new RuntimeException("Info is error -> " + down);
 				}
 				file = new File(folder.getPath(), fileName); // 获取其file对象
-				downInfo.remove(0); // 删除信息行
+				infos.remove(0); // 删除信息行
 			} else { // down文件不存在，返回404错误
 				if (errorExit) { // 结束抛出
 					throw new RuntimeException("Not found or not is file " + down);
@@ -479,9 +479,8 @@ public final class NetworkFileUtils {
 			// 获取文件名
 			if (Judge.isEmpty(fileName)) {
 				String disposition = Objects.requireNonNull(response).header("Content-Disposition");
-				fileName = Judge.isNull(disposition) ? url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)
-						: disposition.substring(disposition.indexOf("filename=") + 10);
-				fileName = TranscodUtils.decodeByURL(fileName);
+				fileName = TranscodUtils.decodeByURL(Judge.isNull(disposition) ? url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)
+						: disposition.substring(disposition.indexOf("filename=") + 10));
 			}
 			// 文件名排除非法字符
 			fileName = FilesUtils.illegalFileName(fileName);
@@ -494,22 +493,22 @@ public final class NetworkFileUtils {
 			down = new File(folder.getPath(), fileName + ".down");
 			// 文件已存在，结束下载
 			if (file.isFile() && !down.exists()) {
-				return statusCode;
+				return HttpStatus.SC_OK;
 			}
 			// 获取文件大小
 			String contentLength = response.header("Content-Length");
 			fileSize = Judge.isEmpty(contentLength) ? 0 : Integer.parseInt(contentLength);
-			hash = response.header("X-COS-META-MD5"); // 获取文件MD5
+			hash = Judge.isEmpty(hash) ? response.header("X-COS-META-MD5") : hash; // 获取文件MD5
 			if (down.isFile()) { // 读取down文件信息
-				downInfo = ReadWriteUtils.orgin(down).list();
-				downInfo.remove(0); // 删除信息行
+				infos = ReadWriteUtils.orgin(down).list();
+				infos.remove(0); // 删除信息行
 			} else if (down.exists()) { // 文件存在但不是文件，抛出异常
 				throw new RuntimeException("Not is file " + down);
 			} else { // 创建并写入down文件信息
 				fileInfo.put("URL", url);
 				fileInfo.put("fileName", fileName);
-				fileInfo.put("fileSize", String.valueOf(fileSize));
-				fileInfo.put("md5", hash);
+				fileInfo.put("Content-Length", String.valueOf(fileSize));
+				fileInfo.put("X-COS-META-MD5", hash);
 				ReadWriteUtils.orgin(down).text(fileInfo.toJSONString());
 			}
 		}
@@ -532,7 +531,7 @@ public final class NetworkFileUtils {
 				executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
 					int start = index * PIECE_MAX_SIZE;
 					int end = ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1;
-					if (downInfo.contains(start + "-" + end)) {
+					if (infos.contains(start + "-" + end)) {
 						return;
 					}
 					int statusCode = writePiece(start, end);
