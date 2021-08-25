@@ -30,6 +30,6 @@ Aria2Utils.connect("127.0.0.1", 66553)  //地址以及端口
 .send(); //get()、post()
 
 文件压缩，简单示例  
-ZipUtils.origin(file).out(qq_tempfile).addFiles(mh_file);  
+ZipUtils.origin(file).out(qq_tempfile).addFiles(file);  
 文件解压，简单示例  
 ZipUtils.origin(file).charset("GBK").deCompress(temppath);  
