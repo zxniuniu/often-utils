@@ -1,10 +1,10 @@
 <application>
   <component name="FileTypeManager" version="18">
     <extensionMap>
-      <mapping pattern="Pixiv_WhiteLabels" type="AUTO_DETECTED" />
-      <mapping pattern="Yande_WhiteLabels" type="AUTO_DETECTED" />
       <mapping pattern="ImageInfo" type="AUTO_DETECTED" />
+      <mapping pattern="Pixiv_WhiteLabels" type="AUTO_DETECTED" />
       <mapping pattern="Pixiv_RecordDate" type="AUTO_DETECTED" />
+      <mapping pattern="Yande_WhiteLabels" type="AUTO_DETECTED" />
       <mapping ext="space.kts" type="Kotlin" />
       <mapping ext="gradle.kts" type="Kotlin" />
       <mapping ext="main.kts" type="Kotlin" />
