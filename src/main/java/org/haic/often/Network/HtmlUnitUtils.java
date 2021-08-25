@@ -53,7 +53,6 @@ public final class HtmlUnitUtils {
 	private HtmlUnitUtils() {
 		followRedirects = true;
 		headers.put("User-Agent", UserAgentUtils.randomPCUserAgent()); // 设置随机请求头
-		headers.put("accept-encoding", "gzip, deflate, br");
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 	}
 
@@ -607,9 +606,7 @@ public final class HtmlUnitUtils {
 	public Page GetPage(final HttpMethod method) {
 		Page page = executeProgram(method);
 		for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
-			if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
-				MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
-			}
+			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
 			page = executeProgram(method);
 		}
 		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {

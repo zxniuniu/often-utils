@@ -1,47 +1,35 @@
-Java常用工具类
+Java爬虫常用工具类
 
-时间：2021/7/14 14:33  
--NetworkFileUtils  
---修正全量重复下载BUG  
---改进全量下载方案  
---当无法获取文件大小时使用全量下载
+针对爬虫经常遇到的一些问题，设计的一个常用类。
 
-时间：2021/4/27 14:39  
--NetworkFileUtils  
---异步访问，解决多线程导致数据丢失问题  
---改进down存放url信息方式为为json  
---自动从请求头获取md5进行验证
+下载文件，NetworkFileUtils类简单示例  
+NetworkFileUtils.connect(url)  
+.filename("QQ")  //设置文件名，文件名会替换非法字符，不设置会自动获取文件名   
+.retry(4，1000)  //重试次数，以及重试等待间隔  
+.errorExit(true)  //下载失败抛出执行异常  
+.download(folder); //设置存放的文件夹
 
-时间：2021/4/24 14:27  
--NetworkFileUtils  
---修复文件下载未获取全部数据却返回成功的BUG  
---添加headers设置  
---改进多线程方案，默认单线程下载
+对jsoup专门设计了一个类，使其可以进行重试，简单示例  
+Document doc = JsoupUtils.connect(url)
+.timeout(1000)  
+.proxy(proxyHost, proxyPort)  
+.retry(MAX_RETRY, MILLISECONDS_SLEEP)  //重试次数，以及重试等待间隔  
+.errorExit(errorExit)  //抛出执行异常  
+.GetDocument();
 
-时间：2021/4/19 21:56  
--HtmlUnitUtils  
--HttpsUtils  
--JsonUtils  
---为Network工具类构造参数添加accept-encoding请求头属性
+对应文件读写ReadWriteUtils类，简单示例  
+String str = ReadWriteUtils.orgin(filePath).text(); //读取文件文本  
+List<String> lists = ReadWriteUtils.orgin(filePath).list(); //按行读取文件文本  
+ReadWriteUtils.orgin(filePath).text(str); //字符串按行写入文本
 
-时间：2021/4/18 15:34  
--ReadWriteUtils  
---增加二进制文件读写
+对于调用Aria2的Aria2Utils类，简单示例  
+Aria2Utils.connect("127.0.0.1", 66553)  //地址以及端口  
+.addUrl(url)  //添加url  
+.setToken("12345")  //设置token  
+.setProxy(); //为所有链接添加代理  
+.send(); //get()、post()
 
-时间：2021/4/18 15:22  
--NetworkFileUtils  
---改进down文件配置参数  
---使用down文件可以直接断点续传
-
-时间：2021/4/18 4:18  
--NetworkFileUtils  
---修改为多线程下载  
---下载项增加断点续传  
---改进文件名获取方式  
---增加md5验证文件完整性
-
-时间：2021/4/15 3:27  
--ReadWriteUtils  
---将ReadFilesInfo和WriteFilesInfo合并并修改为工具类  
---增加RandomAccessFile、FileChannel、MappedByteBuffer读写方式  
---增加FileChannel、MappedByteBuffer方式文件复制，支持文件合并  
+文件压缩，简单示例  
+ZipUtils.origin(file).out(qq_tempfile).addFiles(file);  
+文件解压，简单示例  
+ZipUtils.origin(file).charset("GBK").deCompress(temppath);  

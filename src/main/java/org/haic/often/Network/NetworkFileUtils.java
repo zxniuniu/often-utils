@@ -22,7 +22,7 @@ import net.lingala.zip4j.model.enums.RandomAccessFileMode;
  * 网络文件 工具类
  *
  * @author haicdust
- * @version 1.8
+ * @version 1.8.1
  * @since 2020/2/25 18:45
  */
 public final class NetworkFileUtils {
@@ -43,11 +43,11 @@ public final class NetworkFileUtils {
 	private int interval; // 异步访问间隔
 	private boolean unlimitedRetry;// 请求异常无限重试
 	private boolean errorExit; // 错误退出
-	private boolean downMode; // 使用down文件下载
-	private boolean fullMode; // 全量下载模式
-	private File file; // 文件
-	private File down; // dwon文件
-	private List<String> downInfo = new ArrayList<>(); // dwon文件信息
+	private boolean fileDownloadMode; // 使用配置文件下载
+	private boolean fullDownloadMode; // 使用全量下载模式
+	private File storage; // 本地存储文件
+	private File conf; // 配置信息文件
+	private List<String> infos = new ArrayList<>(); // 文件信息
 	private Map<String, String> headers = new HashMap<>(); // cookies
 	private Map<String, String> cookies = new HashMap<>(); // cookies
 
@@ -86,42 +86,42 @@ public final class NetworkFileUtils {
 	}
 
 	/**
-	 * 获取新的NetworkFileUtils对象并设置down文件<br/>
-	 * down -> 包含待下载文件的下载信息的文件
+	 * 获取新的NetworkFileUtils对象并设置配置文件<br/>
+	 * 配置文件 -> 包含待下载文件的下载信息的文件
 	 *
-	 * @param down
+	 * @param conf
 	 *            down文件
 	 * @return new NetworkFileUtils
 	 */
 	@Contract(pure = true)
-	public static NetworkFileUtils down(final String down) {
-		return down(new File(down));
+	public static NetworkFileUtils file(final String conf) {
+		return file(new File(conf));
 	}
 
 	/**
-	 * 获取新的NetworkFileUtils对象并设置down文件<br/>
-	 * down -> 包含待下载文件的下载信息的文件
+	 * 获取新的NetworkFileUtils对象并设置配置文件<br/>
+	 * 配置文件 -> 包含待下载文件的下载信息的文件
 	 *
-	 * @param down
+	 * @param conf
 	 *            down文件
 	 * @return new NetworkFileUtils
 	 */
 	@Contract(pure = true)
-	public static NetworkFileUtils down(final File down) {
-		return config().setDown(down);
+	public static NetworkFileUtils file(final File conf) {
+		return config().setConf(conf);
 	}
 
 	/**
-	 * 设置 down文件
+	 * 设置 配置文件
 	 *
-	 * @param down
-	 *            down文件
+	 * @param conf
+	 *            配置文件
 	 * @return this
 	 */
 	@Contract(pure = true)
-	public NetworkFileUtils setDown(final File down) {
-		this.downMode = true;
-		this.down = down;
+	public NetworkFileUtils setConf(final File conf) {
+		this.fileDownloadMode = true;
+		this.conf = conf;
 		return this;
 	}
 
@@ -142,7 +142,7 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public NetworkFileUtils fullMode(final boolean fullMode) {
-		this.fullMode = fullMode;
+		this.fullDownloadMode = fullMode;
 		return this;
 	}
 
@@ -446,29 +446,27 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public int download(final @NotNull File folder) {
+		Response response = null;
 		JSONObject fileInfo = new JSONObject();
-		if (downMode) {
-			if (down.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
-				downInfo = ReadWriteUtils.orgin(down).list();
-				fileInfo = JSONObject.parseObject(downInfo.get(0));
+		if (fileDownloadMode) {
+			if (conf.isFile()) { // 如果设置配置文件下载，并且配置文件存在，获取信息
+				infos = ReadWriteUtils.orgin(conf).list();
+				fileInfo = JSONObject.parseObject(infos.get(0));
 				url = fileInfo.getString("URL");
 				fileName = fileInfo.getString("fileName");
-				fileSize = fileInfo.getInteger("fileSize");
-				hash = fileInfo.getString("md5");
+				fileSize = fileInfo.getInteger("Content-Length");
+				hash = fileInfo.getString("X-COS-META-MD5");
 				if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
-					throw new RuntimeException("Info is error -> " + down);
+					throw new RuntimeException("Info is error -> " + conf);
 				}
-				file = new File(folder.getPath(), fileName); // 获取其file对象
-				downInfo.remove(0); // 删除信息行
-			} else { // down文件不存在，返回404错误
-				if (errorExit) { // 结束抛出
-					throw new RuntimeException("Not found or not is file " + down);
-				}
-				return HttpStatus.SC_NOT_FOUND;
+				storage = new File(folder.getPath(), fileName); // 获取其file对象
+				infos.remove(0); // 删除信息行
+			} else { // 配置文件不存在，抛出异常
+				throw new RuntimeException("Not found or not is file " + conf);
 			}
 		} else {
 			// 获取文件信息
-			Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
+			response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
 					.errorExit(errorExit).GetResponse();
 			// 获取URL连接状态
 			int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
@@ -478,9 +476,8 @@ public final class NetworkFileUtils {
 			// 获取文件名
 			if (Judge.isEmpty(fileName)) {
 				String disposition = Objects.requireNonNull(response).header("Content-Disposition");
-				fileName = Judge.isNull(disposition) ? url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)
-						: disposition.substring(disposition.indexOf("filename=") + 10);
-				fileName = TranscodUtils.decodeByURL(fileName);
+				fileName = TranscodUtils.decodeByURL(Judge.isNull(disposition) ? url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)
+						: disposition.substring(disposition.indexOf("filename=") + 10));
 			}
 			// 文件名排除非法字符
 			fileName = FilesUtils.illegalFileName(fileName);
@@ -488,39 +485,43 @@ public final class NetworkFileUtils {
 			if (fileName.length() > 200) {
 				throw new RuntimeException("URL: " + url + " Error: File name length is greater than 200");
 			}
-			// 获取待下载文件和down文件对象
-			file = new File(folder.getPath(), fileName); // 获取其file对象
-			down = new File(folder.getPath(), fileName + ".down");
+			// 获取待下载文件和配置文件对象
+			storage = new File(folder.getPath(), fileName); // 获取其file对象
+			// 配置信息文件后缀
+			conf = new File(folder.getPath(), fileName + ".haic");
 			// 文件已存在，结束下载
-			if (file.isFile() && !down.exists()) {
-				return statusCode;
+			if (storage.isFile() && !conf.exists()) {
+				return HttpStatus.SC_OK;
 			}
 			// 获取文件大小
 			String contentLength = response.header("Content-Length");
 			fileSize = Judge.isEmpty(contentLength) ? 0 : Integer.parseInt(contentLength);
-			hash = response.header("X-COS-META-MD5"); // 获取文件MD5
-			if (down.isFile()) { // 读取down文件信息
-				downInfo = ReadWriteUtils.orgin(down).list();
-				downInfo.remove(0); // 删除信息行
-			} else if (down.exists()) { // 文件存在但不是文件，抛出异常
-				throw new RuntimeException("Not is file " + down);
-			} else { // 创建并写入down文件信息
+			hash = Judge.isEmpty(hash) ? response.header("X-COS-META-MD5") : hash; // 获取文件MD5
+			if (conf.isFile()) { // 读取文件配置信息
+				infos = ReadWriteUtils.orgin(conf).list();
+				infos.remove(0); // 删除信息行
+			} else if (conf.exists()) { // 文件存在但不是文件，抛出异常
+				throw new RuntimeException("Not is file " + conf);
+			} else { // 创建并写入文件配置信息
 				fileInfo.put("URL", url);
 				fileInfo.put("fileName", fileName);
-				fileInfo.put("fileSize", String.valueOf(fileSize));
-				fileInfo.put("md5", hash);
-				ReadWriteUtils.orgin(down).text(fileInfo.toJSONString());
+				fileInfo.put("Content-Length", String.valueOf(fileSize));
+				fileInfo.put("X-COS-META-MD5", hash);
+				ReadWriteUtils.orgin(conf).text(fileInfo.toJSONString());
+				if (!ReadWriteUtils.orgin(conf).text(fileInfo.toJSONString())) {
+					throw new RuntimeException("Configuration file creation failed");
+				}
 			}
 		}
-		// 如果文件大小获取失败，使用全量下载模式
-		if (Judge.isEmpty(fileSize)) {
-			fullMode = true;
-		}
 		// 开始下载
+		fullDownloadMode = Judge.isEmpty(fileSize) || fullDownloadMode; // 如果文件大小获取失败，使用全量下载模式
 		FilesUtils.createFolder(folder);
-		if (fullMode) {
-			int statusCode = writeFull();
+		if (fullDownloadMode) {
+			int statusCode = Judge.isNull(response) ? writeFull() : Judge.isEmpty(fileSize) ? writeFull(response) : writePiece(0, fileSize - 1);
 			if (!URIUtils.statusIsOK(statusCode)) {
+				if (errorExit) {
+					throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
+				}
 				return statusCode;
 			}
 		} else {
@@ -529,12 +530,15 @@ public final class NetworkFileUtils {
 			ExecutorService executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
 			for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
 				executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-					int statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
+					int start = index * PIECE_MAX_SIZE;
+					int end = ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1;
+					if (infos.contains(start + "-" + end)) {
+						return;
+					}
+					int statusCode = writePiece(start, end);
 					for (int j = 0; !URIUtils.statusIsOK(statusCode) && (j < retry || unlimitedRetry); j++) {
-						if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
-							MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
-						}
-						statusCode = writePiece(index * PIECE_MAX_SIZE, ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1);
+						MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
+						statusCode = writePiece(start, end);
 					}
 					statusCodes.add(statusCode);
 					if (!URIUtils.statusIsOK(statusCode)) {
@@ -547,7 +551,7 @@ public final class NetworkFileUtils {
 			for (int statusCode : statusCodes) {
 				if (!URIUtils.statusIsOK(statusCode)) {
 					if (errorExit) {
-						throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
+						throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
 					}
 					return statusCode;
 				}
@@ -555,15 +559,17 @@ public final class NetworkFileUtils {
 		}
 		// 效验文件完整性
 		String md5;
-		if (!Judge.isEmpty(hash) && !(md5 = FilesUtils.GetMD5(file)).equals(hash)) {
-			file.delete(); // 删除下载错误的文件
-			ReadWriteUtils.orgin(down).append(false).text(fileInfo.toJSONString()); // 重置信息文件
+		if (!Judge.isEmpty(hash) && !(md5 = FilesUtils.GetMD5(storage)).equals(hash)) {
+			storage.delete(); // 删除下载错误的文件
+			if (!ReadWriteUtils.orgin(conf).append(false).text(fileInfo.toJSONString())) { // 重置信息文件
+				throw new RuntimeException("Configuration file reset information failed");
+			}
 			if (errorExit) {
 				throw new RuntimeException("文件效验不正确，URL md5:" + hash + " 本地文件 md5: " + md5 + " URL: " + url);
 			}
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
-		down.delete(); // 删除信息文件
+		conf.delete(); // 删除信息文件
 		return HttpStatus.SC_OK;
 	}
 
@@ -575,7 +581,18 @@ public final class NetworkFileUtils {
 	private int writeFull() {
 		Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
 				.errorExit(errorExit).GetResponse();
-		try (BufferedInputStream bufferedInputStream = response.bodyStream(); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file))) {
+		return writeFull(response);
+	}
+
+	/**
+	 * 全量下载，下载获取文件信息并写入文件
+	 *
+	 * @param response
+	 *            网页Response对象
+	 * @return 下载并写入是否成功(状态码)
+	 */
+	private int writeFull(Response response) {
+		try (BufferedInputStream bufferedInputStream = response.bodyStream(); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(storage))) {
 			IOUtils.copy(bufferedInputStream, bufferedOutputStream, bufferSize);
 		} catch (Exception e) {
 			return HttpStatus.SC_REQUEST_TIMEOUT;
@@ -593,30 +610,39 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writePiece(int start, int end) {
-		String pointer = start + "-" + end;
-		if (downInfo.contains(pointer)) {
-			return HttpStatus.SC_PARTIAL_CONTENT;
-		}
-		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + pointer).cookies(cookies).referrer(referrer).GetResponse();
-		if (!Judge.isNull(piece)) {
-			if (URIUtils.statusIsOK(piece.statusCode())) {
-				try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
-					output.seek(start);
-					byte[] buffer = new byte[bufferSize];
-					int sum = 0;
-					for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); sum += length) {
-						output.write(buffer, 0, length);
-					}
-					if (end - start + 1 == sum) {
-						ReadWriteUtils.orgin(down).text(pointer);
-						return piece.statusCode();
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
+		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer).GetResponse();
+		return Judge.isNull(piece) ? HttpStatus.SC_REQUEST_TIMEOUT : writePiece(start, end, piece);
+	}
+
+	/**
+	 * 下载获取文件区块信息并写入文件
+	 *
+	 * @param start
+	 *            块起始位
+	 * @param end
+	 *            块结束位
+	 * @param piece
+	 *            块Response对象
+	 * @return 下载并写入是否成功(状态码)
+	 */
+	private int writePiece(int start, int end, Response piece) {
+		if (URIUtils.statusIsOK(piece.statusCode())) {
+			try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
+				output.seek(start);
+				byte[] buffer = new byte[bufferSize];
+				int count = 0;
+				for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); count += length) {
+					output.write(buffer, 0, length);
 				}
-			} else {
-				return piece.statusCode();
+				if (end - start + 1 == count) {
+					ReadWriteUtils.orgin(conf).text(start + "-" + end);
+					return piece.statusCode();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+		} else {
+			return piece.statusCode();
 		}
 		return HttpStatus.SC_REQUEST_TIMEOUT;
 	}

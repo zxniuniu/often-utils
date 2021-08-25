@@ -134,19 +134,21 @@ public final class ReadWriteUtils {
 
 	/**
 	 * 将数组合为一行写入文件
-	 *
+	 * 
 	 * @param lists
 	 *            字符串数组
+	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public void listToText(final @NotNull List<String> lists) {
+	public boolean listToText(final @NotNull List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(StringUtils.join(lists, StringUtils.SPACE) + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
 			outStream.flush();
 		} catch (final IOException e) {
-			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	/**
@@ -154,16 +156,18 @@ public final class ReadWriteUtils {
 	 *
 	 * @param str
 	 *            字符串
+	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public void text(final @NotNull String str) {
+	public boolean text(final @NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(str + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
 			outStream.flush();
 		} catch (final IOException e) {
-			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	/**
@@ -171,26 +175,29 @@ public final class ReadWriteUtils {
 	 *
 	 * @param lists
 	 *            字符串数组
+	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public void list(final @NotNull List<String> lists) {
+	public boolean list(final @NotNull List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(lists.parallelStream().collect(Collectors.joining(StringUtils.LINE_SEPARATOR)) + StringUtils.LINE_SEPARATOR);
 			outStream.flush();
 		} catch (final IOException e) {
-			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	/**
 	 * 将字符串写入二进制文件
-	 *
+	 * 
 	 * @param str
 	 *            字符串
+	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public void binary(final @NotNull String str) {
+	public boolean binary(final @NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (DataOutputStream outStream = new DataOutputStream(new FileOutputStream(source, append))) {
 			for (byte b : (str + StringUtils.LF).getBytes()) {
@@ -198,18 +205,20 @@ public final class ReadWriteUtils {
 			}
 			outStream.flush();
 		} catch (final IOException e) {
-			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	/**
 	 * RandomAccessFile 写入文本
-	 *
+	 * 
 	 * @param str
 	 *            字符串
+	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public void randomAccessText(final @NotNull String str) {
+	public boolean randomAccessText(final @NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (RandomAccessFile randomAccess = new RandomAccessFile(source, RandomAccessFileMode.WRITE.getValue())) {
 			if (append) {
@@ -217,34 +226,38 @@ public final class ReadWriteUtils {
 			}
 			randomAccess.write((str + StringUtils.LINE_SEPARATOR).getBytes(charset));
 		} catch (IOException e) {
-			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	/**
 	 * FileChannel 写入文件文本
-	 *
+	 * 
 	 * @param str
 	 *            字符串
+	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public void channelText(final @NotNull String str) {
+	public boolean channelText(final @NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (FileChannel channel = new FileOutputStream(source, append).getChannel()) {
 			channel.write(ByteBuffer.wrap((str + StringUtils.LINE_SEPARATOR).getBytes(charset)));
 		} catch (IOException e) {
-			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	/**
 	 * MappedByteBuffer 内存映射方法写入文件文本
-	 *
+	 * 
 	 * @param str
 	 *            字符串
+	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public void mappedText(String str) {
+	public boolean mappedText(String str) {
 		FilesUtils.createFolder(source.getParent());
 		byte[] params = (str + StringUtils.LINE_SEPARATOR).getBytes(charset);
 		MappedByteBuffer mappedByteBuffer;
@@ -253,42 +266,45 @@ public final class ReadWriteUtils {
 				mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, source.length(), params.length);
 				mappedByteBuffer.put(params);
 			} catch (IOException e) {
-				e.printStackTrace();
+				return false;
 			}
 		} else {
 			try (FileChannel fileChannel = FileChannel.open(source.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
 				mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, params.length);
 				mappedByteBuffer.put(params);
 			} catch (IOException e) {
-				e.printStackTrace();
+				return false;
 			}
 		}
-
+		return true;
 	}
 
 	/**
 	 * FileChannel 文件复制
-	 *
+	 * 
 	 * @param out
 	 *            指定输出文件
+	 * @return 文件复制状态
 	 */
-	public void channelCopy(String out) {
-		channelCopy(new File(out));
+	public boolean channelCopy(String out) {
+		return channelCopy(new File(out));
 	}
 
 	/**
 	 * FileChannel 文件复制
-	 *
+	 * 
 	 * @param out
 	 *            指定输出文件
+	 * @return 文件复制状态
 	 */
-	public void channelCopy(File out) {
+	public boolean channelCopy(File out) {
 		FilesUtils.createFolder(out.getParent());
 		try (FileChannel inputChannel = new FileInputStream(source).getChannel(); FileChannel outputChannel = new FileOutputStream(out).getChannel()) {
 			outputChannel.transferFrom(inputChannel, append ? out.length() : 0, inputChannel.size());
 		} catch (IOException e) {
-			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	/**
@@ -296,18 +312,20 @@ public final class ReadWriteUtils {
 	 *
 	 * @param out
 	 *            指定输出文件路径
+	 * @return 文件复制状态
 	 */
-	public void mappedCopy(String out) {
-		mappedCopy(new File(out));
+	public boolean mappedCopy(String out) {
+		return mappedCopy(new File(out));
 	}
 
 	/**
 	 * MappedByteBuffer 文件复制
 	 *
 	 * @param out
-	 *            指定输出文件
+	 *            指定输出文件路径
+	 * @return 文件复制状态
 	 */
-	public void mappedCopy(File out) {
+	public boolean mappedCopy(File out) {
 		FilesUtils.createFolder(out.getParent());
 		try (FileChannel inputChannel = new RandomAccessFile(source, RandomAccessFileMode.READ.getValue()).getChannel();
 				FileChannel outChannel = new RandomAccessFile(out, RandomAccessFileMode.WRITE.getValue()).getChannel()) {
@@ -322,8 +340,9 @@ public final class ReadWriteUtils {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	// ================================================== ReadUtils ==================================================

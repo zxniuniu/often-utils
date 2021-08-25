@@ -52,7 +52,6 @@ public final class JsoupUtils {
 
 	private JsoupUtils() {
 		followRedirects = true;
-		headers.put("accept-encoding", "gzip, deflate, br");
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 	}
 
@@ -569,9 +568,7 @@ public final class JsoupUtils {
 		Response response = executeProgram(method);
 		int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : Objects.requireNonNull(response).statusCode();
 		for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
-			if (!Judge.isEmpty(MILLISECONDS_SLEEP)) {
-				MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
-			}
+			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
 			response = executeProgram(method);
 			statusCode = Judge.isNull(response) ? statusCode : Objects.requireNonNull(response).statusCode();
 		}
