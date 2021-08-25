@@ -45,8 +45,8 @@ public final class NetworkFileUtils {
 	private boolean errorExit; // 错误退出
 	private boolean fileDownloadMode; // 使用配置文件下载
 	private boolean fullDownloadMode; // 使用全量下载模式
-	private File storageFile; // 本地存储文件
-	private File ConfigurationFile; // 配置信息文件
+	private File storage; // 本地存储文件
+	private File conf; // 配置信息文件
 	private List<String> infos = new ArrayList<>(); // 文件信息
 	private Map<String, String> headers = new HashMap<>(); // cookies
 	private Map<String, String> cookies = new HashMap<>(); // cookies
@@ -86,42 +86,42 @@ public final class NetworkFileUtils {
 	}
 
 	/**
-	 * 获取新的NetworkFileUtils对象并设置down文件<br/>
-	 * down -> 包含待下载文件的下载信息的文件
+	 * 获取新的NetworkFileUtils对象并设置配置文件<br/>
+	 * 配置文件 -> 包含待下载文件的下载信息的文件
 	 *
-	 * @param down
+	 * @param conf
 	 *            down文件
 	 * @return new NetworkFileUtils
 	 */
 	@Contract(pure = true)
-	public static NetworkFileUtils file(final String down) {
-		return file(new File(down));
+	public static NetworkFileUtils file(final String conf) {
+		return file(new File(conf));
 	}
 
 	/**
-	 * 获取新的NetworkFileUtils对象并设置down文件<br/>
-	 * down -> 包含待下载文件的下载信息的文件
+	 * 获取新的NetworkFileUtils对象并设置配置文件<br/>
+	 * 配置文件 -> 包含待下载文件的下载信息的文件
 	 *
-	 * @param down
+	 * @param conf
 	 *            down文件
 	 * @return new NetworkFileUtils
 	 */
 	@Contract(pure = true)
-	public static NetworkFileUtils file(final File down) {
-		return config().setConfigurationFile(down);
+	public static NetworkFileUtils file(final File conf) {
+		return config().setConf(conf);
 	}
 
 	/**
-	 * 设置 down文件
+	 * 设置 配置文件
 	 *
-	 * @param configurationFile
-	 *            down文件
+	 * @param conf
+	 *            配置文件
 	 * @return this
 	 */
 	@Contract(pure = true)
-	public NetworkFileUtils setConfigurationFile(final File configurationFile) {
+	public NetworkFileUtils setConf(final File conf) {
 		this.fileDownloadMode = true;
-		this.ConfigurationFile = configurationFile;
+		this.conf = conf;
 		return this;
 	}
 
@@ -449,20 +449,20 @@ public final class NetworkFileUtils {
 		Response response = null;
 		JSONObject fileInfo = new JSONObject();
 		if (fileDownloadMode) {
-			if (ConfigurationFile.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
-				infos = ReadWriteUtils.orgin(ConfigurationFile).list();
+			if (conf.isFile()) { // 如果设置配置文件下载，并且配置文件存在，获取信息
+				infos = ReadWriteUtils.orgin(conf).list();
 				fileInfo = JSONObject.parseObject(infos.get(0));
 				url = fileInfo.getString("URL");
 				fileName = fileInfo.getString("fileName");
 				fileSize = fileInfo.getInteger("Content-Length");
 				hash = fileInfo.getString("X-COS-META-MD5");
 				if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
-					throw new RuntimeException("Info is error -> " + ConfigurationFile);
+					throw new RuntimeException("Info is error -> " + conf);
 				}
-				storageFile = new File(folder.getPath(), fileName); // 获取其file对象
+				storage = new File(folder.getPath(), fileName); // 获取其file对象
 				infos.remove(0); // 删除信息行
 			} else { // 配置文件不存在，抛出异常
-				throw new RuntimeException("Not found or not is file " + ConfigurationFile);
+				throw new RuntimeException("Not found or not is file " + conf);
 			}
 		} else {
 			// 获取文件信息
@@ -485,30 +485,30 @@ public final class NetworkFileUtils {
 			if (fileName.length() > 200) {
 				throw new RuntimeException("URL: " + url + " Error: File name length is greater than 200");
 			}
-			// 获取待下载文件和down文件对象
-			storageFile = new File(folder.getPath(), fileName); // 获取其file对象
+			// 获取待下载文件和配置文件对象
+			storage = new File(folder.getPath(), fileName); // 获取其file对象
 			// 配置信息文件后缀
-			ConfigurationFile = new File(folder.getPath(), fileName + ".haic");
+			conf = new File(folder.getPath(), fileName + ".haic");
 			// 文件已存在，结束下载
-			if (storageFile.isFile() && !ConfigurationFile.exists()) {
+			if (storage.isFile() && !conf.exists()) {
 				return HttpStatus.SC_OK;
 			}
 			// 获取文件大小
 			String contentLength = response.header("Content-Length");
 			fileSize = Judge.isEmpty(contentLength) ? 0 : Integer.parseInt(contentLength);
 			hash = Judge.isEmpty(hash) ? response.header("X-COS-META-MD5") : hash; // 获取文件MD5
-			if (ConfigurationFile.isFile()) { // 读取文件配置信息
-				infos = ReadWriteUtils.orgin(ConfigurationFile).list();
+			if (conf.isFile()) { // 读取文件配置信息
+				infos = ReadWriteUtils.orgin(conf).list();
 				infos.remove(0); // 删除信息行
-			} else if (ConfigurationFile.exists()) { // 文件存在但不是文件，抛出异常
-				throw new RuntimeException("Not is file " + ConfigurationFile);
+			} else if (conf.exists()) { // 文件存在但不是文件，抛出异常
+				throw new RuntimeException("Not is file " + conf);
 			} else { // 创建并写入文件配置信息
 				fileInfo.put("URL", url);
 				fileInfo.put("fileName", fileName);
 				fileInfo.put("Content-Length", String.valueOf(fileSize));
 				fileInfo.put("X-COS-META-MD5", hash);
-				ReadWriteUtils.orgin(ConfigurationFile).text(fileInfo.toJSONString());
-				if (!ReadWriteUtils.orgin(ConfigurationFile).text(fileInfo.toJSONString())) {
+				ReadWriteUtils.orgin(conf).text(fileInfo.toJSONString());
+				if (!ReadWriteUtils.orgin(conf).text(fileInfo.toJSONString())) {
 					throw new RuntimeException("Configuration file creation failed");
 				}
 			}
@@ -559,9 +559,9 @@ public final class NetworkFileUtils {
 		}
 		// 效验文件完整性
 		String md5;
-		if (!Judge.isEmpty(hash) && !(md5 = FilesUtils.GetMD5(storageFile)).equals(hash)) {
-			storageFile.delete(); // 删除下载错误的文件
-			if (!ReadWriteUtils.orgin(ConfigurationFile).append(false).text(fileInfo.toJSONString())) { // 重置信息文件
+		if (!Judge.isEmpty(hash) && !(md5 = FilesUtils.GetMD5(storage)).equals(hash)) {
+			storage.delete(); // 删除下载错误的文件
+			if (!ReadWriteUtils.orgin(conf).append(false).text(fileInfo.toJSONString())) { // 重置信息文件
 				throw new RuntimeException("Configuration file reset information failed");
 			}
 			if (errorExit) {
@@ -569,7 +569,7 @@ public final class NetworkFileUtils {
 			}
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
-		ConfigurationFile.delete(); // 删除信息文件
+		conf.delete(); // 删除信息文件
 		return HttpStatus.SC_OK;
 	}
 
@@ -592,7 +592,7 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writeFull(Response response) {
-		try (BufferedInputStream bufferedInputStream = response.bodyStream(); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(storageFile))) {
+		try (BufferedInputStream bufferedInputStream = response.bodyStream(); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(storage))) {
 			IOUtils.copy(bufferedInputStream, bufferedOutputStream, bufferSize);
 		} catch (Exception e) {
 			return HttpStatus.SC_REQUEST_TIMEOUT;
@@ -627,7 +627,7 @@ public final class NetworkFileUtils {
 	 */
 	private int writePiece(int start, int end, Response piece) {
 		if (URIUtils.statusIsOK(piece.statusCode())) {
-			try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storageFile, RandomAccessFileMode.WRITE.getValue())) {
+			try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
 				output.seek(start);
 				byte[] buffer = new byte[bufferSize];
 				int count = 0;
@@ -635,7 +635,7 @@ public final class NetworkFileUtils {
 					output.write(buffer, 0, length);
 				}
 				if (end - start + 1 == count) {
-					ReadWriteUtils.orgin(ConfigurationFile).text(start + "-" + end);
+					ReadWriteUtils.orgin(conf).text(start + "-" + end);
 					return piece.statusCode();
 				}
 			} catch (IOException e) {
