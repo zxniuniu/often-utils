@@ -24,7 +24,12 @@ ReadWriteUtils.orgin(filePath).text(str); //字符串按行写入文本
 
 对于调用Aria2的Aria2Utils类，简单示例  
 Aria2Utils.connect("127.0.0.1", 66553)  //地址以及端口  
-.addUrl("https:\\www.qq.com")  //添加url  
+.addUrl(url)  //添加url  
 .setToken("12345")  //设置token  
 .setProxy(); //为所有链接添加代理  
 .send(); //get()、post()
+
+文件压缩，简单示例  
+ZipUtils.origin(file).out(qq_tempfile).addFiles(mh_file);  
+文件解压，简单示例  
+ZipUtils.origin(file).charset("GBK").deCompress(temppath);  
