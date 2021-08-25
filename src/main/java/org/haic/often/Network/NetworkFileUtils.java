@@ -22,7 +22,7 @@ import net.lingala.zip4j.model.enums.RandomAccessFileMode;
  * 网络文件 工具类
  *
  * @author haicdust
- * @version 1.8
+ * @version 1.8.1
  * @since 2020/2/25 18:45
  */
 public final class NetworkFileUtils {
@@ -43,10 +43,10 @@ public final class NetworkFileUtils {
 	private int interval; // 异步访问间隔
 	private boolean unlimitedRetry;// 请求异常无限重试
 	private boolean errorExit; // 错误退出
-	private boolean downMode; // 使用down文件下载
-	private boolean fullMode; // 全量下载模式
-	private File file; // 文件
-	private File down; // dwon文件
+	private boolean fileDownloadMode; // 使用配置文件下载
+	private boolean fullDownloadMode; // 使用全量下载模式
+	private File storageFile; // 本地存储文件
+	private File ConfigurationFile; // 配置信息文件
 	private List<String> infos = new ArrayList<>(); // 文件信息
 	private Map<String, String> headers = new HashMap<>(); // cookies
 	private Map<String, String> cookies = new HashMap<>(); // cookies
@@ -94,8 +94,8 @@ public final class NetworkFileUtils {
 	 * @return new NetworkFileUtils
 	 */
 	@Contract(pure = true)
-	public static NetworkFileUtils down(final String down) {
-		return down(new File(down));
+	public static NetworkFileUtils file(final String down) {
+		return file(new File(down));
 	}
 
 	/**
@@ -107,21 +107,21 @@ public final class NetworkFileUtils {
 	 * @return new NetworkFileUtils
 	 */
 	@Contract(pure = true)
-	public static NetworkFileUtils down(final File down) {
-		return config().setDown(down);
+	public static NetworkFileUtils file(final File down) {
+		return config().setConfigurationFile(down);
 	}
 
 	/**
 	 * 设置 down文件
 	 *
-	 * @param down
+	 * @param configurationFile
 	 *            down文件
 	 * @return this
 	 */
 	@Contract(pure = true)
-	public NetworkFileUtils setDown(final File down) {
-		this.downMode = true;
-		this.down = down;
+	public NetworkFileUtils setConfigurationFile(final File configurationFile) {
+		this.fileDownloadMode = true;
+		this.ConfigurationFile = configurationFile;
 		return this;
 	}
 
@@ -142,7 +142,7 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true)
 	public NetworkFileUtils fullMode(final boolean fullMode) {
-		this.fullMode = fullMode;
+		this.fullDownloadMode = fullMode;
 		return this;
 	}
 
@@ -448,24 +448,21 @@ public final class NetworkFileUtils {
 	public int download(final @NotNull File folder) {
 		Response response = null;
 		JSONObject fileInfo = new JSONObject();
-		if (downMode) {
-			if (down.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
-				infos = ReadWriteUtils.orgin(down).list();
+		if (fileDownloadMode) {
+			if (ConfigurationFile.isFile()) { // 如果设置down文件下载，并且down文件存在，获取信息
+				infos = ReadWriteUtils.orgin(ConfigurationFile).list();
 				fileInfo = JSONObject.parseObject(infos.get(0));
 				url = fileInfo.getString("URL");
 				fileName = fileInfo.getString("fileName");
 				fileSize = fileInfo.getInteger("Content-Length");
 				hash = fileInfo.getString("X-COS-META-MD5");
 				if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
-					throw new RuntimeException("Info is error -> " + down);
+					throw new RuntimeException("Info is error -> " + ConfigurationFile);
 				}
-				file = new File(folder.getPath(), fileName); // 获取其file对象
+				storageFile = new File(folder.getPath(), fileName); // 获取其file对象
 				infos.remove(0); // 删除信息行
-			} else { // down文件不存在，返回404错误
-				if (errorExit) { // 结束抛出
-					throw new RuntimeException("Not found or not is file " + down);
-				}
-				return HttpStatus.SC_NOT_FOUND;
+			} else { // 配置文件不存在，抛出异常
+				throw new RuntimeException("Not found or not is file " + ConfigurationFile);
 			}
 		} else {
 			// 获取文件信息
@@ -489,33 +486,37 @@ public final class NetworkFileUtils {
 				throw new RuntimeException("URL: " + url + " Error: File name length is greater than 200");
 			}
 			// 获取待下载文件和down文件对象
-			file = new File(folder.getPath(), fileName); // 获取其file对象
-			down = new File(folder.getPath(), fileName + ".down");
+			storageFile = new File(folder.getPath(), fileName); // 获取其file对象
+			// 配置信息文件后缀
+			ConfigurationFile = new File(folder.getPath(), fileName + ".haic");
 			// 文件已存在，结束下载
-			if (file.isFile() && !down.exists()) {
+			if (storageFile.isFile() && !ConfigurationFile.exists()) {
 				return HttpStatus.SC_OK;
 			}
 			// 获取文件大小
 			String contentLength = response.header("Content-Length");
 			fileSize = Judge.isEmpty(contentLength) ? 0 : Integer.parseInt(contentLength);
 			hash = Judge.isEmpty(hash) ? response.header("X-COS-META-MD5") : hash; // 获取文件MD5
-			if (down.isFile()) { // 读取down文件信息
-				infos = ReadWriteUtils.orgin(down).list();
+			if (ConfigurationFile.isFile()) { // 读取文件配置信息
+				infos = ReadWriteUtils.orgin(ConfigurationFile).list();
 				infos.remove(0); // 删除信息行
-			} else if (down.exists()) { // 文件存在但不是文件，抛出异常
-				throw new RuntimeException("Not is file " + down);
-			} else { // 创建并写入down文件信息
+			} else if (ConfigurationFile.exists()) { // 文件存在但不是文件，抛出异常
+				throw new RuntimeException("Not is file " + ConfigurationFile);
+			} else { // 创建并写入文件配置信息
 				fileInfo.put("URL", url);
 				fileInfo.put("fileName", fileName);
 				fileInfo.put("Content-Length", String.valueOf(fileSize));
 				fileInfo.put("X-COS-META-MD5", hash);
-				ReadWriteUtils.orgin(down).text(fileInfo.toJSONString());
+				ReadWriteUtils.orgin(ConfigurationFile).text(fileInfo.toJSONString());
+				if (!ReadWriteUtils.orgin(ConfigurationFile).text(fileInfo.toJSONString())) {
+					throw new RuntimeException("Configuration file creation failed");
+				}
 			}
 		}
 		// 开始下载
-		fullMode = Judge.isEmpty(fileSize) || fullMode; // 如果文件大小获取失败，使用全量下载模式
+		fullDownloadMode = Judge.isEmpty(fileSize) || fullDownloadMode; // 如果文件大小获取失败，使用全量下载模式
 		FilesUtils.createFolder(folder);
-		if (fullMode) {
+		if (fullDownloadMode) {
 			int statusCode = Judge.isNull(response) ? writeFull() : Judge.isEmpty(fileSize) ? writeFull(response) : writePiece(0, fileSize - 1);
 			if (!URIUtils.statusIsOK(statusCode)) {
 				if (errorExit) {
@@ -558,15 +559,17 @@ public final class NetworkFileUtils {
 		}
 		// 效验文件完整性
 		String md5;
-		if (!Judge.isEmpty(hash) && !(md5 = FilesUtils.GetMD5(file)).equals(hash)) {
-			file.delete(); // 删除下载错误的文件
-			ReadWriteUtils.orgin(down).append(false).text(fileInfo.toJSONString()); // 重置信息文件
+		if (!Judge.isEmpty(hash) && !(md5 = FilesUtils.GetMD5(storageFile)).equals(hash)) {
+			storageFile.delete(); // 删除下载错误的文件
+			if (!ReadWriteUtils.orgin(ConfigurationFile).append(false).text(fileInfo.toJSONString())) { // 重置信息文件
+				throw new RuntimeException("Configuration file reset information failed");
+			}
 			if (errorExit) {
 				throw new RuntimeException("文件效验不正确，URL md5:" + hash + " 本地文件 md5: " + md5 + " URL: " + url);
 			}
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
-		down.delete(); // 删除信息文件
+		ConfigurationFile.delete(); // 删除信息文件
 		return HttpStatus.SC_OK;
 	}
 
@@ -589,7 +592,7 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writeFull(Response response) {
-		try (BufferedInputStream bufferedInputStream = response.bodyStream(); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file))) {
+		try (BufferedInputStream bufferedInputStream = response.bodyStream(); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(storageFile))) {
 			IOUtils.copy(bufferedInputStream, bufferedOutputStream, bufferSize);
 		} catch (Exception e) {
 			return HttpStatus.SC_REQUEST_TIMEOUT;
@@ -624,7 +627,7 @@ public final class NetworkFileUtils {
 	 */
 	private int writePiece(int start, int end, Response piece) {
 		if (URIUtils.statusIsOK(piece.statusCode())) {
-			try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(file, RandomAccessFileMode.WRITE.getValue())) {
+			try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storageFile, RandomAccessFileMode.WRITE.getValue())) {
 				output.seek(start);
 				byte[] buffer = new byte[bufferSize];
 				int count = 0;
@@ -632,7 +635,7 @@ public final class NetworkFileUtils {
 					output.write(buffer, 0, length);
 				}
 				if (end - start + 1 == count) {
-					ReadWriteUtils.orgin(down).text(start + "-" + end);
+					ReadWriteUtils.orgin(ConfigurationFile).text(start + "-" + end);
 					return piece.statusCode();
 				}
 			} catch (IOException e) {
