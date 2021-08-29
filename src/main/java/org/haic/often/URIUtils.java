@@ -12,6 +12,7 @@ import org.haic.often.Network.JsoupUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Connection;
+import org.jsoup.select.Elements;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -242,7 +243,11 @@ public class URIUtils {
 	 * @return 文件信息集合
 	 */
 	public static Map<String, String> lanzouPageInfos(String lanzurl, String passwd) {
-		String javascript = String.valueOf(JsoupUtils.connect(lanzurl).retry(true).GetDocument().select("script[type='text/javascript']").get(1));
+		String javascript = null;
+		while (Judge.isNull(javascript)) {
+			Elements elements = JsoupUtils.connect(lanzurl).retry(true).GetDocument().select("script[type='text/javascript']");
+			javascript = elements.isEmpty() ? null : String.valueOf(elements.get(1));
+		}
 		String infos = javascript.substring(154, javascript.indexOf("隐藏") - 60).replaceAll("'*", "");
 		// 获取post参数
 		Map<String, String> params = new HashMap<>();
