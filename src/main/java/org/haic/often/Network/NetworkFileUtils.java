@@ -610,7 +610,7 @@ public final class NetworkFileUtils {
 	 */
 	private int writePiece(int start, int end) {
 		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer).GetResponse();
-		return Judge.isNull(piece) ? HttpStatus.SC_REQUEST_TIMEOUT : writePiece(start, end, piece);
+		return Judge.isNull(piece) ? HttpStatus.SC_REQUEST_TIMEOUT : URIUtils.statusIsOK(piece.statusCode()) ? writePiece(start, end, piece) : piece.statusCode();
 	}
 
 	/**
@@ -625,23 +625,19 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writePiece(int start, int end, Response piece) {
-		if (URIUtils.statusIsOK(piece.statusCode())) {
-			try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
-				output.seek(start);
-				byte[] buffer = new byte[bufferSize];
-				int count = 0;
-				for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); count += length) {
-					output.write(buffer, 0, length);
-				}
-				if (end - start + 1 == count) {
-					ReadWriteUtils.orgin(conf).text(start + "-" + end);
-					return piece.statusCode();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+		try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
+			output.seek(start);
+			byte[] buffer = new byte[bufferSize];
+			int count = 0;
+			for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); count += length) {
+				output.write(buffer, 0, length);
 			}
-		} else {
-			return piece.statusCode();
+			if (end - start + 1 == count) {
+				ReadWriteUtils.orgin(conf).text(start + "-" + end);
+				return piece.statusCode();
+			}
+		} catch (IOException e) {
+			// e.printStackTrace();
 		}
 		return HttpStatus.SC_REQUEST_TIMEOUT;
 	}
