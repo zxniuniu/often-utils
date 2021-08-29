@@ -23,19 +23,23 @@ import net.lingala.zip4j.model.enums.*;
 
 /**
  * @author haicdust
- * @version 1.0
- * @since 2021/3/31 10:03
+ * @version 1.1
+ * @since 2021/8/29 16:14
  */
 public class Zip4jUtils {
 
 	private File archive; // 压缩包
 	private char[] passwd; // 压缩包密码
-	private CompressionMethod method = CompressionMethod.STORE;// 压缩方式
-	private CompressionLevel level = CompressionLevel.FASTEST;// 压缩级别
-	private Charset charset = StandardCharsets.UTF_8; // 字符集编码格式
+	private CompressionMethod method;// 压缩方式
+	private CompressionLevel level;// 压缩级别
+	private Charset charset; // 字符集编码格式
+	private boolean archiveName; // 解压使用压缩包名称文件夹
 	private final ZipParameters params = new ZipParameters(); // 压缩参数
 
 	private Zip4jUtils() {
+		charset = StandardCharsets.UTF_8;
+		method = CompressionMethod.STORE;
+		level = CompressionLevel.FASTEST;
 		params.setCompressionMethod(method); // 压缩方式
 		params.setCompressionLevel(level); // 压缩级别
 		params.setIncludeRootFolder(false); // 包含根文件夹
@@ -82,6 +86,18 @@ public class Zip4jUtils {
 	 */
 	private Zip4jUtils archive(final @NotNull File archive) {
 		this.archive = archive;
+		return this;
+	}
+
+	/**
+	 * 在解压压缩包时使用，解压至压缩包名称的文件夹
+	 *
+	 * @param archiveName
+	 *            启用 解压使用压缩包名称文件夹
+	 * @return this
+	 */
+	public Zip4jUtils archiveName(boolean archiveName) {
+		this.archiveName = archiveName;
 		return this;
 	}
 
@@ -247,7 +263,7 @@ public class Zip4jUtils {
 			if (zipFile.isEncrypted()) { // 3.判断是否已加密
 				zipFile.setPassword(passwd);
 			}
-			zipFile.extractAll(out.getPath()); // 4.解压所有文件
+			zipFile.extractAll((archiveName ? new File(out, archive.getName().substring(0, archive.getName().lastIndexOf(46))) : out).getPath()); // 4.解压所有文件
 			result = zipFile.getFileHeaders().parallelStream().map(AbstractFileHeader::getFileName).collect(Collectors.toList());
 		} catch (ZipException e) {
 			e.printStackTrace();

@@ -495,7 +495,7 @@ public final class NetworkFileUtils {
 			}
 			// 获取文件大小
 			String contentLength = response.header("Content-Length");
-			fileSize = Judge.isEmpty(contentLength) ? 0 : Integer.parseInt(contentLength);
+			fileSize = Judge.isEmpty(contentLength) ? 0 : Integer.parseInt(Objects.requireNonNull(contentLength));
 			hash = Judge.isEmpty(hash) ? response.header("X-COS-META-MD5") : hash; // 获取文件MD5
 			if (conf.isFile()) { // 读取文件配置信息
 				infos = ReadWriteUtils.orgin(conf).list();

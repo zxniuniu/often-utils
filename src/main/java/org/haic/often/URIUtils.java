@@ -212,8 +212,10 @@ public class URIUtils {
 	 */
 	@Contract(pure = true)
 	public static String lanzouStraight(final @NotNull String lanzouUrl) {
-		return JsoupUtils.connect(HtmlUnitUtils.connect("https://wws.lanzoux.com" + JsoupUtils.connect(lanzouUrl).retry(true).GetDocument().selectFirst("iframe[class='ifr2']").attr("src"))
-				.waitJSTime(1000).retry(true).GetDocument().selectFirst("div[id='go'] a").attr("href")).followRedirects(false).retry(true).GetResponse().header("Location");
+		return JsoupUtils.connect(Objects.requireNonNull(
+				HtmlUnitUtils.connect("https://wws.lanzoux.com" + Objects.requireNonNull(JsoupUtils.connect(lanzouUrl).retry(true).GetDocument().selectFirst("iframe[class='ifr2']")).attr("src"))
+						.waitJSTime(1000).retry(true).GetDocument().selectFirst("div[id='go'] a"))
+				.attr("href")).followRedirects(false).retry(true).GetResponse().header("Location");
 	}
 
 	/**
@@ -262,8 +264,7 @@ public class URIUtils {
 		params.put("pwd", passwd);
 		// 处理json数据
 		String lanzouUrl = "https://wws.lanzoux.com/";
-		JSONArray jsonArray = JSONObject.parseObject(JsoupUtils.connect(lanzouUrl+"filemoreajax.php").data(params).retry(true).GetResponse(Connection.Method.POST).body())
-				.getJSONArray("text");
+		JSONArray jsonArray = JSONObject.parseObject(JsoupUtils.connect(lanzouUrl + "filemoreajax.php").data(params).retry(true).GetResponse(Connection.Method.POST).body()).getJSONArray("text");
 		Map<String, String> result = new HashMap<>();
 		for (int i = 0; i < jsonArray.size(); i++) {
 			JSONObject info = jsonArray.getJSONObject(i);

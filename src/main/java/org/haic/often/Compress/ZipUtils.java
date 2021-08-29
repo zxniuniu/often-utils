@@ -24,16 +24,18 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * @author haicdust
- * @version 1.0
- * @since 2021/3/19 14:20
+ * @version 1.1
+ * @since 2021/8/29 16:10
  */
 public class ZipUtils {
 	protected File archive; // 压缩包
 	protected File out; // 输出文件
-	protected String charsetName = "UTF8"; // 字符集编码格式
+	protected String charsetName; // 字符集编码格式
+	protected boolean includeRoot; // 压缩时包含根目录
+	protected boolean archiveName; // 解压使用压缩包名称文件夹
 
 	protected ZipUtils() {
-
+		charsetName = "UTF8";
 	}
 
 	/**
@@ -81,6 +83,18 @@ public class ZipUtils {
 	}
 
 	/**
+	 * 在解压压缩包时使用，解压至压缩包名称的文件夹
+	 * 
+	 * @param archiveName
+	 *            启用 解压使用压缩包名称文件夹
+	 * @return this
+	 */
+	public ZipUtils archiveName(boolean archiveName) {
+		this.archiveName = archiveName;
+		return this;
+	}
+
+	/**
 	 * 设置 字符集编码格式名称
 	 *
 	 * @param charsetName
@@ -116,6 +130,18 @@ public class ZipUtils {
 	}
 
 	/**
+	 * 压缩文件夹时，包含根目录
+	 *
+	 * @param includeRoot
+	 *            启用 包含根目录
+	 * @return this
+	 */
+	public ZipUtils includeRoot(boolean includeRoot) {
+		this.includeRoot = includeRoot;
+		return this;
+	}
+
+	/**
 	 * 解压ZIP压缩包
 	 *
 	 * @param out
@@ -145,7 +171,7 @@ public class ZipUtils {
 				if (archiveEntry.isDirectory()) {
 					continue;
 				}
-				File curfile = new File(out, archiveEntry.getName());
+				File curfile = new File(archiveName ? new File(out, archive.getName().substring(0, archive.getName().lastIndexOf(46))) : out, archiveEntry.getName());
 				FilesUtils.createFolder(curfile.getParentFile());
 				IOUtils.copy(inputStream, new FileOutputStream(curfile)); // 将文件写出到解压的目录
 				result.add(archiveEntry.getName());
@@ -343,10 +369,10 @@ public class ZipUtils {
 		if (!origin.exists()) {
 			throw new RuntimeException("Not found " + origin);
 		}
-		return origin.isFile() ? Map.of(origin.getName(), ReadWriteUtils.orgin(origin).array())
+		return origin.isFile() ? Map.of(includeRoot ? origin.getParentFile().getName() + "/" : "" + origin.getName(), ReadWriteUtils.orgin(origin).array())
 				: FilesUtils.iterateFiles(origin).parallelStream()
-						.collect(Collectors.toMap(file -> file.getAbsolutePath().substring(origin.getAbsolutePath().length() + 1).replaceAll("\\\\", "/"), file -> ReadWriteUtils.orgin(file).array()));
-
+						.collect(Collectors.toMap(file -> includeRoot ? origin.getName() + "/" : "" + file.getAbsolutePath().substring(origin.getAbsolutePath().length() + 1).replaceAll("\\\\", "/"),
+								file -> ReadWriteUtils.orgin(file).array()));
 	}
 
 }

@@ -87,10 +87,9 @@ public class JarUtils extends ZipUtils {
 				if (archiveEntry.isDirectory()) {
 					continue;
 				}
-				File curfile = new File(out, archiveEntry.getName());
+				File curfile = new File(archiveName ? new File(out, archive.getName().substring(0, archive.getName().lastIndexOf(46))) : out, archiveEntry.getName());
 				FilesUtils.createFolder(curfile.getParentFile());
-				// 将文件写出到解压的目录
-				IOUtils.copy(inputStream, new FileOutputStream(curfile));
+				IOUtils.copy(inputStream, new FileOutputStream(curfile)); // 将文件写出到解压的目录
 				result.add(archiveEntry.getName());
 			}
 		} catch (Exception e) {
