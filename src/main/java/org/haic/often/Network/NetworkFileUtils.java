@@ -579,9 +579,8 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writeFull() {
-		Response response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
-				.errorExit(errorExit).GetResponse();
-		return writeFull(response);
+		return writeFull(JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
+				.errorExit(errorExit).GetResponse());
 	}
 
 	/**
