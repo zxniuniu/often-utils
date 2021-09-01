@@ -507,7 +507,6 @@ public final class NetworkFileUtils {
 				fileInfo.put("fileName", fileName);
 				fileInfo.put("Content-Length", String.valueOf(fileSize));
 				fileInfo.put("X-COS-META-MD5", hash);
-				ReadWriteUtils.orgin(conf).text(fileInfo.toJSONString());
 				if (!ReadWriteUtils.orgin(conf).text(fileInfo.toJSONString())) {
 					throw new RuntimeException("Configuration file creation failed");
 				}
@@ -619,9 +618,7 @@ public final class NetworkFileUtils {
 	 * @param start
 	 *            块起始位
 	 * @param end
-	 *            块结束位
-	 * @param piece
-	 *            块Response对象
+	 *            块结束位 * @param piece 块Response对象
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writePiece(int start, int end, Response piece) {
