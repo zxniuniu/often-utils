@@ -39,7 +39,7 @@ public class UserAgentUtils {
 		if (userAgentPCList.isEmpty()) {
 			setPCUserAgent();
 		}
-		return userAgentPCList.get((int) (Math.random() * userAgentPCList.size()));
+		return userAgentPCList.get((int) (Math.random() * (userAgentPCList.size() - 1)));
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class UserAgentUtils {
 		if (userAgentPEList.isEmpty()) {
 			setPEUserAgent();
 		}
-		return userAgentPEList.get((int) (Math.random() * userAgentPEList.size()));
+		return userAgentPEList.get((int) (Math.random() * (userAgentPCList.size() - 1)));
 	}
 
 	@Contract(pure = true)

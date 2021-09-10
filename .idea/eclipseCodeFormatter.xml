@@ -4,7 +4,7 @@
     <option name="projectSpecificProfile">
       <ProjectSpecificProfile>
         <option name="formatter" value="ECLIPSE" />
-        <option name="pathToConfigFileJava" value="G:\安装包\Java格式化配置\eclipse-formatter.xml" />
+        <option name="pathToConfigFileJava" value="G:\文件\Java格式化配置\eclipse-formatter.xml" />
         <option name="selectedJavaProfile" value="Eclipse" />
       </ProjectSpecificProfile>
     </option>
