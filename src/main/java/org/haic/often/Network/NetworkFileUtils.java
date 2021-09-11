@@ -456,6 +456,7 @@ public final class NetworkFileUtils {
 				fileName = fileInfo.getString("fileName");
 				fileSize = fileInfo.getInteger("Content-Length");
 				hash = fileInfo.getString("X-COS-META-MD5");
+				referrer = fileInfo.getString("referrer");
 				if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
 					throw new RuntimeException("Info is error -> " + conf);
 				}
@@ -507,6 +508,7 @@ public final class NetworkFileUtils {
 				fileInfo.put("fileName", fileName);
 				fileInfo.put("Content-Length", String.valueOf(fileSize));
 				fileInfo.put("X-COS-META-MD5", hash);
+				fileInfo.put("referrer", referrer);
 				if (!ReadWriteUtils.orgin(conf).text(fileInfo.toJSONString())) {
 					throw new RuntimeException("Configuration file creation failed");
 				}
