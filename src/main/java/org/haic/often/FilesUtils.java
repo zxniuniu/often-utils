@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import javax.swing.filechooser.FileSystemView;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -546,6 +547,44 @@ public class FilesUtils {
 			e.printStackTrace();
 		}
 		return md5;
+	}
+
+	/**
+	 * 复制文件
+	 * 
+	 * @param input
+	 *            来源文件对象
+	 * @param output
+	 *            输出路径对象
+	 * @return 复制是否成功
+	 */
+	@Contract(pure = true)
+	public static boolean copyFile(final @NotNull File input, final @NotNull File output) {
+		try {
+			FileUtils.copyFile(input, output);
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 复制文件夹
+	 * 
+	 * @param input
+	 *            来源文件夹对象
+	 * @param output
+	 *            输出路径对象
+	 * @return 复制是否成功
+	 */
+	@Contract(pure = true)
+	public static boolean copyDirectory(final @NotNull File input, final @NotNull File output) {
+		try {
+			FileUtils.copyDirectory(input, output);
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
 	}
 
 }
