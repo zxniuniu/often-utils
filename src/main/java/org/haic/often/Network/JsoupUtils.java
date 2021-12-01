@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -494,7 +495,7 @@ public final class JsoupUtils {
 	@Contract(pure = true) public Response GetResponse(Method method) {
 		Response response = executeProgram(method);
 		int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : Objects.requireNonNull(response).statusCode();
-		for (int i = 0; (URIUtils.statusIsTimeout(statusCode) || URIUtils.statusIsServerError(statusCode)) && (i < retry || unlimitedRetry); i++) {
+		for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
 			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
 			response = executeProgram(method);
 			statusCode = Judge.isNull(response) ? statusCode : Objects.requireNonNull(response).statusCode();

@@ -403,7 +403,7 @@ public final class HttpsUtils {
 	 */
 	@Contract(pure = true) public HttpsUtils execute(final HttpMethod method) {
 		int statusCode = executeProgram(method).statusCode();
-		for (int i = 0; (URIUtils.statusIsTimeout(statusCode) || URIUtils.statusIsServerError(statusCode)) && (i < retry || unlimitedRetry); i++) {
+		for (int i = 0;!URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
 			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
 			statusCode = executeProgram(method).statusCode();
 		}

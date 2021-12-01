@@ -525,7 +525,7 @@ public final class HtmlUnitUtils {
 	 */
 	@Contract(pure = true) public Page GetPage(final HttpMethod method) {
 		Page page = executeProgram(method);
-		for (int i = 0; (URIUtils.statusIsTimeout(statusCode) || URIUtils.statusIsServerError(statusCode)) && (i < retry || unlimitedRetry); i++) {
+		for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
 			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
 			page = executeProgram(method);
 		}
