@@ -1,24 +1,23 @@
 package org.haic.often.Network;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-
-import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpStatus;
-import org.haic.often.Judge;
-import org.haic.often.URIUtils;
-import org.haic.often.UserAgentUtils;
-import org.haic.often.Multithread.MultiThreadUtils;
-import org.jetbrains.annotations.Contract;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
 import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpStatus;
+import org.haic.often.Judge;
+import org.haic.often.Multithread.MultiThreadUtils;
+import org.haic.often.URIUtils;
+import org.haic.often.UserAgentUtils;
+import org.jetbrains.annotations.Contract;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.logging.Level;
 
 /**
  * HtmlUnit 工具类
@@ -59,12 +58,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置 是否启用重定向 (默认启用)
 	 *
-	 * @param followRedirects
-	 *            启用重定向
+	 * @param followRedirects 启用重定向
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils followRedirects(final boolean followRedirects) {
+	@Contract(pure = true) public HtmlUnitUtils followRedirects(final boolean followRedirects) {
 		this.followRedirects = followRedirects;
 		return this;
 	}
@@ -72,12 +69,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置 requestBody
 	 *
-	 * @param requestBody
-	 *            数据
+	 * @param requestBody 数据
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils requestBody(final String requestBody) {
+	@Contract(pure = true) public HtmlUnitUtils requestBody(final String requestBody) {
 		if (URIUtils.isJson(requestBody)) {
 			headers.put("Accept", "application/json, text/javascript, */*");
 			headers.put("Content-Type", "application/x-www-form-urlencoded");
@@ -89,12 +84,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 上一页 URL
 	 *
-	 * @param referrer
-	 *            上一页URL
+	 * @param referrer 上一页URL
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils referrer(final String referrer) {
+	@Contract(pure = true) public HtmlUnitUtils referrer(final String referrer) {
 		this.referrer = referrer;
 		return this;
 	}
@@ -102,12 +95,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置错误退出
 	 *
-	 * @param errorExit
-	 *            启用错误退出
+	 * @param errorExit 启用错误退出
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils errorExit(final boolean errorExit) {
+	@Contract(pure = true) public HtmlUnitUtils errorExit(final boolean errorExit) {
 		this.errorExit = errorExit;
 		return this;
 	}
@@ -115,12 +106,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置 params
 	 *
-	 * @param params
-	 *            data参数集合
+	 * @param params data参数集合
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils data(final Map<String, String> params) {
+	@Contract(pure = true) public HtmlUnitUtils data(final Map<String, String> params) {
 		this.params.clear();
 		for (Entry<String, String> param : params.entrySet()) {
 			data(param.getKey(), param.getValue());
@@ -131,14 +120,11 @@ public final class HtmlUnitUtils {
 	/**
 	 * 添加 param
 	 *
-	 * @param name
-	 *            key
-	 * @param value
-	 *            value
+	 * @param name  key
+	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils data(final String name, final String value) {
+	@Contract(pure = true) public HtmlUnitUtils data(final String name, final String value) {
 		this.params.add(new NameValuePair(name, value));
 		return this;
 	}
@@ -148,38 +134,32 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return new HtmlUnitUtils
 	 */
-	@Contract(pure = true)
-	private static HtmlUnitUtils config() {
+	@Contract(pure = true) private static HtmlUnitUtils config() {
 		return new HtmlUnitUtils();
 	}
 
 	/**
 	 * 连接 URL
 	 *
-	 * @param url
-	 *            URL
+	 * @param url URL
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public static HtmlUnitUtils connect(final String url) {
+	@Contract(pure = true) public static HtmlUnitUtils connect(final String url) {
 		return HtmlUnitUtils.config().url(url);
 	}
 
 	/**
 	 * 设置 URL
 	 *
-	 * @param url
-	 *            URL
+	 * @param url URL
 	 * @return this
 	 */
-	@Contract(pure = true)
-	private HtmlUnitUtils url(final String url) {
+	@Contract(pure = true) private HtmlUnitUtils url(final String url) {
 		this.url = url;
 		return this;
 	}
 
-	@Contract(pure = true)
-	public HtmlUnitUtils request(final WebRequest request) {
+	@Contract(pure = true) public HtmlUnitUtils request(final WebRequest request) {
 		this.request = request;
 		return this;
 	}
@@ -187,12 +167,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置重试次数
 	 *
-	 * @param retry
-	 *            重试次数
+	 * @param retry 重试次数
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils retry(final int retry) {
+	@Contract(pure = true) public HtmlUnitUtils retry(final int retry) {
 		this.retry = retry;
 		return this;
 	}
@@ -200,14 +178,11 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置重试次数和重试等待时间
 	 *
-	 * @param retry
-	 *            重试次数
-	 * @param MILLISECONDS_SLEEP
-	 *            重试等待时间
+	 * @param retry              重试次数
+	 * @param MILLISECONDS_SLEEP 重试等待时间
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils retry(final int retry, final int MILLISECONDS_SLEEP) {
+	@Contract(pure = true) public HtmlUnitUtils retry(final int retry, final int MILLISECONDS_SLEEP) {
 		this.retry = retry;
 		this.MILLISECONDS_SLEEP = MILLISECONDS_SLEEP;
 		return this;
@@ -216,14 +191,11 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置 请求异常时无限重试
 	 *
-	 * @param unlimitedRetry
-	 *            启用无限重试
-	 * @param MILLISECONDS_SLEEP
-	 *            重试等待时间(毫秒)
+	 * @param unlimitedRetry     启用无限重试
+	 * @param MILLISECONDS_SLEEP 重试等待时间(毫秒)
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils retry(final boolean unlimitedRetry, final int MILLISECONDS_SLEEP) {
+	@Contract(pure = true) public HtmlUnitUtils retry(final boolean unlimitedRetry, final int MILLISECONDS_SLEEP) {
 		this.unlimitedRetry = unlimitedRetry;
 		this.MILLISECONDS_SLEEP = MILLISECONDS_SLEEP;
 		return this;
@@ -232,12 +204,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置 请求异常时无限重试
 	 *
-	 * @param unlimitedRetry
-	 *            启用无限重试
+	 * @param unlimitedRetry 启用无限重试
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils retry(final boolean unlimitedRetry) {
+	@Contract(pure = true) public HtmlUnitUtils retry(final boolean unlimitedRetry) {
 		this.unlimitedRetry = unlimitedRetry;
 		return this;
 	}
@@ -245,14 +215,11 @@ public final class HtmlUnitUtils {
 	/**
 	 * 不需要验证的代理服务器
 	 *
-	 * @param proxyHost
-	 *            代理URL
-	 * @param proxyPort
-	 *            代理端口
+	 * @param proxyHost 代理URL
+	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils proxy(final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public HtmlUnitUtils proxy(final String proxyHost, final int proxyPort) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		return this;
@@ -261,18 +228,13 @@ public final class HtmlUnitUtils {
 	/**
 	 * 需要验证的代理服务器
 	 *
-	 * @param proxyHost
-	 *            代理URL
-	 * @param proxyPort
-	 *            代理端口
-	 * @param username
-	 *            代理用户名
-	 * @param password
-	 *            代理用户密码
+	 * @param proxyHost 代理URL
+	 * @param proxyPort 代理端口
+	 * @param username  代理用户名
+	 * @param password  代理用户密码
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils proxy(final String proxyHost, final int proxyPort, final String username, final String password) {
+	@Contract(pure = true) public HtmlUnitUtils proxy(final String proxyHost, final int proxyPort, final String username, final String password) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		this.username = username;
@@ -283,12 +245,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置使用CSS
 	 *
-	 * @param enableCSS
-	 *            启用CSS
+	 * @param enableCSS 启用CSS
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils enableCSS(final boolean enableCSS) {
+	@Contract(pure = true) public HtmlUnitUtils enableCSS(final boolean enableCSS) {
 		this.enableCSS = enableCSS;
 		return this;
 	}
@@ -296,12 +256,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置超时
 	 *
-	 * @param timeout
-	 *            超时时间
+	 * @param timeout 超时时间
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils timeout(final int timeout) {
+	@Contract(pure = true) public HtmlUnitUtils timeout(final int timeout) {
 		this.timeout = timeout;
 		return this;
 	}
@@ -309,14 +267,11 @@ public final class HtmlUnitUtils {
 	/**
 	 * 添加 cookie
 	 *
-	 * @param name
-	 *            key
-	 * @param value
-	 *            value
+	 * @param name  key
+	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils cookie(final String name, final String value) {
+	@Contract(pure = true) public HtmlUnitUtils cookie(final String name, final String value) {
 		this.cookies.put(name, value);
 		return this;
 	}
@@ -324,12 +279,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置 cookies
 	 *
-	 * @param cookies
-	 *            Map集合
+	 * @param cookies Map集合
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils cookies(final Map<String, String> cookies) {
+	@Contract(pure = true) public HtmlUnitUtils cookies(final Map<String, String> cookies) {
 		this.cookies = cookies;
 		return this;
 	}
@@ -337,12 +290,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置 cookies
 	 *
-	 * @param cookies
-	 *            Set集合
+	 * @param cookies Set集合
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils cookies(final Set<Cookie> cookies) {
+	@Contract(pure = true) public HtmlUnitUtils cookies(final Set<Cookie> cookies) {
 		for (Cookie cookie : cookies) {
 			cookie(cookie.getName(), cookie.getValue());
 		}
@@ -352,14 +303,11 @@ public final class HtmlUnitUtils {
 	/**
 	 * 添加请求头参数
 	 *
-	 * @param name
-	 *            key
-	 * @param value
-	 *            value
+	 * @param name  key
+	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils header(final String name, final String value) {
+	@Contract(pure = true) public HtmlUnitUtils header(final String name, final String value) {
 		this.headers.put(name, value);
 		return this;
 	}
@@ -367,12 +315,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置新的请求头集合
 	 *
-	 * @param headers
-	 *            请求头集合
+	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils headers(final Map<String, String> headers) {
+	@Contract(pure = true) public HtmlUnitUtils headers(final Map<String, String> headers) {
 		this.headers = headers;
 		return this;
 	}
@@ -380,12 +326,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置请求头参数
 	 *
-	 * @param headers
-	 *            请求头集合
+	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils headers(final List<NameValuePair> headers) {
+	@Contract(pure = true) public HtmlUnitUtils headers(final List<NameValuePair> headers) {
 		for (NameValuePair header : headers) {
 			this.headers.put(header.getName(), header.getValue());
 		}
@@ -395,12 +339,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 设置 JavaScript 运行时间
 	 *
-	 * @param waitJSTime
-	 *            JS运行时间(毫秒)
+	 * @param waitJSTime JS运行时间(毫秒)
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public HtmlUnitUtils waitJSTime(final int waitJSTime) {
+	@Contract(pure = true) public HtmlUnitUtils waitJSTime(final int waitJSTime) {
 		this.waitJSTime = waitJSTime;
 		return this;
 	}
@@ -410,8 +352,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return 链接
 	 */
-	@Contract(pure = true)
-	public String url() {
+	@Contract(pure = true) public String url() {
 		return url;
 	}
 
@@ -420,8 +361,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return int
 	 */
-	@Contract(pure = true)
-	public int retry() {
+	@Contract(pure = true) public int retry() {
 		return retry;
 	}
 
@@ -430,8 +370,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return int
 	 */
-	@Contract(pure = true)
-	public int MILLISECONDS_SLEEP() {
+	@Contract(pure = true) public int MILLISECONDS_SLEEP() {
 		return MILLISECONDS_SLEEP;
 	}
 
@@ -440,8 +379,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return String
 	 */
-	@Contract(pure = true)
-	public String proxyHost() {
+	@Contract(pure = true) public String proxyHost() {
 		return proxyHost;
 	}
 
@@ -450,8 +388,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return int
 	 */
-	@Contract(pure = true)
-	public int proxyPort() {
+	@Contract(pure = true) public int proxyPort() {
 		return proxyPort;
 	}
 
@@ -460,8 +397,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return String
 	 */
-	@Contract(pure = true)
-	public String username() {
+	@Contract(pure = true) public String username() {
 		return username;
 	}
 
@@ -470,8 +406,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return String
 	 */
-	@Contract(pure = true)
-	public String password() {
+	@Contract(pure = true) public String password() {
 		return password;
 	}
 
@@ -480,8 +415,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return String
 	 */
-	@Contract(pure = true)
-	public String referrer() {
+	@Contract(pure = true) public String referrer() {
 		return referrer;
 	}
 
@@ -490,8 +424,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return String
 	 */
-	@Contract(pure = true)
-	public String requestBody() {
+	@Contract(pure = true) public String requestBody() {
 		return requestBody;
 	}
 
@@ -500,8 +433,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return boolean
 	 */
-	@Contract(pure = true)
-	public boolean enableCSS() {
+	@Contract(pure = true) public boolean enableCSS() {
 		return enableCSS;
 	}
 
@@ -514,8 +446,7 @@ public final class HtmlUnitUtils {
 		return !Judge.isEmpty(waitJSTime);
 	}
 
-	@Contract(pure = true)
-	public int statusCode() {
+	@Contract(pure = true) public int statusCode() {
 		return statusCode;
 	}
 
@@ -524,8 +455,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return Map
 	 */
-	@Contract(pure = true)
-	public Map<String, String> cookies() {
+	@Contract(pure = true) public Map<String, String> cookies() {
 		return cookies;
 	}
 
@@ -534,20 +464,17 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return Map
 	 */
-	@Contract(pure = true)
-	public Map<String, String> headers() {
+	@Contract(pure = true) public Map<String, String> headers() {
 		return headers;
 	}
 
 	/**
 	 * 获取 Document
 	 *
-	 * @param method
-	 *            HttpMethod类型
+	 * @param method HttpMethod类型
 	 * @return Document
 	 */
-	@Contract(pure = true)
-	public Document GetDocument(final HttpMethod method) {
+	@Contract(pure = true) public Document GetDocument(final HttpMethod method) {
 		Page page = GetPage(method);
 		return Judge.isNull(page) ? null : page.isHtmlPage() ? Jsoup.parse(((HtmlPage) page).asXml()) : Jsoup.parse(page.getWebResponse().getContentAsString());
 	}
@@ -557,8 +484,7 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return Document
 	 */
-	@Contract(pure = true)
-	public Document GetDocument() {
+	@Contract(pure = true) public Document GetDocument() {
 		return GetDocument(HttpMethod.GET);
 	}
 
@@ -567,20 +493,17 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return HtmlPage
 	 */
-	@Contract(pure = true)
-	public HtmlPage GetHtmlPage() {
+	@Contract(pure = true) public HtmlPage GetHtmlPage() {
 		return GetHtmlPage(HttpMethod.GET);
 	}
 
 	/**
 	 * 获取 HtmlPage
 	 *
-	 * @param method
-	 *            HttpMethod类型
+	 * @param method HttpMethod类型
 	 * @return HtmlPage
 	 */
-	@Contract(pure = true)
-	public HtmlPage GetHtmlPage(final HttpMethod method) {
+	@Contract(pure = true) public HtmlPage GetHtmlPage(final HttpMethod method) {
 		Page page = GetPage(method);
 		return Judge.isNull(page) ? null : (HtmlPage) page;
 	}
@@ -590,22 +513,19 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return Page
 	 */
-	@Contract(pure = true)
-	public Page GetPage() {
+	@Contract(pure = true) public Page GetPage() {
 		return GetPage(HttpMethod.GET);
 	}
 
 	/**
 	 * 获取 Page
 	 *
-	 * @param method
-	 *            HttpMethod类型
+	 * @param method HttpMethod类型
 	 * @return Page
 	 */
-	@Contract(pure = true)
-	public Page GetPage(final HttpMethod method) {
+	@Contract(pure = true) public Page GetPage(final HttpMethod method) {
 		Page page = executeProgram(method);
-		for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
+		for (int i = 0; (URIUtils.statusIsTimeout(statusCode) || URIUtils.statusIsServerError(statusCode)) && (i < retry || unlimitedRetry); i++) {
 			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
 			page = executeProgram(method);
 		}
@@ -618,11 +538,9 @@ public final class HtmlUnitUtils {
 	/**
 	 * 主程序
 	 *
-	 * @param method
-	 *            HttpMethod类型
+	 * @param method HttpMethod类型
 	 */
-	@Contract(pure = true)
-	private Page executeProgram(final HttpMethod method) {
+	@Contract(pure = true) private Page executeProgram(final HttpMethod method) {
 		// 屏蔽HtmlUnit等系统 log
 		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
@@ -685,12 +603,10 @@ public final class HtmlUnitUtils {
 	/**
 	 * 获取 WebRequest
 	 *
-	 * @param method
-	 *            HttpMethod类型
+	 * @param method HttpMethod类型
 	 * @return WebRequest
 	 */
-	@Contract(pure = true)
-	private WebRequest GetWebRequest(final HttpMethod method) {
+	@Contract(pure = true) private WebRequest GetWebRequest(final HttpMethod method) {
 		WebRequest webRequest = new WebRequest(URIUtils.GetURL(url), method);
 		if (!Judge.isNull(request)) {
 			webRequest.setAdditionalHeader("Set-Cookie", request.getAdditionalHeader("Set-Cookie"));

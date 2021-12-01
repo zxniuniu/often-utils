@@ -1,11 +1,7 @@
 package org.haic.often;
 
-import java.io.IOException;
-import java.net.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpStatus;
 import org.haic.often.Network.HtmlUnitUtils;
 import org.haic.often.Network.JsoupUtils;
@@ -14,8 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jsoup.Connection;
 import org.jsoup.select.Elements;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import java.io.IOException;
+import java.net.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * URI工具类
@@ -29,13 +28,10 @@ public class URIUtils {
 	/**
 	 * 获取URI
 	 *
-	 * @param url
-	 *            URL
+	 * @param url URL
 	 * @return URI对象
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public static URI GetURI(final @NotNull String url) {
+	@NotNull @Contract(pure = true) public static URI GetURI(final @NotNull String url) {
 		URI uri = null;
 		try {
 			uri = new URI(url);
@@ -48,13 +44,10 @@ public class URIUtils {
 	/**
 	 * 获取URL
 	 *
-	 * @param url
-	 *            URL
+	 * @param url URL
 	 * @return URL对象
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public static URL GetURL(final @NotNull String url) {
+	@NotNull @Contract(pure = true) public static URL GetURL(final @NotNull String url) {
 		URL uri = null;
 		try {
 			uri = new URL(url);
@@ -67,73 +60,70 @@ public class URIUtils {
 	/**
 	 * 获取域名
 	 *
-	 * @param url
-	 *            URL
+	 * @param url URL
 	 * @return 字符串
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public static String GetDomain(final @NotNull String url) {
+	@NotNull @Contract(pure = true) public static String GetDomain(final @NotNull String url) {
 		return GetURI(url).getHost();
 	}
 
 	/**
 	 * 判断连接是否正常
 	 *
-	 * @param statusCode
-	 *            状态码
+	 * @param statusCode 状态码
 	 * @return 连接状态正常 boolean
 	 */
-	@Contract(pure = true)
-	public static boolean statusIsOK(final int statusCode) {
-		return statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_MULTIPLE_CHOICES;
+	@Contract(pure = true) public static boolean statusIsOK(final int statusCode) {
+		return statusCode == HttpStatus.SC_OK || statusCode == HttpStatus.SC_PARTIAL_CONTENT;
 	}
 
 	/**
 	 * 判断连接是否超时,或中断
 	 *
-	 * @param statusCode
-	 *            状态码
+	 * @param statusCode 状态码
 	 * @return 连接状态 boolean
 	 */
-	@Contract(pure = true)
-	public static boolean statusIsTimeout(final int statusCode) {
+	@Contract(pure = true) public static boolean statusIsTimeout(final int statusCode) {
 		return statusCode == HttpStatus.SC_REQUEST_TIMEOUT || Judge.isEmpty(statusCode);
 	}
 
 	/**
 	 * 判断连接是否重定向
 	 *
-	 * @param statusCode
-	 *            状态码
+	 * @param statusCode 状态码
 	 * @return 连接状态重定向 boolean
 	 */
-	@Contract(pure = true)
-	public static boolean statusIsRedirect(final int statusCode) {
+	@Contract(pure = true) public static boolean statusIsRedirect(final int statusCode) {
 		return statusCode >= HttpStatus.SC_MULTIPLE_CHOICES && statusCode < HttpStatus.SC_BAD_REQUEST;
 	}
 
 	/**
 	 * 判断连接是否请求错误
 	 *
-	 * @param statusCode
-	 *            状态码
+	 * @param statusCode 状态码
 	 * @return 连接状态 boolean
 	 */
-	@Contract(pure = true)
-	public static boolean statusIsError(final int statusCode) {
-		return statusCode >= HttpStatus.SC_BAD_REQUEST && statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR;
+	@Contract(pure = true) public static boolean statusIsError(final int statusCode) {
+		return statusCode >= HttpStatus.SC_BAD_REQUEST && statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR && statusCode != HttpStatus.SC_REQUEST_TIMEOUT;
+	}
+
+	/**
+	 * 判断连接是否请求错误
+	 *
+	 * @param statusCode 状态码
+	 * @return 连接状态 boolean
+	 */
+	@Contract(pure = true) public static boolean statusIsServerError(final int statusCode) {
+		return statusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR;
 	}
 
 	/**
 	 * 判断字符串是否是JSON
 	 *
-	 * @param str
-	 *            字符串
+	 * @param str 字符串
 	 * @return 判断后结果
 	 */
-	@Contract(pure = true)
-	public static boolean isJson(final @NotNull String str) {
+	@Contract(pure = true) public static boolean isJson(final @NotNull String str) {
 		boolean result;
 		try {
 			JSONObject.parseObject(str);
@@ -147,38 +137,31 @@ public class URIUtils {
 	/**
 	 * CMD命令获取IP连接状态
 	 *
-	 * @param host
-	 *            域名或IP
+	 * @param host 域名或IP
 	 * @return 连接状态
 	 */
-	@Contract(pure = true)
-	public static boolean pingIp(final @NotNull String host) {
+	@Contract(pure = true) public static boolean pingIp(final @NotNull String host) {
 		return RunCmd.execute("ping " + host + " -n 1 -w " + 5000);
 	}
 
 	/**
 	 * 获取HOST连接状态
 	 *
-	 * @param host
-	 *            域名或IP
+	 * @param host 域名或IP
 	 * @return 连接状态
 	 */
-	@Contract(pure = true)
-	public static boolean pingHost(final @NotNull String host) {
+	@Contract(pure = true) public static boolean pingHost(final @NotNull String host) {
 		return pingHost(host, 80);
 	}
 
 	/**
 	 * 获取HOST连接状态
 	 *
-	 * @param host
-	 *            域名或IP
-	 * @param port
-	 *            端口
+	 * @param host 域名或IP
+	 * @param port 端口
 	 * @return 连接状态
 	 */
-	@Contract(pure = true)
-	public static boolean pingHost(final @NotNull String host, final int port) {
+	@Contract(pure = true) public static boolean pingHost(final @NotNull String host, final int port) {
 		boolean isReachable;
 		try (Socket socket = new Socket()) {
 			InetSocketAddress endpointSocketAddr = new InetSocketAddress(host, port);
@@ -193,13 +176,10 @@ public class URIUtils {
 	/**
 	 * 迅雷磁链转换直链
 	 *
-	 * @param thunder
-	 *            迅雷磁力链接
+	 * @param thunder 迅雷磁力链接
 	 * @return URL直链
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public static String thunderToURL(@NotNull String thunder) {
+	@NotNull @Contract(pure = true) public static String thunderToURL(@NotNull String thunder) {
 		thunder = Base64Utils.encryptByBase64(StringUtils.deleteSuffix(thunder, StringUtils.EQUAL_SIGN).replaceFirst("thunder://", ""), "GBK");
 		return thunder.substring(2, thunder.length() - 2);
 	}
@@ -207,23 +187,19 @@ public class URIUtils {
 	/**
 	 * 获取蓝奏云URL直链
 	 *
-	 * @param lanzouUrl
-	 *            蓝奏云文件链接
+	 * @param lanzouUrl 蓝奏云文件链接
 	 * @return 蓝奏云URL直链
 	 */
-	@Contract(pure = true)
-	public static String lanzouStraight(final @NotNull String lanzouUrl) {
+	@Contract(pure = true) public static String lanzouStraight(final @NotNull String lanzouUrl) {
 		return JsoupUtils.connect(Objects.requireNonNull(
 				HtmlUnitUtils.connect("https://wws.lanzoux.com" + Objects.requireNonNull(JsoupUtils.connect(lanzouUrl).retry(true).GetDocument().selectFirst("iframe[class='ifr2']")).attr("src"))
-						.waitJSTime(1000).retry(true).GetDocument().selectFirst("div[id='go'] a"))
-				.attr("href")).followRedirects(false).retry(true).GetResponse().header("Location");
+						.waitJSTime(1000).retry(true).GetDocument().selectFirst("div[id='go'] a")).attr("href")).followRedirects(false).retry(true).GetResponse().header("Location");
 	}
 
 	/**
 	 * 获取页面文件信息集合
 	 *
-	 * @param lanzurl
-	 *            蓝奏URL
+	 * @param lanzurl 蓝奏URL
 	 * @return 文件信息集合
 	 */
 	public static Map<String, String> lanzouPageInfos(String lanzurl) {
@@ -236,10 +212,8 @@ public class URIUtils {
 	/**
 	 * 获取页面文件信息集合
 	 *
-	 * @param lanzurl
-	 *            蓝奏URL
-	 * @param passwd
-	 *            访问密码
+	 * @param lanzurl 蓝奏URL
+	 * @param passwd  访问密码
 	 * @return 文件信息集合
 	 */
 	public static Map<String, String> lanzouPageInfos(String lanzurl, String passwd) {

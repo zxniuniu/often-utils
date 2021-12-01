@@ -1,20 +1,13 @@
 package org.haic.often.Network;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import org.apache.http.HttpStatus;
 import org.haic.often.IOUtils;
 import org.haic.often.Judge;
-import org.haic.often.URIUtils;
-import org.haic.often.UserAgentUtils;
 import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.Tuple.ThreeTuple;
 import org.haic.often.Tuple.TupleUtil;
+import org.haic.often.URIUtils;
+import org.haic.often.UserAgentUtils;
 import org.jetbrains.annotations.Contract;
 import org.jsoup.Connection;
 import org.jsoup.Connection.Method;
@@ -22,6 +15,13 @@ import org.jsoup.Connection.Request;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Jsoup 工具类
@@ -58,12 +58,10 @@ public final class JsoupUtils {
 	/**
 	 * 连接 URI
 	 *
-	 * @param url
-	 *            链接
+	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public static JsoupUtils connect(final String url) {
+	@Contract(pure = true) public static JsoupUtils connect(final String url) {
 		return JsoupUtils.config().url(url);
 	}
 
@@ -72,20 +70,17 @@ public final class JsoupUtils {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true)
-	private static JsoupUtils config() {
+	@Contract(pure = true) private static JsoupUtils config() {
 		return new JsoupUtils();
 	}
 
 	/**
 	 * 设置 URI
 	 *
-	 * @param url
-	 *            链接
+	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true)
-	private JsoupUtils url(final String url) {
+	@Contract(pure = true) private JsoupUtils url(final String url) {
 		this.url = url;
 		return this;
 	}
@@ -93,36 +88,30 @@ public final class JsoupUtils {
 	/**
 	 * 设置 文件
 	 *
-	 * @param file
-	 *            文件对象
+	 * @param file 文件对象
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils file(final File file) {
+	@Contract(pure = true) public JsoupUtils file(final File file) {
 		return data("file", file.getName(), IOUtils.GetFileInputStream(file));
 	}
 
 	/**
 	 * 设置 文件
 	 *
-	 * @param filePath
-	 *            文件路径
+	 * @param filePath 文件路径
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils file(final String filePath) {
+	@Contract(pure = true) public JsoupUtils file(final String filePath) {
 		return file(new File(filePath));
 	}
 
 	/**
 	 * 设置 会话
 	 *
-	 * @param request
-	 *            会话
+	 * @param request 会话
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils request(final Request request) {
+	@Contract(pure = true) public JsoupUtils request(final Request request) {
 		this.request = request;
 		return this;
 	}
@@ -130,12 +119,10 @@ public final class JsoupUtils {
 	/**
 	 * 设置 JSON参数
 	 *
-	 * @param requestBody
-	 *            数据
+	 * @param requestBody 数据
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils requestBody(final String requestBody) {
+	@Contract(pure = true) public JsoupUtils requestBody(final String requestBody) {
 		if (URIUtils.isJson(requestBody)) {
 			headers.put("Accept", "application/json, text/javascript, */*");
 			headers.put("Content-Type", "application/x-www-form-urlencoded");
@@ -147,12 +134,10 @@ public final class JsoupUtils {
 	/**
 	 * 设置 错误退出
 	 *
-	 * @param errorExit
-	 *            启用错误退出
+	 * @param errorExit 启用错误退出
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils errorExit(final boolean errorExit) {
+	@Contract(pure = true) public JsoupUtils errorExit(final boolean errorExit) {
 		this.errorExit = errorExit;
 		return this;
 	}
@@ -160,12 +145,10 @@ public final class JsoupUtils {
 	/**
 	 * 设置 是否重定向
 	 *
-	 * @param followRedirects
-	 *            启用重定向
+	 * @param followRedirects 启用重定向
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils followRedirects(final boolean followRedirects) {
+	@Contract(pure = true) public JsoupUtils followRedirects(final boolean followRedirects) {
 		this.followRedirects = followRedirects;
 		return this;
 	}
@@ -173,12 +156,10 @@ public final class JsoupUtils {
 	/**
 	 * 设置上一页
 	 *
-	 * @param referrer
-	 *            上一页
+	 * @param referrer 上一页
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils referrer(final String referrer) {
+	@Contract(pure = true) public JsoupUtils referrer(final String referrer) {
 		this.referrer = referrer;
 		return this;
 	}
@@ -186,14 +167,11 @@ public final class JsoupUtils {
 	/**
 	 * 设置 代理
 	 *
-	 * @param proxyHost
-	 *            代理地址
-	 * @param proxyPort
-	 *            代理端口
+	 * @param proxyHost 代理地址
+	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils proxy(final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public JsoupUtils proxy(final String proxyHost, final int proxyPort) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		return this;
@@ -202,12 +180,10 @@ public final class JsoupUtils {
 	/**
 	 * 设置 重试次数
 	 *
-	 * @param retry
-	 *            重试次数
+	 * @param retry 重试次数
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils retry(final int retry) {
+	@Contract(pure = true) public JsoupUtils retry(final int retry) {
 		this.retry = retry;
 		return this;
 	}
@@ -215,14 +191,11 @@ public final class JsoupUtils {
 	/**
 	 * 设置 重试次数和重试等待时间
 	 *
-	 * @param retry
-	 *            重试次数
-	 * @param MILLISECONDS_SLEEP
-	 *            重试等待时间(毫秒)
+	 * @param retry              重试次数
+	 * @param MILLISECONDS_SLEEP 重试等待时间(毫秒)
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils retry(final int retry, final int MILLISECONDS_SLEEP) {
+	@Contract(pure = true) public JsoupUtils retry(final int retry, final int MILLISECONDS_SLEEP) {
 		this.retry = retry;
 		this.MILLISECONDS_SLEEP = MILLISECONDS_SLEEP;
 		return this;
@@ -231,14 +204,11 @@ public final class JsoupUtils {
 	/**
 	 * 设置 请求异常时无限重试
 	 *
-	 * @param unlimitedRetry
-	 *            启用无限重试
-	 * @param MILLISECONDS_SLEEP
-	 *            重试等待时间(毫秒)
+	 * @param unlimitedRetry     启用无限重试
+	 * @param MILLISECONDS_SLEEP 重试等待时间(毫秒)
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils retry(final boolean unlimitedRetry, final int MILLISECONDS_SLEEP) {
+	@Contract(pure = true) public JsoupUtils retry(final boolean unlimitedRetry, final int MILLISECONDS_SLEEP) {
 		this.unlimitedRetry = unlimitedRetry;
 		this.MILLISECONDS_SLEEP = MILLISECONDS_SLEEP;
 		return this;
@@ -247,12 +217,10 @@ public final class JsoupUtils {
 	/**
 	 * 设置 请求异常时无限重试
 	 *
-	 * @param unlimitedRetry
-	 *            启用无限重试
+	 * @param unlimitedRetry 启用无限重试
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils retry(final boolean unlimitedRetry) {
+	@Contract(pure = true) public JsoupUtils retry(final boolean unlimitedRetry) {
 		this.unlimitedRetry = unlimitedRetry;
 		return this;
 	}
@@ -260,12 +228,10 @@ public final class JsoupUtils {
 	/**
 	 * 设置 超时
 	 *
-	 * @param timeout
-	 *            超时
+	 * @param timeout 超时
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils timeout(final int timeout) {
+	@Contract(pure = true) public JsoupUtils timeout(final int timeout) {
 		this.timeout = timeout;
 		return this;
 	}
@@ -273,12 +239,10 @@ public final class JsoupUtils {
 	/**
 	 * 设置 数据大小
 	 *
-	 * @param maxBodySize
-	 *            数据大小
+	 * @param maxBodySize 数据大小
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils maxBodySize(final int maxBodySize) {
+	@Contract(pure = true) public JsoupUtils maxBodySize(final int maxBodySize) {
 		this.maxBodySize = maxBodySize;
 		return this;
 	}
@@ -286,12 +250,10 @@ public final class JsoupUtils {
 	/**
 	 * 设置 新的请求头集合
 	 *
-	 * @param headers
-	 *            请求头集合
+	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils headers(final Map<String, String> headers) {
+	@Contract(pure = true) public JsoupUtils headers(final Map<String, String> headers) {
 		this.headers = headers;
 		return this;
 	}
@@ -299,12 +261,10 @@ public final class JsoupUtils {
 	/**
 	 * 设置 cookies
 	 *
-	 * @param cookies
-	 *            cookie集合
+	 * @param cookies cookie集合
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils cookies(final Map<String, String> cookies) {
+	@Contract(pure = true) public JsoupUtils cookies(final Map<String, String> cookies) {
 		this.cookies = cookies;
 		return this;
 	}
@@ -312,14 +272,11 @@ public final class JsoupUtils {
 	/**
 	 * 添加 请求头参数
 	 *
-	 * @param name
-	 *            标签
-	 * @param value
-	 *            值
+	 * @param name  标签
+	 * @param value 值
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils header(final String name, String value) {
+	@Contract(pure = true) public JsoupUtils header(final String name, String value) {
 		this.headers.put(name, value);
 		return this;
 	}
@@ -327,14 +284,11 @@ public final class JsoupUtils {
 	/**
 	 * 添加 cookie
 	 *
-	 * @param name
-	 *            标签
-	 * @param value
-	 *            值
+	 * @param name  标签
+	 * @param value 值
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils cookie(final String name, String value) {
+	@Contract(pure = true) public JsoupUtils cookie(final String name, String value) {
 		this.cookies.put(name, value);
 		return this;
 	}
@@ -342,12 +296,10 @@ public final class JsoupUtils {
 	/**
 	 * 设置 params
 	 *
-	 * @param params
-	 *            参数集合
+	 * @param params 参数集合
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils data(final Map<String, String> params) {
+	@Contract(pure = true) public JsoupUtils data(final Map<String, String> params) {
 		this.params = params;
 		return this;
 	}
@@ -355,20 +307,16 @@ public final class JsoupUtils {
 	/**
 	 * 添加 param
 	 *
-	 * @param name
-	 *            标签
-	 * @param value
-	 *            值
+	 * @param name  标签
+	 * @param value 值
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public JsoupUtils data(final String name, final String value) {
+	@Contract(pure = true) public JsoupUtils data(final String name, final String value) {
 		this.params.put(name, value);
 		return this;
 	}
 
-	@Contract(pure = true)
-	public JsoupUtils data(final String key, final String filename, final InputStream inputStream) {
+	@Contract(pure = true) public JsoupUtils data(final String key, final String filename, final InputStream inputStream) {
 		stream = TupleUtil.Tuple(key, filename, inputStream);
 		return this;
 	}
@@ -378,8 +326,7 @@ public final class JsoupUtils {
 	 *
 	 * @return boolean
 	 */
-	@Contract(pure = true)
-	public boolean followRedirects() {
+	@Contract(pure = true) public boolean followRedirects() {
 		return followRedirects;
 	}
 
@@ -388,8 +335,7 @@ public final class JsoupUtils {
 	 *
 	 * @return boolean
 	 */
-	@Contract(pure = true)
-	public boolean errorExit() {
+	@Contract(pure = true) public boolean errorExit() {
 		return errorExit;
 	}
 
@@ -398,8 +344,7 @@ public final class JsoupUtils {
 	 *
 	 * @return String
 	 */
-	@Contract(pure = true)
-	public String url() {
+	@Contract(pure = true) public String url() {
 		return url;
 	}
 
@@ -408,8 +353,7 @@ public final class JsoupUtils {
 	 *
 	 * @return String
 	 */
-	@Contract(pure = true)
-	public String referrer() {
+	@Contract(pure = true) public String referrer() {
 		return referrer;
 	}
 
@@ -418,8 +362,7 @@ public final class JsoupUtils {
 	 *
 	 * @return String
 	 */
-	@Contract(pure = true)
-	public String proxyHost() {
+	@Contract(pure = true) public String proxyHost() {
 		return proxyHost;
 	}
 
@@ -428,8 +371,7 @@ public final class JsoupUtils {
 	 *
 	 * @return String
 	 */
-	@Contract(pure = true)
-	public String requestBody() {
+	@Contract(pure = true) public String requestBody() {
 		return requestBody;
 	}
 
@@ -438,8 +380,7 @@ public final class JsoupUtils {
 	 *
 	 * @return int
 	 */
-	@Contract(pure = true)
-	public int proxyPort() {
+	@Contract(pure = true) public int proxyPort() {
 		return proxyPort;
 	}
 
@@ -448,8 +389,7 @@ public final class JsoupUtils {
 	 *
 	 * @return int
 	 */
-	@Contract(pure = true)
-	public int retry() {
+	@Contract(pure = true) public int retry() {
 		return retry;
 	}
 
@@ -458,8 +398,7 @@ public final class JsoupUtils {
 	 *
 	 * @return int
 	 */
-	@Contract(pure = true)
-	public int MILLISECONDS_SLEEP() {
+	@Contract(pure = true) public int MILLISECONDS_SLEEP() {
 		return MILLISECONDS_SLEEP;
 	}
 
@@ -468,8 +407,7 @@ public final class JsoupUtils {
 	 *
 	 * @return int
 	 */
-	@Contract(pure = true)
-	public int timeout() {
+	@Contract(pure = true) public int timeout() {
 		return timeout;
 	}
 
@@ -478,8 +416,7 @@ public final class JsoupUtils {
 	 *
 	 * @return int
 	 */
-	@Contract(pure = true)
-	public int maxBodySize() {
+	@Contract(pure = true) public int maxBodySize() {
 		return maxBodySize;
 	}
 
@@ -488,8 +425,7 @@ public final class JsoupUtils {
 	 *
 	 * @return Map
 	 */
-	@Contract(pure = true)
-	public Map<String, String> headers() {
+	@Contract(pure = true) public Map<String, String> headers() {
 		return headers;
 	}
 
@@ -498,8 +434,7 @@ public final class JsoupUtils {
 	 *
 	 * @return Map
 	 */
-	@Contract(pure = true)
-	public Map<String, String> cookies() {
+	@Contract(pure = true) public Map<String, String> cookies() {
 		return cookies;
 	}
 
@@ -508,8 +443,7 @@ public final class JsoupUtils {
 	 *
 	 * @return Map
 	 */
-	@Contract(pure = true)
-	public Map<String, String> params() {
+	@Contract(pure = true) public Map<String, String> params() {
 		return params;
 	}
 
@@ -518,8 +452,7 @@ public final class JsoupUtils {
 	 *
 	 * @return Request
 	 */
-	@Contract(pure = true)
-	public Request request() {
+	@Contract(pure = true) public Request request() {
 		return request;
 	}
 
@@ -528,20 +461,17 @@ public final class JsoupUtils {
 	 *
 	 * @return Document
 	 */
-	@Contract(pure = true)
-	public Document GetDocument() {
+	@Contract(pure = true) public Document GetDocument() {
 		return GetDocument(Method.GET);
 	}
 
 	/**
 	 * 获取 Document
 	 *
-	 * @param method
-	 *            Method类型
+	 * @param method Method类型
 	 * @return Document
 	 */
-	@Contract(pure = true)
-	public Document GetDocument(final Method method) {
+	@Contract(pure = true) public Document GetDocument(final Method method) {
 		Response response = GetResponse(method);
 		return Judge.isNull(response) ? null : Jsoup.parse(response.body());
 	}
@@ -551,23 +481,20 @@ public final class JsoupUtils {
 	 *
 	 * @return Response
 	 */
-	@Contract(pure = true)
-	public Response GetResponse() {
+	@Contract(pure = true) public Response GetResponse() {
 		return GetResponse(Method.GET);
 	}
 
 	/**
 	 * 获取 Response
 	 *
-	 * @param method
-	 *            Method类型
+	 * @param method Method类型
 	 * @return Response
 	 */
-	@Contract(pure = true)
-	public Response GetResponse(Method method) {
+	@Contract(pure = true) public Response GetResponse(Method method) {
 		Response response = executeProgram(method);
 		int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : Objects.requireNonNull(response).statusCode();
-		for (int i = 0; !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && (i < retry || unlimitedRetry); i++) {
+		for (int i = 0; (URIUtils.statusIsTimeout(statusCode) || URIUtils.statusIsServerError(statusCode)) && (i < retry || unlimitedRetry); i++) {
 			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
 			response = executeProgram(method);
 			statusCode = Judge.isNull(response) ? statusCode : Objects.requireNonNull(response).statusCode();
@@ -581,12 +508,10 @@ public final class JsoupUtils {
 	/**
 	 * 主程序
 	 *
-	 * @param method
-	 *            Method类型
+	 * @param method Method类型
 	 * @return Response
 	 */
-	@Contract(pure = true)
-	private Response executeProgram(final Method method) {
+	@Contract(pure = true) private Response executeProgram(final Method method) {
 		Connection conn = Jsoup.connect(url).userAgent(UserAgentUtils.randomPCUserAgent());
 		conn = Judge.isNull(request) ? conn : conn.request(request);
 		conn = headers.isEmpty() ? conn : conn.headers(headers);
