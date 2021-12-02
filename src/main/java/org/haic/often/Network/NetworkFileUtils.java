@@ -1,11 +1,7 @@
 package org.haic.often.Network;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import com.alibaba.fastjson.JSONObject;
+import net.lingala.zip4j.model.enums.RandomAccessFileMode;
 import org.apache.http.HttpStatus;
 import org.haic.often.*;
 import org.haic.often.Multithread.MultiThreadUtils;
@@ -14,9 +10,11 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Connection.Response;
 
-import com.alibaba.fastjson.JSONObject;
-
-import net.lingala.zip4j.model.enums.RandomAccessFileMode;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 网络文件 工具类
@@ -63,24 +61,20 @@ public final class NetworkFileUtils {
 	/**
 	 * 连接 URI
 	 *
-	 * @param url
-	 *            链接
+	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public static NetworkFileUtils connect(final @NotNull String url) {
+	@Contract(pure = true) public static NetworkFileUtils connect(final @NotNull String url) {
 		return config().url(url);
 	}
 
 	/**
 	 * 设置 URI
 	 *
-	 * @param url
-	 *            链接
+	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true)
-	private NetworkFileUtils url(final @NotNull String url) {
+	@Contract(pure = true) private NetworkFileUtils url(final @NotNull String url) {
 		this.url = url;
 		return this;
 	}
@@ -89,12 +83,10 @@ public final class NetworkFileUtils {
 	 * 获取新的NetworkFileUtils对象并设置配置文件<br/>
 	 * 配置文件 -> 包含待下载文件的下载信息的文件
 	 *
-	 * @param conf
-	 *            down文件
+	 * @param conf down文件
 	 * @return new NetworkFileUtils
 	 */
-	@Contract(pure = true)
-	public static NetworkFileUtils file(final String conf) {
+	@Contract(pure = true) public static NetworkFileUtils file(final String conf) {
 		return file(new File(conf));
 	}
 
@@ -102,24 +94,20 @@ public final class NetworkFileUtils {
 	 * 获取新的NetworkFileUtils对象并设置配置文件<br/>
 	 * 配置文件 -> 包含待下载文件的下载信息的文件
 	 *
-	 * @param conf
-	 *            down文件
+	 * @param conf down文件
 	 * @return new NetworkFileUtils
 	 */
-	@Contract(pure = true)
-	public static NetworkFileUtils file(final File conf) {
+	@Contract(pure = true) public static NetworkFileUtils file(final File conf) {
 		return config().setConf(conf);
 	}
 
 	/**
 	 * 设置 配置文件
 	 *
-	 * @param conf
-	 *            配置文件
+	 * @param conf 配置文件
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils setConf(final File conf) {
+	@Contract(pure = true) public NetworkFileUtils setConf(final File conf) {
 		this.fileDownloadMode = true;
 		this.conf = conf;
 		return this;
@@ -130,8 +118,7 @@ public final class NetworkFileUtils {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true)
-	private static NetworkFileUtils config() {
+	@Contract(pure = true) private static NetworkFileUtils config() {
 		return new NetworkFileUtils();
 	}
 
@@ -140,8 +127,7 @@ public final class NetworkFileUtils {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils fullMode(final boolean fullMode) {
+	@Contract(pure = true) public NetworkFileUtils fullMode(final boolean fullMode) {
 		this.fullDownloadMode = fullMode;
 		return this;
 	}
@@ -149,12 +135,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置文件名
 	 *
-	 * @param filename
-	 *            文件名
+	 * @param filename 文件名
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils filename(final @NotNull String filename) {
+	@Contract(pure = true) public NetworkFileUtils filename(final @NotNull String filename) {
 		this.fileName = filename;
 		return this;
 	}
@@ -162,12 +146,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置错误退出
 	 *
-	 * @param errorExit
-	 *            启用错误退出
+	 * @param errorExit 启用错误退出
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils errorExit(final boolean errorExit) {
+	@Contract(pure = true) public NetworkFileUtils errorExit(final boolean errorExit) {
 		this.errorExit = errorExit;
 		return this;
 	}
@@ -175,12 +157,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置上一页
 	 *
-	 * @param referrer
-	 *            上一页
+	 * @param referrer 上一页
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils referrer(final @NotNull String referrer) {
+	@Contract(pure = true) public NetworkFileUtils referrer(final @NotNull String referrer) {
 		this.referrer = referrer;
 		return this;
 	}
@@ -188,14 +168,11 @@ public final class NetworkFileUtils {
 	/**
 	 * 添加 cookie
 	 *
-	 * @param name
-	 *            cookie-名称
-	 * @param value
-	 *            cookie-值
+	 * @param name  cookie-名称
+	 * @param value cookie-值
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils cookies(final @NotNull String name, final @NotNull String value) {
+	@Contract(pure = true) public NetworkFileUtils cookies(final @NotNull String name, final @NotNull String value) {
 		cookies.put(name, value);
 		return this;
 	}
@@ -203,12 +180,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置 cookies
 	 *
-	 * @param cookies
-	 *            cookie集合
+	 * @param cookies cookie集合
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils cookies(final @NotNull Map<String, String> cookies) {
+	@Contract(pure = true) public NetworkFileUtils cookies(final @NotNull Map<String, String> cookies) {
 		this.cookies = cookies;
 		return this;
 	}
@@ -216,14 +191,11 @@ public final class NetworkFileUtils {
 	/**
 	 * 添加 请求头
 	 *
-	 * @param name
-	 *            请求头-名称
-	 * @param value
-	 *            请求头-值
+	 * @param name  请求头-名称
+	 * @param value 请求头-值
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils header(final @NotNull String name, final @NotNull String value) {
+	@Contract(pure = true) public NetworkFileUtils header(final @NotNull String name, final @NotNull String value) {
 		headers.put(name, value);
 		return this;
 	}
@@ -231,12 +203,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置 headers
 	 *
-	 * @param headers
-	 *            请求头集合
+	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils headers(final @NotNull Map<String, String> headers) {
+	@Contract(pure = true) public NetworkFileUtils headers(final @NotNull Map<String, String> headers) {
 		this.headers = headers;
 		return this;
 	}
@@ -244,14 +214,11 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置 代理
 	 *
-	 * @param proxyHost
-	 *            代理地址
-	 * @param proxyPort
-	 *            代理端口
+	 * @param proxyHost 代理地址
+	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils proxy(final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public NetworkFileUtils proxy(final String proxyHost, final int proxyPort) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		return this;
@@ -260,14 +227,11 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置 重试次数和重试等待时间
 	 *
-	 * @param retry
-	 *            重试次数
-	 * @param MILLISECONDS_SLEEP
-	 *            重试等待时间(毫秒)
+	 * @param retry              重试次数
+	 * @param MILLISECONDS_SLEEP 重试等待时间(毫秒)
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils retry(final int retry, final int MILLISECONDS_SLEEP) {
+	@Contract(pure = true) public NetworkFileUtils retry(final int retry, final int MILLISECONDS_SLEEP) {
 		this.retry = retry;
 		this.MILLISECONDS_SLEEP = MILLISECONDS_SLEEP;
 		return this;
@@ -276,12 +240,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置 重试次数
 	 *
-	 * @param retry
-	 *            重试次数
+	 * @param retry 重试次数
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils retry(final int retry) {
+	@Contract(pure = true) public NetworkFileUtils retry(final int retry) {
 		this.retry = retry;
 		return this;
 	}
@@ -289,14 +251,11 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置 请求异常时无限重试
 	 *
-	 * @param unlimitedRetry
-	 *            启用无限重试
-	 * @param MILLISECONDS_SLEEP
-	 *            重试等待时间(毫秒)
+	 * @param unlimitedRetry     启用无限重试
+	 * @param MILLISECONDS_SLEEP 重试等待时间(毫秒)
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils retry(final boolean unlimitedRetry, final int MILLISECONDS_SLEEP) {
+	@Contract(pure = true) public NetworkFileUtils retry(final boolean unlimitedRetry, final int MILLISECONDS_SLEEP) {
 		this.unlimitedRetry = unlimitedRetry;
 		this.MILLISECONDS_SLEEP = MILLISECONDS_SLEEP;
 		return this;
@@ -305,12 +264,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置 请求异常时无限重试
 	 *
-	 * @param unlimitedRetry
-	 *            启用无限重试
+	 * @param unlimitedRetry 启用无限重试
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils retry(final boolean unlimitedRetry) {
+	@Contract(pure = true) public NetworkFileUtils retry(final boolean unlimitedRetry) {
 		this.unlimitedRetry = unlimitedRetry;
 		return this;
 	}
@@ -318,12 +275,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 上传文件时，设置服务器需要的授权码
 	 *
-	 * @param auth
-	 *            授权码
+	 * @param auth 授权码
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils authorization(String auth) {
+	@Contract(pure = true) public NetworkFileUtils authorization(String auth) {
 		this.authorization = auth;
 		return this;
 	}
@@ -331,12 +286,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置多线程下载，线程数不小于1，否则抛出异常
 	 *
-	 * @param nThread
-	 *            线程最大值
+	 * @param nThread 线程最大值
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils multithread(final int nThread) {
+	@Contract(pure = true) public NetworkFileUtils multithread(final int nThread) {
 		if (nThread < 1) {
 			throw new RuntimeException("thread Less than 1");
 		}
@@ -347,12 +300,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 多线程下载使用并发访问，会导致数据丢失，使用异步访问可以解决数据丢失、数据错误问题，如果存在问题，请增大访问间隔（默认36毫秒）
 	 *
-	 * @param interval
-	 *            异步访问间隔
+	 * @param interval 异步访问间隔
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils interval(final int interval) {
+	@Contract(pure = true) public NetworkFileUtils interval(final int interval) {
 		this.interval = interval;
 		return this;
 	}
@@ -360,12 +311,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置写入文件时缓冲区大小
 	 *
-	 * @param bufferSize
-	 *            缓冲区大小
+	 * @param bufferSize 缓冲区大小
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils bufferSize(final int bufferSize) {
+	@Contract(pure = true) public NetworkFileUtils bufferSize(final int bufferSize) {
 		this.bufferSize = bufferSize;
 		return this;
 	}
@@ -373,12 +322,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置md5算法hash值进行文件完整性效验
 	 *
-	 * @param hash
-	 *            文件md5值
+	 * @param hash 文件md5值
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils hash(final @NotNull String hash) {
+	@Contract(pure = true) public NetworkFileUtils hash(final @NotNull String hash) {
 		this.hash = hash;
 		return this;
 	}
@@ -386,12 +333,10 @@ public final class NetworkFileUtils {
 	/**
 	 * 设置多线程分块大小
 	 *
-	 * @param pieceSize
-	 *            指定块大小(KB)
+	 * @param pieceSize 指定块大小(KB)
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public NetworkFileUtils pieceSize(final int pieceSize) {
+	@Contract(pure = true) public NetworkFileUtils pieceSize(final int pieceSize) {
 		this.PIECE_MAX_SIZE = pieceSize * 1024;
 		return this;
 	}
@@ -399,24 +344,20 @@ public final class NetworkFileUtils {
 	/**
 	 * 上传网络文件,返回状态码
 	 *
-	 * @param filePath
-	 *            待上传的文件路径
+	 * @param filePath 待上传的文件路径
 	 * @return 上传状态码
 	 */
-	@Contract(pure = true)
-	public int Upload(final @NotNull String filePath) {
+	@Contract(pure = true) public int Upload(final @NotNull String filePath) {
 		return Upload(new File(filePath));
 	}
 
 	/**
 	 * 上传网络文件,返回状态码
 	 *
-	 * @param file
-	 *            待上传的文件对象
+	 * @param file 待上传的文件对象
 	 * @return 上传状态码
 	 */
-	@Contract(pure = true)
-	public int Upload(final @NotNull File file) {
+	@Contract(pure = true) public int Upload(final @NotNull File file) {
 		if (!Judge.isEmpty(authorization)) {
 			headers.put("Authorization", authorization);
 		}
@@ -428,24 +369,20 @@ public final class NetworkFileUtils {
 	/**
 	 * 下载网络文件,返回状态码
 	 *
-	 * @param folderPath
-	 *            文件存放目录路径
+	 * @param folderPath 文件存放目录路径
 	 * @return 下载状态码
 	 */
-	@Contract(pure = true)
-	public int download(final @NotNull String folderPath) {
+	@Contract(pure = true) public int download(final @NotNull String folderPath) {
 		return download(new File(folderPath));
 	}
 
 	/**
 	 * 下载网络文件,返回状态码
 	 *
-	 * @param folder
-	 *            文件存放目录对象
+	 * @param folder 文件存放目录对象
 	 * @return 下载状态码
 	 */
-	@Contract(pure = true)
-	public int download(final @NotNull File folder) {
+	@Contract(pure = true) public int download(final @NotNull File folder) {
 		Response response = null;
 		JSONObject fileInfo = new JSONObject();
 		if (fileDownloadMode) {
@@ -477,14 +414,15 @@ public final class NetworkFileUtils {
 			// 获取文件名
 			if (Judge.isEmpty(fileName)) {
 				String disposition = Objects.requireNonNull(response).header("Content-Disposition");
-				fileName = TranscodUtils.decodeByURL(Judge.isNull(disposition) ? url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)
-						: disposition.substring(disposition.indexOf("filename=") + 10));
+				fileName = TranscodUtils.decodeByURL(Judge.isNull(disposition) ?
+						url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1) :
+						disposition.substring(disposition.indexOf("filename=") + 10));
 			}
 			// 文件名排除非法字符
 			fileName = FilesUtils.illegalFileName(fileName);
 			// 文件名长度检验
 			if (fileName.length() > 200) {
-				throw new RuntimeException("URL: " + url + " Error: File name length is greater than 200");
+				throw new RuntimeException("Error: File name length is greater than 200 URL: " + url + " FileName: " + fileName);
 			}
 			// 获取待下载文件和配置文件对象
 			storage = new File(folder.getPath(), fileName); // 获取其file对象
@@ -580,15 +518,15 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writeFull() {
-		return writeFull(JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
-				.errorExit(errorExit).GetResponse());
+		return writeFull(
+				JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit)
+						.GetResponse());
 	}
 
 	/**
 	 * 全量下载，下载获取文件信息并写入文件
 	 *
-	 * @param response
-	 *            网页Response对象
+	 * @param response 网页Response对象
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writeFull(Response response) {
@@ -603,10 +541,8 @@ public final class NetworkFileUtils {
 	/**
 	 * 分块下载，下载获取文件区块信息并写入文件
 	 *
-	 * @param start
-	 *            块起始位
-	 * @param end
-	 *            块结束位
+	 * @param start 块起始位
+	 * @param end   块结束位
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writePiece(int start, int end) {
@@ -617,10 +553,8 @@ public final class NetworkFileUtils {
 	/**
 	 * 下载获取文件区块信息并写入文件
 	 *
-	 * @param start
-	 *            块起始位
-	 * @param end
-	 *            块结束位 * @param piece 块Response对象
+	 * @param start 块起始位
+	 * @param end   块结束位 * @param piece 块Response对象
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writePiece(int start, int end, Response piece) {
