@@ -104,7 +104,7 @@ public class URIUtils {
 	 * @return 连接状态 boolean
 	 */
 	@Contract(pure = true) public static boolean statusIsError(final int statusCode) {
-		return statusCode >= HttpStatus.SC_BAD_REQUEST && statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR && statusCode != HttpStatus.SC_REQUEST_TIMEOUT;
+		return statusCode >= HttpStatus.SC_BAD_REQUEST && statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR  &&statusCode!=HttpStatus.SC_REQUEST_TIMEOUT&&statusCode!=HttpStatus.SC_GONE&&statusCode!=HttpStatus.SC_NOT_FOUND;
 	}
 
 	/**
