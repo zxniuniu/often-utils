@@ -583,6 +583,12 @@ public final class NetworkFileUtils {
             }
             if (errorExit) {
                 throw new RuntimeException("文件效验不正确，URL md5:" + hash + " 本地文件 md5: " + md5 + " URL: " + url);
+            } else {
+                try {
+                    throw new RuntimeException("文件效验不正确，URL md5:" + hash + " 本地文件 md5: " + md5 + " URL: " + url);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             return HttpStatus.SC_REQUEST_TIMEOUT;
         }
