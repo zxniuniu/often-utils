@@ -20,8 +20,8 @@ import java.util.concurrent.Executors;
  * 网络文件 工具类
  *
  * @author haicdust
- * @version 1.8.1
- * @since 2020/2/25 18:45
+ * @version 1.8.2
+ * @since 2021/12/24 23:07
  */
 public final class NetworkFileUtils {
 
