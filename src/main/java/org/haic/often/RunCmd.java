@@ -1,61 +1,127 @@
 package org.haic.often;
 
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * CMD控制台
  *
  * @author haicdust
  * @version 1.0
- * @since 2020/2/18 17:16
+ * @since 2021/12/25 06:50
  */
 public class RunCmd {
 
-	/**
-	 * 执行CMD命令并返回信息
-	 *
-	 * @param dos
-	 *            cmd命令
-	 * @param CharsetName
-	 *            字符集格式名称
-	 * @return 命令执行后返回的信息
-	 */
-	public static String readInfo(final @NotNull String dos, final @NotNull String CharsetName) {
-		return readInfo(dos, Charset.forName(CharsetName));
+	private List<String> command; // cmd命令
+	private Charset charset; // 字符集格式
+	private File directory; // 工作目录
+
+	private RunCmd() {
+		charset("GBK");
+		directory(System.getProperty("user.dir"));
 	}
 
 	/**
-	 * 执行CMD命令并返回信息
+	 * 设置 cmd命令
 	 *
-	 * @param dos
-	 *            cmd命令
-	 * @return 命令执行后返回的信息
+	 * @param dos cmd命令
+	 * @return new RunCmd
 	 */
-	public static String readInfo(final @NotNull String dos) {
-		return readInfo(dos, Charset.forName("GBK"));
+	public static RunCmd dos(final @NotNull String... dos) {
+		return dos(Arrays.stream(dos).toList());
 	}
 
 	/**
-	 * 执行CMD命令并返回信息
+	 * 设置 cmd命令
 	 *
-	 * @param dos
-	 *            cmd命令
-	 * @param charset
-	 *            字符集格式
-	 * @return 命令执行后返回的信息
+	 * @param dos cmd命令
+	 * @return new RunCmd
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public static String readInfo(final @NotNull String dos, final @NotNull Charset charset) {
+	public static RunCmd dos(final @NotNull List<String> dos) {
+		return config().command(dos);
+	}
+
+	/**
+	 * 获取 new RunCmd
+	 *
+	 * @return new RunCmd
+	 */
+	private static RunCmd config() {
+		return new RunCmd();
+	}
+
+	/**
+	 * 设置 cmd命令
+	 *
+	 * @param command cmd命令
+	 * @return this
+	 */
+	private RunCmd command(final @NotNull List<String> command) {
+		this.command = command;
+		return this;
+	}
+
+	/**
+	 * 设置 字符集编码名
+	 *
+	 * @param CharsetName 字符集编码名
+	 * @return this
+	 */
+	public RunCmd charset(final @NotNull String CharsetName) {
+		charset(Charset.forName(CharsetName));
+		return this;
+	}
+
+	/**
+	 * 设置 字符集编码
+	 *
+	 * @param charset 字符集编码
+	 * @return this
+	 */
+	public RunCmd charset(final @NotNull Charset charset) {
+		this.charset = charset;
+		return this;
+	}
+
+	/**
+	 * 设置 工作目录
+	 *
+	 * @param directory 工作目录路径
+	 * @return this
+	 */
+	public RunCmd directory(String directory) {
+		return directory(new File(directory));
+	}
+
+	/**
+	 * 设置 工作目录
+	 *
+	 * @param directory 工作目录
+	 * @return this
+	 */
+	public RunCmd directory(File directory) {
+		this.directory = directory;
+		return this;
+	}
+
+	/**
+	 * 获取执行的信息
+	 *
+	 * @return 执行的信息
+	 */
+	@NotNull @Contract(pure = true) public String readInfo() {
 		String result = "";
 		Process process;
-		try (InputStreamReader inputStream = new InputStreamReader((process = Runtime.getRuntime().exec(dos)).getInputStream(), charset)) {
+		try (InputStreamReader inputStream = new InputStreamReader((process = new ProcessBuilder(command).redirectErrorStream(true).directory(directory).start()).getInputStream(), charset)) {
 			result = IOUtils.streamToString(inputStream);
 			process.waitFor();
+			process.destroy();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -65,46 +131,19 @@ public class RunCmd {
 	/**
 	 * 执行CMD命令
 	 *
-	 * @param dos
-	 *            cmd命令
-	 * @return 是否正常退出
+	 * @return 执行是否成功
 	 */
-	@Contract(pure = true)
-	public static boolean execute(final @NotNull String dos) {
-		int status;
+	@Contract(pure = true) public boolean execute() {
+		int status = 0;
+		Process process;
 		try {
-			Process process = Runtime.getRuntime().exec(dos);
+			process = new ProcessBuilder(command).directory(directory).start();
 			status = process.waitFor();
+			process.destroy();
 		} catch (Exception e) {
-			status = 1;
+			e.printStackTrace();
 		}
 		return Judge.isEmpty(status);
-	}
-
-	/**
-	 * 如果路径有空格，会导致命令执行错误，为路径添加引号使命令可以正常执行
-	 *
-	 * @param path
-	 *            路径
-	 * @return 添加双引号的路径(常用于cmd命令)
-	 */
-	@NotNull
-	@Contract(pure = true)
-	public static String addDoubleQuotes(final @NotNull String path) {
-		return StringUtils.DOUBLE_QUOTES + path + StringUtils.DOUBLE_QUOTES;
-	}
-
-	/**
-	 * 如果路径有空格，会导致命令执行错误，为路径添加引号使命令可以正常执行
-	 *
-	 * @param path
-	 *            路径
-	 * @return 添加单引号的路径(常用于adb shell命令)
-	 */
-	@NotNull
-	@Contract(pure = true)
-	public static String addApostrophe(final @NotNull String path) {
-		return StringUtils.APOSTROPHE + path + StringUtils.APOSTROPHE;
 	}
 
 }

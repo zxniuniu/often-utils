@@ -104,7 +104,8 @@ public class URIUtils {
 	 * @return 连接状态 boolean
 	 */
 	@Contract(pure = true) public static boolean statusIsError(final int statusCode) {
-		return statusCode >= HttpStatus.SC_BAD_REQUEST && statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR  &&statusCode!=HttpStatus.SC_REQUEST_TIMEOUT&&statusCode!=HttpStatus.SC_GONE&&statusCode!=HttpStatus.SC_NOT_FOUND;
+		return statusCode >= HttpStatus.SC_BAD_REQUEST && statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR && statusCode != HttpStatus.SC_REQUEST_TIMEOUT && statusCode != HttpStatus.SC_GONE
+				&& statusCode != HttpStatus.SC_NOT_FOUND;
 	}
 
 	/**
@@ -141,7 +142,7 @@ public class URIUtils {
 	 * @return 连接状态
 	 */
 	@Contract(pure = true) public static boolean pingIp(final @NotNull String host) {
-		return RunCmd.execute("ping " + host + " -n 1 -w " + 5000);
+		return RunCmd.dos("ping", host, "-n", "1", "-w", "5000").execute();
 	}
 
 	/**
@@ -243,7 +244,14 @@ public class URIUtils {
 		params.put("pwd", passwd);
 		// 处理json数据
 		String lanzouUrl = "https://wws.lanzoux.com/";
-		JSONArray jsonArray = JSONObject.parseObject(JsoupUtils.connect(lanzouUrl + "filemoreajax.php").data(params).retry(true).GetResponse(Connection.Method.POST).body()).getJSONArray("text");
+		JSONArray jsonArray = null;
+		while (Judge.isNull(jsonArray)) {
+			try {
+				jsonArray = JSONObject.parseObject(JsoupUtils.connect(lanzouUrl + "filemoreajax.php").data(params).retry(true).GetResponse(Connection.Method.POST).body()).getJSONArray("text");
+			} catch (Exception e) {
+				// e.printStackTrace();
+			}
+		}
 		Map<String, String> result = new HashMap<>();
 		for (int i = 0; i < jsonArray.size(); i++) {
 			JSONObject info = jsonArray.getJSONObject(i);
