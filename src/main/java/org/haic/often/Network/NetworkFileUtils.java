@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 网络文件 工具类
+ * 网络文件 工具类 默认16线程下载
  *
  * @author haicdust
  * @version 1.8.2
@@ -74,7 +74,7 @@ public final class NetworkFileUtils {
     }
 
     private NetworkFileUtils() {
-        MAX_THREADS = 1; // 默认单线程下载
+        MAX_THREADS = 16; // 默认16线程下载
         interval = 100; // 默认异步访问间隔100毫秒
         bufferSize = 8192; // 默认缓冲区大小
         PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
@@ -513,7 +513,7 @@ public final class NetworkFileUtils {
             }
         }
 
-        method = Judge.isEmpty(fileSize) || MAX_THREADS == 1 ? Method.FULL : method;// 如果文件大小获取失败或线程为1，使用全量下载模式
+        method = Judge.isEmpty(fileSize) ? Method.FULL : method;// 如果文件大小获取失败或线程为1，使用全量下载模式
         FilesUtils.createFolder(folder); // 创建文件夹
 
         switch (method) {  // 开始下载
