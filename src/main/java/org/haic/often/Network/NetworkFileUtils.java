@@ -433,6 +433,31 @@ public final class NetworkFileUtils {
     /**
      * 下载网络文件,返回状态码
      *
+     * @return 下载状态码
+     */
+    @Contract(pure = true)
+    public int download() {
+        File directory;
+        Properties props = System.getProperties(); // 获得系统属性集
+        if (props.contains("Windows")) {
+            String[] value = RunCmd.dos("REG", "QUERY",
+                            "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", "/v",
+                            "{374DE290-123F-4565-9164-39C4925E467B}")
+                    .readInfo().split(" ");
+            directory = new File(value[value.length - 1]);
+        } else if (props.contains("Linux")) {
+            directory = new File("/root/Download");
+        } else if (props.contains("Android")) {
+            directory = new File("/sdracd/Download");
+        } else {
+            throw new RuntimeException("Unable to determine the system");
+        }
+        return download(directory);
+    }
+
+    /**
+     * 下载网络文件,返回状态码
+     *
      * @param folder 文件存放目录对象
      * @return 下载状态码
      */
