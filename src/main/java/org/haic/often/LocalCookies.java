@@ -5,6 +5,7 @@ import com.github.windpapi4j.WinDPAPI;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
@@ -34,38 +35,60 @@ public class LocalCookies {
         userHome = new File(System.getProperty("user.home") + "\\AppData\\Local\\Microsoft\\Edge\\User Data");
     }
 
+    /**
+     * 用户文件夹路径 C:\\users\\xxx\\AppData\\Local\\Microsoft\\Edge\\User Data
+     *
+     * @return new ChromeBrowser
+     */
     @Contract(pure = true)
     public static ChromeBrowser home() {
         return config().chromeBrowser();
     }
 
+    /**
+     * 自定义 用户文件夹路径
+     *
+     * @param userHome 用户文件夹路径
+     * @return new ChromeBrowser
+     */
+    @NotNull
     @Contract(pure = true)
-    public static ChromeBrowser home(final String userHome) {
+    public static ChromeBrowser home(@NotNull final String userHome) {
         return home(new File(userHome));
     }
 
+    /**
+     * 自定义 用户文件夹路径
+     *
+     * @param userHome 用户文件夹路径
+     * @return new ChromeBrowser
+     */
+    @NotNull
     @Contract(pure = true)
-    public static ChromeBrowser home(final File userHome) {
+    public static ChromeBrowser home(@NotNull final File userHome) {
         return config().chromeBrowser(userHome);
     }
 
+    @NotNull
     @Contract(pure = true)
     private static LocalCookies config() {
         return new LocalCookies();
     }
 
+    @NotNull
     @Contract(pure = true)
     private ChromeBrowser chromeBrowser() {
         return chromeBrowser(userHome);
     }
 
+    @NotNull
     @Contract(pure = true)
-    private ChromeBrowser chromeBrowser(File userHome) {
+    private ChromeBrowser chromeBrowser(@NotNull final File userHome) {
         return new ChromeBrowser(userHome);
     }
 
     @Contract(pure = true)
-    protected void userHome(final File userHome) {
+    private void userHome(@NotNull final File userHome) {
         this.userHome = userHome;
         this.cookieStore = new File(new File(userHome, "Default"), "Cookies");
     }
@@ -192,17 +215,17 @@ public class LocalCookies {
          * Processes all cookies in the cookie store for a given domain or all
          * domains if domainFilter is null
          *
-         * @param cookieStore
-         * @param domainFilter
-         * @return
+         * @param cookieStore  cookieStore
+         * @param domainFilter 域名
+         * @return cookie set
          */
         protected abstract Set<Cookie> processCookies(File cookieStore, String domainFilter);
 
         /**
          * Decrypts an encrypted cookie
          *
-         * @param encryptedCookie
-         * @return
+         * @param encryptedCookie decrypted cookie
+         * @return decrypted cookie
          */
         protected abstract DecryptedCookie decrypt(EncryptedCookie encryptedCookie);
 
@@ -217,9 +240,9 @@ public class LocalCookies {
          * Processes all cookies in the cookie store for a given domain or all
          * domains if domainFilter is null
          *
-         * @param cookieStore
-         * @param domainFilter
-         * @return
+         * @param cookieStore  cookie
+         * @param domainFilter domain
+         * @return decrypted cookie
          */
         @Override
         protected Set<Cookie> processCookies(File cookieStore, String domainFilter) {
@@ -270,8 +293,8 @@ public class LocalCookies {
         /**
          * Decrypts an encrypted cookie
          *
-         * @param encryptedCookie
-         * @return
+         * @param encryptedCookie encrypted cookie
+         * @return decrypted cookie
          */
         @Override
         protected DecryptedCookie decrypt(EncryptedCookie encryptedCookie) {
