@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 网络文件 工具类 默认16线程下载
@@ -48,6 +49,7 @@ public final class NetworkFileUtils {
 	private Map<String, String> cookies = new HashMap<>(); // cookies
 	private ExecutorService executorService; // 下载线程池
 	private Method method;// 下载模式
+	private final List<Integer> statusCodes = new CopyOnWriteArrayList<>();
 
 	/**
 	 * 下载方法名常量<br/>
@@ -555,7 +557,7 @@ public final class NetworkFileUtils {
 		}
 		case MULTITHREAD -> {
 			executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
-			List<Integer> statusCodes = multithread(0, fileSize / MAX_THREADS - 1);
+			statusCodes.add(multithread(0, fileSize / MAX_THREADS - 1, fileSize / MAX_THREADS));
 			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
 			// 判断下载状态
 			for (int statusCode : statusCodes) {
@@ -569,6 +571,20 @@ public final class NetworkFileUtils {
 		}
 		case INTELLIGENT -> {
 			// TODO INTELLIGENT
+			executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
+			AtomicInteger end = new AtomicInteger(fileSize - 1);
+			statusCodes.add(intelligent(0, end));
+			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
+			// 判断下载状态
+			for (int statusCode : statusCodes) {
+				if (!URIUtils.statusIsOK(statusCode)) {
+					if (errorExit) {
+						throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
+					}
+					return statusCode;
+				}
+			}
+
 		}
 		}
 		// 效验文件完整性
@@ -593,34 +609,93 @@ public final class NetworkFileUtils {
 		return HttpStatus.SC_OK;
 	}
 
-	private List<Integer> multithread(int start, int end) {
-		List<Integer> statusCodes = new CopyOnWriteArrayList<>();
-		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer)
+	int threadsCount = 1;
+
+	/**
+	 * 不可用
+	 */
+	@Deprecated private int intelligent(int start, AtomicInteger end) {
+		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end.get()).cookies(cookies).referrer(referrer)
 				.retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).GetResponse();
 		try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
 			output.seek(start);
 			byte[] buffer = new byte[bufferSize];
-			int count = 0;
-			for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); count += length) {
+			AtomicInteger count = new AtomicInteger(0);
+			for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); count.addAndGet(length)) {
+				if (count.get() >= end.get()) {
+					break;
+				}
 				output.write(buffer, 0, length);
-				if (count == 0 && end < fileSize - 1) {
-					executorService.execute(new Thread(() -> { // 执行多线程程
-						int partSize = fileSize / MAX_THREADS;
-						int newStart = end + 1;
-						int newEnd = newStart + partSize;
-						newEnd = Math.min(newEnd, fileSize - 1);
-						statusCodes.addAll(multithread(newStart, newEnd));
-					}));
+				if (count.get() == 0) {
+					if (threadsCount <= MAX_THREADS) {
+						threadsCount++;
+						executorService.execute(new Thread(() -> { // 执行多线程程
+							MultiThreadUtils.WaitForThread(1000);
+							int newStart = (end.get() - start) / 2;
+							if (count.get() < newStart) {
+								AtomicInteger newEnd = new AtomicInteger(end.get() - newStart);
+								end.set(newStart - 1);
+								statusCodes.add(intelligent(newStart, newEnd));
+							}
+						}));
+					}
+					if (threadsCount <= MAX_THREADS) {
+						threadsCount++;
+						executorService.execute(new Thread(() -> { // 执行多线程程
+							MultiThreadUtils.WaitForThread(2000);
+							int newStart = (end.get() - start) / 2;
+							if (count.get() < newStart) {
+								AtomicInteger newEnd = new AtomicInteger(end.get() - newStart);
+								end.set(newStart - 1);
+								statusCodes.add(intelligent(newStart, newEnd));
+							}
+						}));
+					}
 				}
 			}
-			if (end - start + 1 == count) {
-				ReadWriteUtils.orgin(conf).text(start + "-" + end);
-				statusCodes.add(piece.statusCode());
+			if (end.get() <= count.get()) {
+				ReadWriteUtils.orgin(conf).text(start + "-" + end.get());
+				return piece.statusCode();
 			}
 		} catch (IOException e) {
 			// e.printStackTrace();
 		}
-		return statusCodes;
+		return HttpStatus.SC_REQUEST_TIMEOUT;
+	}
+
+	private int multithread(int start, int end, int pieceSize) {
+		if (infos.contains(start + "-" + end)) {
+			addMultithread(end, pieceSize);
+			return HttpStatus.SC_PARTIAL_CONTENT;
+		} else {
+			for (int i = 0; i < retry || unlimitedRetry; i++) {
+				Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer).GetResponse();
+				try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
+					output.seek(start);
+					byte[] buffer = new byte[bufferSize];
+					int count = 0;
+					for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); count += length) {
+						output.write(buffer, 0, length);
+						if (count == 0 && end < fileSize - 1) {
+							addMultithread(end, pieceSize);
+						}
+					}
+					if (end - start + 1 == count) {
+						ReadWriteUtils.orgin(conf).text(start + "-" + end);
+						return piece.statusCode();
+					}
+				} catch (IOException e) {
+					// e.printStackTrace();
+				}
+			}
+		}
+		return HttpStatus.SC_REQUEST_TIMEOUT;
+	}
+
+	private void addMultithread(int end, int pieceSize) {
+		executorService.execute(new Thread(() -> { // 执行多线程程
+			statusCodes.add(multithread(end + 1, Math.min(end + pieceSize + 1, fileSize - 1), pieceSize));
+		}));
 	}
 
 	/**
@@ -657,8 +732,7 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writePiece(int start, int end) {
-		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer)
-				.retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).GetResponse();
+		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer).GetResponse();
 		return Judge.isNull(piece) ? HttpStatus.SC_REQUEST_TIMEOUT : URIUtils.statusIsOK(piece.statusCode()) ? writePiece(start, end, piece) : piece.statusCode();
 	}
 
