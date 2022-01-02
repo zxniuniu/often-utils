@@ -76,7 +76,7 @@ public final class NetworkFileUtils {
 
     private NetworkFileUtils() {
         MAX_THREADS = 16; // 默认16线程下载
-        interval = 100; // 默认异步访问间隔100毫秒
+        interval = 50; // 默认异步访问间隔50毫秒
         bufferSize = 8192; // 默认缓冲区大小
         PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
         headers.put("accept-encoding", "gzip, deflate, br");
@@ -346,7 +346,7 @@ public final class NetworkFileUtils {
     }
 
     /**
-     * 多线程下载使用并发访问，会导致数据丢失，使用异步访问可以解决数据丢失、数据错误问题，如果存在问题，请增大访问间隔（默认100毫秒,应不低于36毫秒）
+     * 多线程下载使用并发访问，会导致数据丢失，使用异步访问可以解决数据丢失、数据错误问题，如果存在问题，请增大访问间隔（默认50毫秒,应不低于36毫秒）
      *
      * @param interval 异步访问间隔
      * @return this
@@ -551,23 +551,13 @@ public final class NetworkFileUtils {
                 }
             }
             case PIECE -> {
-                List<Integer> statusCodes = new CopyOnWriteArrayList<>();
                 int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
                 executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
                 for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
                     executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
                         int start = index * PIECE_MAX_SIZE;
                         int end = ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1;
-                        if (infos.contains(start + "-" + end)) {
-                            return;
-                        }
-                        int statusCode = writePiece(start, end);
-                        for (int j = 0; !URIUtils.statusIsOK(statusCode) && (j < retry || unlimitedRetry); j++) {
-                            MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
-                            statusCode = writePiece(start, end);
-                        }
-                        statusCodes.add(statusCode);
-                        if (!URIUtils.statusIsOK(statusCode)) {
+                        if (!URIUtils.statusIsOK(addPiece(start, end))) {
                             executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
                         }
                     }));
@@ -585,7 +575,15 @@ public final class NetworkFileUtils {
             }
             case MULTITHREAD -> {
                 executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
-                statusCodes.add(multithread(0, fileSize / MAX_THREADS - 1, fileSize / MAX_THREADS));
+                for (int i = 0; i < MAX_THREADS; i++, MultiThreadUtils.WaitForThread(interval)) {
+                    executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
+                        int start = index * fileSize / MAX_THREADS;
+                        int end = (index + 1) * fileSize / MAX_THREADS - 1;
+                        if (!URIUtils.statusIsOK(addPiece(start, end))) {
+                            executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
+                        }
+                    }));
+                }
                 MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
                 // 判断下载状态
                 for (int statusCode : statusCodes) {
@@ -620,39 +618,17 @@ public final class NetworkFileUtils {
         return HttpStatus.SC_OK;
     }
 
-    private int multithread(final int start, final int end, final int pieceSize) {
+    private int addPiece(int start, int end) {
         if (infos.contains(start + "-" + end)) {
-            addMultithread(end, pieceSize);
             return HttpStatus.SC_PARTIAL_CONTENT;
-        } else {
-            for (int i = 0; i < retry || unlimitedRetry; i++) {
-                Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer).GetResponse();
-                try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
-                    output.seek(start);
-                    byte[] buffer = new byte[bufferSize];
-                    int count = 0;
-                    for (int length; !Judge.isMinusOne(length = inputStream.read(buffer)); count += length) {
-                        output.write(buffer, 0, length);
-                        if (count == 0 && end < fileSize - 1) {
-                            addMultithread(end, pieceSize);
-                        }
-                    }
-                    if (end - start + 1 == count) {
-                        ReadWriteUtils.orgin(conf).text(start + "-" + end);
-                        return piece.statusCode();
-                    }
-                } catch (IOException e) {
-                    // e.printStackTrace();
-                }
-            }
         }
-        return HttpStatus.SC_REQUEST_TIMEOUT;
-    }
-
-    private void addMultithread(final int end, final int pieceSize) {
-        executorService.execute(new Thread(() -> { // 执行多线程程
-            statusCodes.add(multithread(end + 1, Math.min(end + pieceSize + 1, fileSize - 1), pieceSize));
-        }));
+        int statusCode = writePiece(start, end);
+        for (int j = 0; !URIUtils.statusIsOK(statusCode) && (j < retry || unlimitedRetry); j++) {
+            MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
+            statusCode = writePiece(start, end);
+        }
+        statusCodes.add(statusCode);
+        return statusCode;
     }
 
     /**
