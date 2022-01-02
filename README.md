@@ -10,7 +10,7 @@ NetworkFileUtils.connect(url)
 .filename("QQ")  //设置文件名，文件名会替换非法字符，不设置会自动获取文件名   
 .retry(4，1000)  //重试次数，以及重试等待间隔  
 .multithread(10)  //多线程下载,无法获取文件大小转为全量下载,默认线程16  
-.interval(100)  //多线程异步间隔,同步访问网址会丢失数据,不应低于36,仅对PIECE模式有效  
+.interval(100)  //多线程异步间隔,同步访问网址会丢失数据,不应低于36  
 .errorExit(true)  //下载失败抛出执行异常  
 .download(folder); //设置存放的文件夹
 
