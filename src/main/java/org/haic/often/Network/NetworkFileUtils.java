@@ -574,7 +574,7 @@ public final class NetworkFileUtils {
                 }
             }
             case MULTITHREAD -> {
-                executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
+                executorService = Executors.newFixedThreadPool(Math.min(fileSize / PIECE_MAX_SIZE, MAX_THREADS)); // 限制多线程;
                 for (int i = 0; i < MAX_THREADS; i++, MultiThreadUtils.WaitForThread(interval)) {
                     executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
                         int start = index * fileSize / MAX_THREADS;
