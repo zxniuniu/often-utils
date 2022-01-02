@@ -48,7 +48,6 @@ public final class NetworkFileUtils {
     private Map<String, String> cookies = new HashMap<>(); // cookies
     private ExecutorService executorService; // 下载线程池
     private Method method;// 下载模式
-    private final List<Integer> statusCodes = new CopyOnWriteArrayList<>();
 
     /**
      * 下载方法名常量<br/>
@@ -551,13 +550,16 @@ public final class NetworkFileUtils {
                 }
             }
             case PIECE -> {
+                final List<Integer> statusCodes = new CopyOnWriteArrayList<>();
                 int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
                 executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
                 for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
                     executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
                         int start = index * PIECE_MAX_SIZE;
                         int end = ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1;
-                        if (!URIUtils.statusIsOK(addPiece(start, end))) {
+                        int statusCode = addPiece(start, end);
+                        statusCodes.add(statusCode);
+                        if (!URIUtils.statusIsOK(statusCode)) {
                             executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
                         }
                     }));
@@ -574,12 +576,15 @@ public final class NetworkFileUtils {
                 }
             }
             case MULTITHREAD -> {
+                final List<Integer> statusCodes = new CopyOnWriteArrayList<>();
                 executorService = Executors.newFixedThreadPool(Math.min(fileSize / PIECE_MAX_SIZE, MAX_THREADS)); // 限制多线程;
                 for (int i = 0; i < MAX_THREADS; i++, MultiThreadUtils.WaitForThread(interval)) {
                     executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
                         int start = index * fileSize / MAX_THREADS;
                         int end = (index + 1) * fileSize / MAX_THREADS - 1;
-                        if (!URIUtils.statusIsOK(addPiece(start, end))) {
+                        int statusCode = addPiece(start, end);
+                        statusCodes.add(statusCode);
+                        if (!URIUtils.statusIsOK(statusCode)) {
                             executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
                         }
                     }));
@@ -627,7 +632,6 @@ public final class NetworkFileUtils {
             MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
             statusCode = writePiece(start, end);
         }
-        statusCodes.add(statusCode);
         return statusCode;
     }
 
