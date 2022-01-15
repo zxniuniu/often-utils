@@ -387,8 +387,8 @@ public final class NetworkFileUtils {
 		if (!Judge.isEmpty(authorization)) {
 			headers.put("Authorization", authorization);
 		}
-		Response response = JsoupUtils.connect(url).headers(headers).header("Content-Type", "multipart/form-data").file(file).proxy(proxyHost, proxyPort).cookies(cookies).referrer(referrer)
-				.retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).GetResponse();
+		Response response = JsoupUtils.connect(url).headers(headers).header("Content-Type", "multipart/form-data").file(file).proxy(proxyHost, proxyPort)
+				.cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).GetResponse();
 		return Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
 	}
 
@@ -408,20 +408,9 @@ public final class NetworkFileUtils {
 	 * @return 下载状态码
 	 */
 	@Contract(pure = true) public int download() {
-		File directory;
-		Properties props = System.getProperties(); // 获得系统属性集
-		if (props.contains("Windows")) {
-			String[] value = RunCmd.dos("REG", "QUERY", "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", "/v", "{374DE290-123F-4565-9164-39C4925E467B}")
-					.readInfo().split(" ");
-			directory = new File(value[value.length - 1]);
-		} else if (props.contains("Linux")) {
-			directory = new File("/root/Download");
-		} else if (props.contains("Android")) {
-			directory = new File("/sdracd/Download");
-		} else {
-			throw new RuntimeException("Unable to determine the system");
-		}
-		return download(directory);
+		String[] value = RunCmd.dos("REG", "QUERY", "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", "/v",
+				"{374DE290-123F-4565-9164-39C4925E467B}").readInfo().split(" ");
+		return download(new File(value[value.length - 1]));
 	}
 
 	/**
@@ -455,8 +444,8 @@ public final class NetworkFileUtils {
 		}
 		case FULL, PIECE, MULTITHREAD -> {
 			// 获取文件信息
-			response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
-					.errorExit(errorExit).GetResponse();
+			response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
+					.retry(unlimitedRetry).errorExit(errorExit).GetResponse();
 			// 获取URL连接状态
 			int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
 			if (!URIUtils.statusIsOK(statusCode)) {
@@ -613,8 +602,8 @@ public final class NetworkFileUtils {
 	 */
 	private int writeFull() {
 		return writeFull(
-				JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit)
-						.GetResponse());
+				JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
+						.retry(unlimitedRetry).errorExit(errorExit).GetResponse());
 	}
 
 	/**
@@ -624,7 +613,8 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writeFull(final Response response) {
-		try (BufferedInputStream bufferedInputStream = response.bodyStream(); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(storage))) {
+		try (BufferedInputStream bufferedInputStream = response.bodyStream();
+				BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(storage))) {
 			IOUtils.copy(bufferedInputStream, bufferedOutputStream, bufferSize);
 		} catch (Exception e) {
 			return HttpStatus.SC_REQUEST_TIMEOUT;
@@ -640,8 +630,11 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writePiece(final int start, final int end) {
-		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer).GetResponse();
-		return Judge.isNull(piece) ? HttpStatus.SC_REQUEST_TIMEOUT : URIUtils.statusIsOK(piece.statusCode()) ? writePiece(start, end, piece) : piece.statusCode();
+		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies)
+				.referrer(referrer).GetResponse();
+		return Judge.isNull(piece) ?
+				HttpStatus.SC_REQUEST_TIMEOUT :
+				URIUtils.statusIsOK(piece.statusCode()) ? writePiece(start, end, piece) : piece.statusCode();
 	}
 
 	/**
@@ -652,7 +645,8 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	private int writePiece(final int start, final int end, final Response piece) {
-		try (BufferedInputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
+		try (BufferedInputStream inputStream = piece.bodyStream();
+				RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
 			output.seek(start);
 			byte[] buffer = new byte[bufferSize];
 			int count = 0;
