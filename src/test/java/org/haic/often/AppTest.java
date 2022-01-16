@@ -15,7 +15,7 @@ public class AppTest {
 		// .proxy(proxyHost, proxyPort)//
 		//  .interval(50).multithread(10).retry(true).download("F:\\Downloads");
 		//for (int i = 0; i < 100; i++) {
-		System.out.println(UserAgentUtils.random());
+		System.out.println(UserAgentUtils.randomPE());
 		//}
 
 	}

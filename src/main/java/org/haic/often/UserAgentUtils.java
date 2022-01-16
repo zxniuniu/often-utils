@@ -1,5 +1,6 @@
 package org.haic.often;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.jetbrains.annotations.Contract;
 
@@ -96,15 +97,18 @@ public class UserAgentUtils {
 
 	@Contract(pure = true) private static String chromeInfo() {
 		String info;
-		String[] systems = { "Linux", "iPhone", "iPad", "iPod", "BlackBerry" };
-		String[] brand = { "SM-G850F Build/LRX22G", "GT-I9300 Build/JRO03C", "ZTE BLADE A610 Build/MRA58K" };
-		String system = systems[RandomUtils.nextInt(0, systems.length)];
-		info = system + "; U;";
-		if (system.equals("iPhone") || system.equals("iPad") || system.equals("iPod")) {
-			info += "CPU iPhone OS " + RandomUtils.nextInt(1, 20) + "_" + RandomUtils.nextInt(1, 10) + "_" + RandomUtils.nextInt(1, 10) + " like Mac OS X";
-		} else {
-			info += androidVersion();
-			info += "; " + brand[RandomUtils.nextInt(0, brand.length)];
+		String[] system = { "iPhone", "iPad", "iPod", "Linux", "BlackBerry" };
+		int index = RandomUtils.nextInt(0, 20);
+		switch (index) {
+		case 1, 2, 3 -> info =
+				system[index] + "; U;CPU iPhone OS " + RandomUtils.nextInt(1, 20) + "_" + RandomUtils.nextInt(1, 10) + "_" + RandomUtils.nextInt(1, 10)
+						+ " like Mac OS X";
+		case 4, 5 -> info =
+				system[index] + "; U;" + androidVersion() + "; " + RandomStringUtils.random(3, true, false) + "-" + RandomStringUtils.random(4, true, true)
+						+ " Build/" + RandomStringUtils.randomAlphabetic(6);
+		default -> info =
+				"Linux; U;" + androidVersion() + "; " + RandomStringUtils.random(3, true, false) + "-" + RandomStringUtils.random(4, true, true) + " Build/"
+						+ RandomStringUtils.randomAlphabetic(6);
 		}
 		info += language();
 		return info;
