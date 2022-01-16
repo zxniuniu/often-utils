@@ -355,8 +355,17 @@ public final class HttpsUtils {
 	 *
 	 * @return 响应结果
 	 */
-	@Contract(pure = true) public Document GetDocument() {
-		return GetDocument(HttpMethod.GET);
+	@Contract(pure = true) public Document post() {
+		return get(HttpMethod.POST);
+	}
+
+	/**
+	 * 运行程序，获取 Document 结果
+	 *
+	 * @return 响应结果
+	 */
+	@Contract(pure = true) public Document get() {
+		return get(HttpMethod.GET);
 	}
 
 	/**
@@ -365,28 +374,7 @@ public final class HttpsUtils {
 	 * @param method 请求方法 HttpMethod
 	 * @return 响应结果
 	 */
-	@Contract(pure = true) public Document GetDocument(final HttpMethod method) {
-		String htmStr = GetResult(method);
-		return Judge.isEmpty(htmStr) ? null : Jsoup.parse(Objects.requireNonNull(htmStr));
-	}
-
-	/**
-	 * 获取 响应结果
-	 *
-	 * @return 响应结果
-	 */
-	@Contract(pure = true) public String GetResult() {
-		return GetResult(HttpMethod.GET);
-
-	}
-
-	/**
-	 * 获取 响应结果
-	 *
-	 * @param method 请求方法 HttpMethod
-	 * @return 响应结果
-	 */
-	@Contract(pure = true) public String GetResult(final HttpMethod method) {
+	@Contract(pure = true) public Document get(final HttpMethod method) {
 		HttpURLConnection conn = execute(method).conn();
 		String result;
 		try (InputStreamReader inputStream = URIUtils.statusIsOK(conn.getResponseCode()) ?
@@ -394,9 +382,9 @@ public final class HttpsUtils {
 				new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8)) {
 			result = IOUtils.streamToString(inputStream);
 		} catch (final IOException e) {
-			return null;
+			result = null;
 		}
-		return result;
+		return Judge.isEmpty(result) ? null : Jsoup.parse(Objects.requireNonNull(result));
 	}
 
 	/**

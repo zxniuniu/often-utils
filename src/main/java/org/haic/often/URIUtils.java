@@ -104,8 +104,8 @@ public class URIUtils {
 	 * @return 连接状态 boolean
 	 */
 	@Contract(pure = true) public static boolean statusIsError(final int statusCode) {
-		return statusCode >= HttpStatus.SC_BAD_REQUEST && statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR && statusCode != HttpStatus.SC_REQUEST_TIMEOUT && statusCode != HttpStatus.SC_GONE
-				&& statusCode != HttpStatus.SC_NOT_FOUND;
+		return statusCode >= HttpStatus.SC_BAD_REQUEST && statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR && statusCode != HttpStatus.SC_REQUEST_TIMEOUT
+				&& statusCode != HttpStatus.SC_GONE && statusCode != HttpStatus.SC_NOT_FOUND;
 	}
 
 	/**
@@ -192,9 +192,10 @@ public class URIUtils {
 	 * @return 蓝奏云URL直链
 	 */
 	@Contract(pure = true) public static String lanzouStraight(final @NotNull String lanzouUrl) {
-		return JsoupUtils.connect(Objects.requireNonNull(
-				HtmlUnitUtils.connect("https://wws.lanzoux.com" + Objects.requireNonNull(JsoupUtils.connect(lanzouUrl).retry(true).GetDocument().selectFirst("iframe[class='ifr2']")).attr("src"))
-						.waitJSTime(1000).retry(true).GetDocument().selectFirst("div[id='go'] a")).attr("href")).followRedirects(false).retry(true).GetResponse().header("Location");
+		return JsoupUtils.connect(Objects.requireNonNull(HtmlUnitUtils.connect(
+						"https://wws.lanzoux.com" + Objects.requireNonNull(JsoupUtils.connect(lanzouUrl).retry(true).get().selectFirst("iframe[class='ifr2']"))
+								.attr("src")).waitJSTime(1000).retry(true).get().selectFirst("div[id='go'] a")).attr("href")).followRedirects(false).retry(true)
+				.execute().header("Location");
 	}
 
 	/**
@@ -205,7 +206,7 @@ public class URIUtils {
 	 */
 	public static Map<String, String> lanzouPageInfos(String lanzurl) {
 		Map<String, String> result = new HashMap<>();
-		HtmlUnitUtils.connect(lanzurl).waitJSTime(1000).retry(true).GetDocument().select("div[id='name']")
+		HtmlUnitUtils.connect(lanzurl).waitJSTime(1000).retry(true).get().select("div[id='name']")
 				.forEach(name -> result.put(name.text(), "https://wws.lanzoux.com" + name.select("a").attr("href")));
 		return result;
 	}
@@ -220,7 +221,7 @@ public class URIUtils {
 	public static Map<String, String> lanzouPageInfos(String lanzurl, String passwd) {
 		String javascript = null;
 		while (Judge.isNull(javascript)) {
-			Elements elements = JsoupUtils.connect(lanzurl).retry(true).GetDocument().select("script[type='text/javascript']");
+			Elements elements = JsoupUtils.connect(lanzurl).retry(true).get().select("script[type='text/javascript']");
 			javascript = elements.isEmpty() ? null : String.valueOf(elements.get(1));
 		}
 		String infos = javascript.substring(154, javascript.indexOf("隐藏") - 60).replaceAll("'*", "");
@@ -247,7 +248,9 @@ public class URIUtils {
 		JSONArray jsonArray = null;
 		while (Judge.isNull(jsonArray)) {
 			try {
-				jsonArray = JSONObject.parseObject(JsoupUtils.connect(lanzouUrl + "filemoreajax.php").data(params).retry(true).GetResponse(Connection.Method.POST).body()).getJSONArray("text");
+				jsonArray = JSONObject.parseObject(
+								JsoupUtils.connect(lanzouUrl + "filemoreajax.php").data(params).retry(true).execute(Connection.Method.POST).body())
+						.getJSONArray("text");
 			} catch (Exception e) {
 				// e.printStackTrace();
 			}

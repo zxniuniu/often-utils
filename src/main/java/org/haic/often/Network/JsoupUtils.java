@@ -474,8 +474,17 @@ public final class JsoupUtils {
 	 *
 	 * @return Document
 	 */
-	@Contract(pure = true) public Document GetDocument() {
-		return GetDocument(Method.GET);
+	@Contract(pure = true) public Document post() {
+		return get(Method.POST);
+	}
+
+	/**
+	 * 获取 Document
+	 *
+	 * @return Document
+	 */
+	@Contract(pure = true) public Document get() {
+		return get(Method.GET);
 	}
 
 	/**
@@ -484,8 +493,8 @@ public final class JsoupUtils {
 	 * @param method Method类型
 	 * @return Document
 	 */
-	@Contract(pure = true) public Document GetDocument(final Method method) {
-		Response response = GetResponse(method);
+	@Contract(pure = true) public Document get(final Method method) {
+		Response response = execute(method);
 		return Judge.isNull(response) ? null : Jsoup.parse(response.body());
 	}
 
@@ -494,8 +503,8 @@ public final class JsoupUtils {
 	 *
 	 * @return Response
 	 */
-	@Contract(pure = true) public Response GetResponse() {
-		return GetResponse(Method.GET);
+	@Contract(pure = true) public Response execute() {
+		return execute(Method.GET);
 	}
 
 	/**
@@ -504,7 +513,7 @@ public final class JsoupUtils {
 	 * @param method Method类型
 	 * @return Response
 	 */
-	@Contract(pure = true) public Response GetResponse(Method method) {
+	@Contract(pure = true) public Response execute(Method method) {
 		Response response = executeProgram(method);
 		int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : Objects.requireNonNull(response).statusCode();
 		for (int i = 0;

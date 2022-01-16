@@ -489,8 +489,8 @@ public final class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return Document
 	 */
-	@Contract(pure = true) public Document GetDocument(final HttpMethod method) {
-		Page page = GetPage(method);
+	@Contract(pure = true) public Document get(final HttpMethod method) {
+		Page page = getPage(method);
 		return Judge.isNull(page) ? null : page.isHtmlPage() ? Jsoup.parse(((HtmlPage) page).asXml()) : Jsoup.parse(page.getWebResponse().getContentAsString());
 	}
 
@@ -499,8 +499,17 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return Document
 	 */
-	@Contract(pure = true) public Document GetDocument() {
-		return GetDocument(HttpMethod.GET);
+	@Contract(pure = true) public Document get() {
+		return get(HttpMethod.GET);
+	}
+
+	/**
+	 * 获取 Document
+	 *
+	 * @return Document
+	 */
+	@Contract(pure = true) public Document post() {
+		return get(HttpMethod.POST);
 	}
 
 	/**
@@ -508,8 +517,8 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return HtmlPage
 	 */
-	@Contract(pure = true) public HtmlPage GetHtmlPage() {
-		return GetHtmlPage(HttpMethod.GET);
+	@Contract(pure = true) public HtmlPage getHtmlPage() {
+		return getHtmlPage(HttpMethod.GET);
 	}
 
 	/**
@@ -518,8 +527,8 @@ public final class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return HtmlPage
 	 */
-	@Contract(pure = true) public HtmlPage GetHtmlPage(final HttpMethod method) {
-		Page page = GetPage(method);
+	@Contract(pure = true) public HtmlPage getHtmlPage(final HttpMethod method) {
+		Page page = getPage(method);
 		return Judge.isNull(page) ? null : (HtmlPage) page;
 	}
 
@@ -528,8 +537,8 @@ public final class HtmlUnitUtils {
 	 *
 	 * @return Page
 	 */
-	@Contract(pure = true) public Page GetPage() {
-		return GetPage(HttpMethod.GET);
+	@Contract(pure = true) public Page getPage() {
+		return getPage(HttpMethod.GET);
 	}
 
 	/**
@@ -538,7 +547,7 @@ public final class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return Page
 	 */
-	@Contract(pure = true) public Page GetPage(final HttpMethod method) {
+	@Contract(pure = true) public Page getPage(final HttpMethod method) {
 		Page page = executeProgram(method);
 		for (int i = 0;
 			 !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && !excludeErrorStatusCodes.contains(statusCode) && (i < retry
@@ -600,7 +609,7 @@ public final class HtmlUnitUtils {
 
 		Page page;
 		try { // 获取网页信息
-			page = webClient.getPage(GetWebRequest(method));
+			page = webClient.getPage(getWebRequest(method));
 		} catch (final IOException e) {
 			statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
 			return null;
@@ -625,7 +634,7 @@ public final class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return WebRequest
 	 */
-	@Contract(pure = true) private WebRequest GetWebRequest(final HttpMethod method) {
+	@Contract(pure = true) private WebRequest getWebRequest(final HttpMethod method) {
 		WebRequest webRequest = new WebRequest(URIUtils.GetURL(url), method);
 		if (!Judge.isNull(request)) {
 			webRequest.setAdditionalHeader("Set-Cookie", request.getAdditionalHeader("Set-Cookie"));

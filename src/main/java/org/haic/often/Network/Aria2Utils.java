@@ -1,15 +1,12 @@
 package org.haic.often.Network;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.util.*;
-import java.util.Map.Entry;
-
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.haic.often.Base64Utils;
 import org.haic.often.FilesUtils;
 import org.haic.often.Judge;
-import org.haic.often.URIUtils;
 import org.haic.often.Multithread.MultiThreadUtils;
+import org.haic.often.URIUtils;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.enums.ReadyState;
 import org.java_websocket.handshake.ServerHandshake;
@@ -17,8 +14,10 @@ import org.jetbrains.annotations.Contract;
 import org.jsoup.Connection.Method;
 import org.jsoup.Connection.Response;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Aria2 工具类
@@ -41,8 +40,7 @@ public final class Aria2Utils {
 			this.hasBody = hasBody;
 		}
 
-		@Contract(pure = true)
-		public final String hasBody() {
+		@Contract(pure = true) public final String hasBody() {
 			return hasBody;
 		}
 	}
@@ -59,8 +57,7 @@ public final class Aria2Utils {
 			this.hasBody = hasBody;
 		}
 
-		@Contract(pure = true)
-		public final String hasBody() {
+		@Contract(pure = true) public final String hasBody() {
 			return hasBody;
 		}
 	}
@@ -88,50 +85,40 @@ public final class Aria2Utils {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public static Aria2Utils connect() {
+	@Contract(pure = true) public static Aria2Utils connect() {
 		return connect("localhost", 6800);
 	}
 
 	/**
 	 * 设置 aria2RpcUrl
 	 *
-	 * @param host
-	 *            URL
-	 * @param port
-	 *            端口
+	 * @param host URL
+	 * @param port 端口
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public static Aria2Utils connect(final String host, int port) {
+	@Contract(pure = true) public static Aria2Utils connect(final String host, int port) {
 		return connect(URIMethod.HTTP, host, port);
 	}
 
 	/**
 	 * 设置 aria2RpcUrl: localhost:6800
 	 *
-	 * @param method
-	 *            URI类型
+	 * @param method URI类型
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public static Aria2Utils connect(final URIMethod method) {
+	@Contract(pure = true) public static Aria2Utils connect(final URIMethod method) {
 		return connect(method, "localhost", 6800);
 	}
 
 	/**
 	 * 设置 aria2RpcUrl
 	 *
-	 * @param method
-	 *            URI类型
-	 * @param host
-	 *            URL
-	 * @param port
-	 *            端口
+	 * @param method URI类型
+	 * @param host   URL
+	 * @param port   端口
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public static Aria2Utils connect(final URIMethod method, final String host, final int port) {
+	@Contract(pure = true) public static Aria2Utils connect(final URIMethod method, final String host, final int port) {
 		return config().setAria2RpcUrl(method.hasBody() + "://" + host + ":" + port + "/jsonrpc");
 	}
 
@@ -140,20 +127,17 @@ public final class Aria2Utils {
 	 *
 	 * @return new Aria2Utils
 	 */
-	@Contract(pure = true)
-	private static Aria2Utils config() {
+	@Contract(pure = true) private static Aria2Utils config() {
 		return new Aria2Utils();
 	}
 
 	/**
 	 * 设置 文件夹路径
 	 *
-	 * @param folderPath
-	 *            文件夹路径
+	 * @param folderPath 文件夹路径
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public Aria2Utils setFolderPath(final String folderPath) {
+	@Contract(pure = true) public Aria2Utils setFolderPath(final String folderPath) {
 		this.setMiXinParams("dir", folderPath);
 		return this;
 	}
@@ -161,14 +145,11 @@ public final class Aria2Utils {
 	/**
 	 * 设置 公共参数
 	 *
-	 * @param name
-	 *            key
-	 * @param value
-	 *            value
+	 * @param name  key
+	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public Aria2Utils setMiXinParams(final String name, final String value) {
+	@Contract(pure = true) public Aria2Utils setMiXinParams(final String name, final String value) {
 		this.mixinparams.put(name, value);
 		return this;
 	}
@@ -176,12 +157,10 @@ public final class Aria2Utils {
 	/**
 	 * 设置 aria2RpcUrl
 	 *
-	 * @param aria2RpcUrl
-	 *            RpcUrl
+	 * @param aria2RpcUrl RpcUrl
 	 * @return this
 	 */
-	@Contract(pure = true)
-	private Aria2Utils setAria2RpcUrl(final String aria2RpcUrl) {
+	@Contract(pure = true) private Aria2Utils setAria2RpcUrl(final String aria2RpcUrl) {
 		this.aria2RpcUrl = aria2RpcUrl;
 		return this;
 	}
@@ -189,12 +168,10 @@ public final class Aria2Utils {
 	/**
 	 * 设置密钥
 	 *
-	 * @param token
-	 *            密钥
+	 * @param token 密钥
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public Aria2Utils setToken(final String token) {
+	@Contract(pure = true) public Aria2Utils setToken(final String token) {
 		this.token = token;
 		return this;
 	}
@@ -202,14 +179,11 @@ public final class Aria2Utils {
 	/**
 	 * 设置Aria2代理
 	 *
-	 * @param proxyHost
-	 *            代理URL
-	 * @param proxyPort
-	 *            代理端口
+	 * @param proxyHost 代理URL
+	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public Aria2Utils setProxy(final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public Aria2Utils setProxy(final String proxyHost, final int proxyPort) {
 		this.mixinparams.put("all-proxy", proxyHost + ":" + proxyPort);
 		return this;
 	}
@@ -217,14 +191,11 @@ public final class Aria2Utils {
 	/**
 	 * 设置访问PRC接口代理
 	 *
-	 * @param proxyHost
-	 *            代理地址
-	 * @param proxyPort
-	 *            代理端口
+	 * @param proxyHost 代理地址
+	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public Aria2Utils proxy(final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public Aria2Utils proxy(final String proxyHost, final int proxyPort) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		return this;
@@ -233,15 +204,12 @@ public final class Aria2Utils {
 	/**
 	 * 添加 URL和参数
 	 *
-	 * @param url
-	 *            URL
-	 * @param params
-	 *            dir:文件夹路径 out:文件名 referer:上一页
+	 * @param url    URL
+	 * @param params dir:文件夹路径 out:文件名 referer:上一页
 	 * @return this
 	 */
 
-	@Contract(pure = true)
-	public Aria2Utils addUrl(final String url, final Map<String, String> params) {
+	@Contract(pure = true) public Aria2Utils addUrl(final String url, final Map<String, String> params) {
 		this.urlsMap.put(url, params);
 		return this;
 	}
@@ -249,12 +217,10 @@ public final class Aria2Utils {
 	/**
 	 * 添加 Url or Magnet 数组
 	 *
-	 * @param urls
-	 *            URL数组
+	 * @param urls URL数组
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public Aria2Utils addUrl(final List<String> urls) {
+	@Contract(pure = true) public Aria2Utils addUrl(final List<String> urls) {
 		for (String url : urls) {
 			this.addUrl(url);
 		}
@@ -264,12 +230,10 @@ public final class Aria2Utils {
 	/**
 	 * 添加 Url or Magnet
 	 *
-	 * @param url
-	 *            链接
+	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public Aria2Utils addUrl(final String url) {
+	@Contract(pure = true) public Aria2Utils addUrl(final String url) {
 		this.addUrl(url, new HashMap<>());
 		return this;
 	}
@@ -277,14 +241,11 @@ public final class Aria2Utils {
 	/**
 	 * 添加 Url or Magnet
 	 *
-	 * @param url
-	 *            链接
-	 * @param filename
-	 *            文件名
+	 * @param url      链接
+	 * @param filename 文件名
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public Aria2Utils addUrl(final String url, final String filename) {
+	@Contract(pure = true) public Aria2Utils addUrl(final String url, final String filename) {
 		this.addUrl(url, filename, "*");
 		return this;
 	}
@@ -292,16 +253,12 @@ public final class Aria2Utils {
 	/**
 	 * 添加 Url or Magnet
 	 *
-	 * @param url
-	 *            链接
-	 * @param filename
-	 *            文件名
-	 * @param referrer
-	 *            上一页
+	 * @param url      链接
+	 * @param filename 文件名
+	 * @param referrer 上一页
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public Aria2Utils addUrl(final String url, String filename, final String referrer) {
+	@Contract(pure = true) public Aria2Utils addUrl(final String url, String filename, final String referrer) {
 		Map<String, String> params = new HashMap<>();
 		filename = FilesUtils.illegalFileName(filename);
 		if (filename.length() > 240) {
@@ -318,12 +275,10 @@ public final class Aria2Utils {
 	/**
 	 * 添加 Torrent or Metalink 文件路径
 	 *
-	 * @param torrentpath
-	 *            种子路径
+	 * @param torrentpath 种子路径
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public Aria2Utils addTorrent(final String torrentpath) {
+	@Contract(pure = true) public Aria2Utils addTorrent(final String torrentpath) {
 		this.addUrl(Base64Utils.encryptToBase64(torrentpath));
 		return this;
 	}
@@ -331,12 +286,10 @@ public final class Aria2Utils {
 	/**
 	 * 添加 Torrent or Metalink 文件路径数组
 	 *
-	 * @param torrentpath_lists
-	 *            种子路径数组
+	 * @param torrentpath_lists 种子路径数组
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public Aria2Utils addTorrent(final List<String> torrentpath_lists) {
+	@Contract(pure = true) public Aria2Utils addTorrent(final List<String> torrentpath_lists) {
 		for (String torrentpath : torrentpath_lists) {
 			this.addTorrent(torrentpath);
 		}
@@ -350,31 +303,22 @@ public final class Aria2Utils {
 	 *
 	 * @return 返回的json信息
 	 */
-	@Contract(pure = true)
-	public String send() {
+	@Contract(pure = true) public String send() {
 		WebSocketClient socket = new WebSocketClient(URIUtils.GetURI(aria2RpcUrl)) {
-			@Override
-			@Contract(pure = true)
-			public void onOpen(ServerHandshake handshakedata) {
-				send(GetJsonArray().toJSONString());
+			@Override @Contract(pure = true) public void onOpen(ServerHandshake handshakedata) {
+				send(getJsonArray().toJSONString());
 			}
 
-			@Override
-			@Contract(pure = true)
-			public void onMessage(String message) {
+			@Override @Contract(pure = true) public void onMessage(String message) {
 				result = message;
 				close();
 			}
 
-			@Override
-			@Contract(pure = true)
-			public void onError(Exception e) {
+			@Override @Contract(pure = true) public void onError(Exception e) {
 
 			}
 
-			@Override
-			@Contract(pure = true)
-			public void onClose(int code, String reason, boolean remote) {
+			@Override @Contract(pure = true) public void onClose(int code, String reason, boolean remote) {
 
 			}
 		};
@@ -395,9 +339,9 @@ public final class Aria2Utils {
 	 *
 	 * @return result or webstatus
 	 */
-	@Contract(pure = true)
-	public String get() {
-		Response response = JsoupUtils.connect(aria2RpcUrl).data("params", Base64Utils.encryptToBase64(GetJsonArray().toJSONString())).proxy(proxyHost, proxyPort).GetResponse();
+	@Contract(pure = true) public String get() {
+		Response response = JsoupUtils.connect(aria2RpcUrl).data("params", Base64Utils.encryptToBase64(getJsonArray().toJSONString()))
+				.proxy(proxyHost, proxyPort).execute();
 		int statusCode = Judge.isNull(response) ? 0 : response.statusCode();
 		return URIUtils.statusIsOK(statusCode) ? response.body() : String.valueOf(statusCode);
 	}
@@ -407,10 +351,9 @@ public final class Aria2Utils {
 	 *
 	 * @return result or webstatus
 	 */
-	@Contract(pure = true)
-	public String post() {
-		Response response = JsoupUtils.connect(aria2RpcUrl).header("Content-Type", "application/json;charset=UTF-8").requestBody(GetJsonArray().toJSONString()).proxy(proxyHost, proxyPort)
-				.GetResponse(Method.POST);
+	@Contract(pure = true) public String post() {
+		Response response = JsoupUtils.connect(aria2RpcUrl).header("Content-Type", "application/json;charset=UTF-8").requestBody(getJsonArray().toJSONString())
+				.proxy(proxyHost, proxyPort).execute(Method.POST);
 		int statusCode = Judge.isNull(response) ? 0 : response.statusCode();
 		return URIUtils.statusIsOK(statusCode) ? response.body() : String.valueOf(statusCode);
 	}
@@ -418,12 +361,10 @@ public final class Aria2Utils {
 	/**
 	 * 获取链接类型
 	 *
-	 * @param url
-	 *            链接
+	 * @param url 链接
 	 * @return Aria2Method
 	 */
-	@Contract(pure = true)
-	private Aria2Method getType(final String url) {
+	@Contract(pure = true) private Aria2Method getType(final String url) {
 		Aria2Method method = Aria2Method.ADD_URI;
 		if (url.endsWith("torrent") || Base64Utils.isBase64(url)) {
 			method = Aria2Method.ADD_TORRENT;
@@ -438,14 +379,13 @@ public final class Aria2Utils {
 	 *
 	 * @return JSONArray
 	 */
-	@Contract(pure = true)
-	private JSONArray GetJsonArray() {
+	@Contract(pure = true) private JSONArray getJsonArray() {
 		JSONArray jsonArray = new JSONArray();
 		for (Entry<String, Map<String, String>> urlinfo : urlsMap.entrySet()) {
 			String url = urlinfo.getKey();
 			Map<String, String> params = urlinfo.getValue();
 			params.putAll(mixinparams);
-			jsonArray.add(GetJsonObject(getType(url), url, params));
+			jsonArray.add(getJsonObject(getType(url), url, params));
 		}
 		return jsonArray;
 	}
@@ -455,8 +395,7 @@ public final class Aria2Utils {
 	 *
 	 * @return JSONObject
 	 */
-	@Contract(pure = true)
-	private JSONObject GetJsonObject(final Aria2Method method, final String url, final Map<String, String> params) {
+	@Contract(pure = true) private JSONObject getJsonObject(final Aria2Method method, final String url, final Map<String, String> params) {
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.add("token:" + token);
 		jsonArray.add(Collections.singletonList(url));

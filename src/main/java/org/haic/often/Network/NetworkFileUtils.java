@@ -388,7 +388,7 @@ public final class NetworkFileUtils {
 			headers.put("Authorization", authorization);
 		}
 		Response response = JsoupUtils.connect(url).headers(headers).header("Content-Type", "multipart/form-data").file(file).proxy(proxyHost, proxyPort)
-				.cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).GetResponse();
+				.cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).execute();
 		return Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
 	}
 
@@ -445,7 +445,7 @@ public final class NetworkFileUtils {
 		case FULL, PIECE, MULTITHREAD -> {
 			// 获取文件信息
 			response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
-					.retry(unlimitedRetry).errorExit(errorExit).GetResponse();
+					.retry(unlimitedRetry).errorExit(errorExit).execute();
 			// 获取URL连接状态
 			int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
 			if (!URIUtils.statusIsOK(statusCode)) {
@@ -603,7 +603,7 @@ public final class NetworkFileUtils {
 	private int writeFull() {
 		return writeFull(
 				JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
-						.retry(unlimitedRetry).errorExit(errorExit).GetResponse());
+						.retry(unlimitedRetry).errorExit(errorExit).execute());
 	}
 
 	/**
@@ -631,7 +631,7 @@ public final class NetworkFileUtils {
 	 */
 	private int writePiece(final int start, final int end) {
 		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies)
-				.referrer(referrer).GetResponse();
+				.referrer(referrer).execute();
 		return Judge.isNull(piece) ?
 				HttpStatus.SC_REQUEST_TIMEOUT :
 				URIUtils.statusIsOK(piece.statusCode()) ? writePiece(start, end, piece) : piece.statusCode();
