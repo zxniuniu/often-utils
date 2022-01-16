@@ -110,10 +110,10 @@ public class UserAgentUtils {
 		String[] system = { "iPhone", "iPad", "iPod", "Linux", "BlackBerry" };
 		int index = RandomUtils.nextInt(0, 20);
 		switch (index) {
-		case 1, 2, 3 -> info =
+		case 0, 1, 2 -> info =
 				system[index] + "; U;CPU iPhone OS " + RandomUtils.nextInt(1, 20) + "_" + RandomUtils.nextInt(1, 10) + "_" + RandomUtils.nextInt(1, 10)
 						+ " like Mac OS X";
-		case 4, 5 -> info =
+		case 3, 4 -> info =
 				system[index] + "; U;" + androidVersion() + "; " + RandomStringUtils.random(3, true, false) + "-" + RandomStringUtils.random(4, true, true)
 						+ " Build/" + RandomStringUtils.randomAlphabetic(6);
 		default -> info =
