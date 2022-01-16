@@ -5,7 +5,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.jetbrains.annotations.Contract;
 
 /**
- * Agent工具类
+ * UserAgent工具类
  *
  * @author haicdust
  * @version 1.0
@@ -14,6 +14,11 @@ import org.jetbrains.annotations.Contract;
 public class UserAgentUtils {
 	private static final String mozilla = "Mozilla/5.0 (";
 
+	/**
+	 * 获取 随机UserAgent
+	 *
+	 * @return 随机UserAgent
+	 */
 	@Contract(pure = true) public static String random() {
 		String userAgent;
 		switch (RandomUtils.nextInt(0, 20)) {
@@ -48,6 +53,11 @@ public class UserAgentUtils {
 		return userAgent;
 	}
 
+	/**
+	 * 获取 随机手机端UserAgent
+	 *
+	 * @return 随机手机端UserAgent
+	 */
 	@Contract(pure = true) public static String randomPE() {
 		String userAgent;
 		switch (RandomUtils.nextInt(0, 20)) {
@@ -177,7 +187,6 @@ public class UserAgentUtils {
 
 	@Contract(pure = true) private static String headerMac() {
 		return "Macintosh; Intel Mac OS X " + RandomUtils.nextInt(4, 20) + "_" + RandomUtils.nextInt(0, 10) + "_" + RandomUtils.nextInt(0, 10);
-
 	}
 
 	@Contract(pure = true) private static String firefoxTail() {
