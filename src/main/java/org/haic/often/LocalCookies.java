@@ -271,7 +271,7 @@ public class LocalCookies {
 				}
 			}
 			return cookies.parallelStream().filter(cookie -> !Judge.isEmpty(cookie.getValue()))
-					.collect(Collectors.toMap(LocalCookies.Cookie::getName, LocalCookies.Cookie::getValue));
+					.collect(Collectors.toMap(LocalCookies.Cookie::getName, LocalCookies.Cookie::getValue, (e1, e2) -> e1));
 		}
 
 		/**

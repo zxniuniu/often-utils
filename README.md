@@ -41,6 +41,4 @@ ZipUtils.origin(file).charset("GBK").deCompress(temppath);
 
 获取本地浏览器cookie,简单示例  
 Map<String, String> cookies = LocalCookies.home() //home方法,默认win版edge用户路径,其它浏览器添加参数,路径至User Data目录  
-.getCookiesForDomain("pixiv.net") //获取对应域  
-.parallelStream().filter(cookie -> !Judge.isEmpty(cookie.getValue()))  
-.collect(Collectors.toMap(LocalCookies.Cookie::getName, LocalCookies.Cookie::getValue));
+.getCookiesForDomain("pixiv.net"); //获取对应域
