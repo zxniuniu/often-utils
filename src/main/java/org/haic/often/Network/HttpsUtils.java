@@ -7,6 +7,7 @@ import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.URIUtils;
 import org.haic.often.UserAgentUtils;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -76,7 +77,7 @@ public final class HttpsUtils {
 	 * @param url 请求的URL
 	 * @return this
 	 */
-	@Contract(pure = true) public static HttpsUtils connect(final String url) {
+	@Contract(pure = true) public static HttpsUtils connect(@NotNull final String url) {
 		return config().url(url);
 	}
 
@@ -95,12 +96,12 @@ public final class HttpsUtils {
 	 * @param url 请求的URL
 	 * @return this
 	 */
-	@Contract(pure = true) private HttpsUtils url(final String url) {
+	@Contract(pure = true) private HttpsUtils url(@NotNull final String url) {
 		this.url = url;
 		return this;
 	}
 
-	@Contract(pure = true) public HttpsUtils referrer(final String referrer) {
+	@Contract(pure = true) public HttpsUtils referrer(@NotNull final String referrer) {
 		this.referrer = referrer;
 		return this;
 	}
@@ -150,6 +151,17 @@ public final class HttpsUtils {
 	@Contract(pure = true) public HttpsUtils retry(final boolean unlimitedRetry, final int MILLISECONDS_SLEEP) {
 		this.unlimitedRetry = unlimitedRetry;
 		this.MILLISECONDS_SLEEP = MILLISECONDS_SLEEP;
+		return this;
+	}
+
+	/**
+	 * 设置 userAgent
+	 *
+	 * @param userAgent userAgent
+	 * @return this
+	 */
+	@Contract(pure = true) public HttpsUtils userAgent(@NotNull final String userAgent) {
+		this.header("User-Agent", userAgent);
 		return this;
 	}
 
@@ -206,7 +218,7 @@ public final class HttpsUtils {
 	 * @param value header值
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils header(final String name, final String value) {
+	@Contract(pure = true) public HttpsUtils header(@NotNull final String name, @NotNull final String value) {
 		headers.put(name, value);
 		return this;
 	}
@@ -217,7 +229,7 @@ public final class HttpsUtils {
 	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils headers(final Map<String, String> headers) {
+	@Contract(pure = true) public HttpsUtils headers(@NotNull final Map<String, String> headers) {
 		this.headers = headers;
 		return this;
 	}
@@ -228,7 +240,7 @@ public final class HttpsUtils {
 	 * @param cookies cookies
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils cookies(final Map<String, String> cookies) {
+	@Contract(pure = true) public HttpsUtils cookies(@NotNull final Map<String, String> cookies) {
 		headers.put("Cookie", "");
 		for (Map.Entry<String, String> cookie : cookies.entrySet()) {
 			cookie(cookie.getKey(), cookie.getValue());
@@ -243,7 +255,7 @@ public final class HttpsUtils {
 	 * @param value cookie值
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils cookie(final String name, final String value) {
+	@Contract(pure = true) public HttpsUtils cookie(@NotNull final String name, @NotNull final String value) {
 		String cookies = headers.get("Cookie");
 		cookies = Judge.isEmpty(cookies) ? name + "=" + value : cookies + "&" + name + "=" + value;
 		headers.put("Cookie", cookies);
@@ -255,7 +267,7 @@ public final class HttpsUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils proxy(final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public HttpsUtils proxy(@NotNull final String proxyHost, final int proxyPort) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		return this;
@@ -267,7 +279,7 @@ public final class HttpsUtils {
 	 * @param params 请求参数，Map集合 的形式
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils data(final Map<String, String> params) {
+	@Contract(pure = true) public HttpsUtils data(@NotNull final Map<String, String> params) {
 		this.params = null;
 		for (Map.Entry<String, String> param : params.entrySet()) {
 			data(param.getKey(), param.getValue());
@@ -282,7 +294,7 @@ public final class HttpsUtils {
 	 * @param value 请求参数 value
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils data(final String name, final String value) {
+	@Contract(pure = true) public HttpsUtils data(@NotNull final String name, @NotNull final String value) {
 		params = Judge.isEmpty(params) ? name + "=" + value : params + "&" + name + "=" + value;
 		return this;
 	}
@@ -293,7 +305,7 @@ public final class HttpsUtils {
 	 * @param params 请求参数，name1=value1 的形式
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils params(final String params) {
+	@Contract(pure = true) public HttpsUtils params(@NotNull final String params) {
 		this.params = params;
 		return this;
 	}

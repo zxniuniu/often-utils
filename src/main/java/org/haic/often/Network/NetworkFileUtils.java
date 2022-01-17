@@ -148,6 +148,17 @@ public final class NetworkFileUtils {
 	}
 
 	/**
+	 * 设置 userAgent
+	 *
+	 * @param userAgent userAgent
+	 * @return this
+	 */
+	@Contract(pure = true) public NetworkFileUtils userAgent(@NotNull final String userAgent) {
+		this.header("User-Agent", userAgent);
+		return this;
+	}
+
+	/**
 	 * 设置 下载模式
 	 *
 	 * @param method 下载模式

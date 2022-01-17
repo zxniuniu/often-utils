@@ -11,6 +11,7 @@ import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.URIUtils;
 import org.haic.often.UserAgentUtils;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -74,7 +75,7 @@ public final class HtmlUnitUtils {
 	 * @param requestBody 数据
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils requestBody(final String requestBody) {
+	@Contract(pure = true) public HtmlUnitUtils requestBody(@NotNull final String requestBody) {
 		if (URIUtils.isJson(requestBody)) {
 			headers.put("Accept", "application/json, text/javascript, */*");
 			headers.put("Content-Type", "application/x-www-form-urlencoded");
@@ -89,7 +90,7 @@ public final class HtmlUnitUtils {
 	 * @param referrer 上一页URL
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils referrer(final String referrer) {
+	@Contract(pure = true) public HtmlUnitUtils referrer(@NotNull final String referrer) {
 		this.referrer = referrer;
 		return this;
 	}
@@ -106,12 +107,23 @@ public final class HtmlUnitUtils {
 	}
 
 	/**
+	 * 设置 userAgent
+	 *
+	 * @param userAgent userAgent
+	 * @return this
+	 */
+	@Contract(pure = true) public HtmlUnitUtils userAgent(@NotNull final String userAgent) {
+		this.header("User-Agent", userAgent);
+		return this;
+	}
+
+	/**
 	 * 设置 params
 	 *
 	 * @param params data参数集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils data(final Map<String, String> params) {
+	@Contract(pure = true) public HtmlUnitUtils data(@NotNull final Map<String, String> params) {
 		this.params.clear();
 		for (Entry<String, String> param : params.entrySet()) {
 			data(param.getKey(), param.getValue());
@@ -126,7 +138,7 @@ public final class HtmlUnitUtils {
 	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils data(final String name, final String value) {
+	@Contract(pure = true) public HtmlUnitUtils data(@NotNull final String name, @NotNull final String value) {
 		this.params.add(new NameValuePair(name, value));
 		return this;
 	}
@@ -146,7 +158,7 @@ public final class HtmlUnitUtils {
 	 * @param url URL
 	 * @return this
 	 */
-	@Contract(pure = true) public static HtmlUnitUtils connect(final String url) {
+	@Contract(pure = true) public static HtmlUnitUtils connect(@NotNull final String url) {
 		return HtmlUnitUtils.config().url(url);
 	}
 
@@ -156,7 +168,7 @@ public final class HtmlUnitUtils {
 	 * @param url URL
 	 * @return this
 	 */
-	@Contract(pure = true) private HtmlUnitUtils url(final String url) {
+	@Contract(pure = true) private HtmlUnitUtils url(@NotNull final String url) {
 		this.url = url;
 		return this;
 	}
@@ -174,7 +186,7 @@ public final class HtmlUnitUtils {
 		return this;
 	}
 
-	@Contract(pure = true) public HtmlUnitUtils request(final WebRequest request) {
+	@Contract(pure = true) public HtmlUnitUtils request(@NotNull final WebRequest request) {
 		this.request = request;
 		return this;
 	}
@@ -234,7 +246,7 @@ public final class HtmlUnitUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils proxy(final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public HtmlUnitUtils proxy(@NotNull final String proxyHost, final int proxyPort) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		return this;
@@ -249,7 +261,8 @@ public final class HtmlUnitUtils {
 	 * @param password  代理用户密码
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils proxy(final String proxyHost, final int proxyPort, final String username, final String password) {
+	@Contract(pure = true) public HtmlUnitUtils proxy(@NotNull final String proxyHost, final int proxyPort, @NotNull final String username,
+			@NotNull final String password) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		this.username = username;
@@ -286,7 +299,7 @@ public final class HtmlUnitUtils {
 	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils cookie(final String name, final String value) {
+	@Contract(pure = true) public HtmlUnitUtils cookie(@NotNull final String name, @NotNull final String value) {
 		this.cookies.put(name, value);
 		return this;
 	}
@@ -297,7 +310,7 @@ public final class HtmlUnitUtils {
 	 * @param cookies Map集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils cookies(final Map<String, String> cookies) {
+	@Contract(pure = true) public HtmlUnitUtils cookies(@NotNull final Map<String, String> cookies) {
 		this.cookies = cookies;
 		return this;
 	}
@@ -308,7 +321,7 @@ public final class HtmlUnitUtils {
 	 * @param cookies Set集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils cookies(final Set<Cookie> cookies) {
+	@Contract(pure = true) public HtmlUnitUtils cookies(@NotNull final Set<Cookie> cookies) {
 		for (Cookie cookie : cookies) {
 			cookie(cookie.getName(), cookie.getValue());
 		}
@@ -322,7 +335,7 @@ public final class HtmlUnitUtils {
 	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils header(final String name, final String value) {
+	@Contract(pure = true) public HtmlUnitUtils header(@NotNull final String name, @NotNull final String value) {
 		this.headers.put(name, value);
 		return this;
 	}
@@ -333,7 +346,7 @@ public final class HtmlUnitUtils {
 	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils headers(final Map<String, String> headers) {
+	@Contract(pure = true) public HtmlUnitUtils headers(@NotNull final Map<String, String> headers) {
 		this.headers = headers;
 		return this;
 	}
@@ -344,7 +357,7 @@ public final class HtmlUnitUtils {
 	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils headers(final List<NameValuePair> headers) {
+	@Contract(pure = true) public HtmlUnitUtils headers(@NotNull final List<NameValuePair> headers) {
 		for (NameValuePair header : headers) {
 			this.headers.put(header.getName(), header.getValue());
 		}

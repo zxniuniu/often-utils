@@ -9,6 +9,7 @@ import org.haic.often.Tuple.TupleUtil;
 import org.haic.often.URIUtils;
 import org.haic.often.UserAgentUtils;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Connection;
 import org.jsoup.Connection.Method;
 import org.jsoup.Connection.Request;
@@ -61,7 +62,7 @@ public final class JsoupUtils {
 	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true) public static JsoupUtils connect(final String url) {
+	@Contract(pure = true) public static JsoupUtils connect(@NotNull final String url) {
 		return JsoupUtils.config().url(url);
 	}
 
@@ -80,7 +81,7 @@ public final class JsoupUtils {
 	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true) private JsoupUtils url(final String url) {
+	@Contract(pure = true) private JsoupUtils url(@NotNull final String url) {
 		this.url = url;
 		return this;
 	}
@@ -91,7 +92,7 @@ public final class JsoupUtils {
 	 * @param file 文件对象
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils file(final File file) {
+	@Contract(pure = true) public JsoupUtils file(@NotNull final File file) {
 		return data("file", file.getName(), IOUtils.GetFileInputStream(file));
 	}
 
@@ -101,7 +102,7 @@ public final class JsoupUtils {
 	 * @param filePath 文件路径
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils file(final String filePath) {
+	@Contract(pure = true) public JsoupUtils file(@NotNull final String filePath) {
 		return file(new File(filePath));
 	}
 
@@ -111,7 +112,7 @@ public final class JsoupUtils {
 	 * @param request 会话
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils request(final Request request) {
+	@Contract(pure = true) public JsoupUtils request(@NotNull final Request request) {
 		this.request = request;
 		return this;
 	}
@@ -122,12 +123,23 @@ public final class JsoupUtils {
 	 * @param requestBody 数据
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils requestBody(final String requestBody) {
+	@Contract(pure = true) public JsoupUtils requestBody(@NotNull final String requestBody) {
 		if (URIUtils.isJson(requestBody)) {
 			headers.put("Accept", "application/json, text/javascript, */*");
 			headers.put("Content-Type", "application/x-www-form-urlencoded");
 		}
 		this.requestBody = requestBody;
+		return this;
+	}
+
+	/**
+	 * 设置 userAgent
+	 *
+	 * @param userAgent userAgent
+	 * @return this
+	 */
+	@Contract(pure = true) public JsoupUtils userAgent(@NotNull final String userAgent) {
+		this.header("User-Agent", userAgent);
 		return this;
 	}
 
@@ -171,7 +183,7 @@ public final class JsoupUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils proxy(final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public JsoupUtils proxy(@NotNull final String proxyHost, final int proxyPort) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		return this;
@@ -253,7 +265,7 @@ public final class JsoupUtils {
 	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils headers(final Map<String, String> headers) {
+	@Contract(pure = true) public JsoupUtils headers(@NotNull final Map<String, String> headers) {
 		this.headers = headers;
 		return this;
 	}
@@ -264,7 +276,7 @@ public final class JsoupUtils {
 	 * @param cookies cookie集合
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils cookies(final Map<String, String> cookies) {
+	@Contract(pure = true) public JsoupUtils cookies(@NotNull final Map<String, String> cookies) {
 		this.cookies = cookies;
 		return this;
 	}
@@ -276,7 +288,7 @@ public final class JsoupUtils {
 	 * @param value 值
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils header(final String name, String value) {
+	@Contract(pure = true) public JsoupUtils header(@NotNull final String name, @NotNull String value) {
 		this.headers.put(name, value);
 		return this;
 	}
@@ -288,7 +300,7 @@ public final class JsoupUtils {
 	 * @param value 值
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils cookie(final String name, String value) {
+	@Contract(pure = true) public JsoupUtils cookie(@NotNull final String name, @NotNull String value) {
 		this.cookies.put(name, value);
 		return this;
 	}
@@ -299,7 +311,7 @@ public final class JsoupUtils {
 	 * @param params 参数集合
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils data(final Map<String, String> params) {
+	@Contract(pure = true) public JsoupUtils data(@NotNull final Map<String, String> params) {
 		this.params = params;
 		return this;
 	}
@@ -311,7 +323,7 @@ public final class JsoupUtils {
 	 * @param value 值
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils data(final String name, final String value) {
+	@Contract(pure = true) public JsoupUtils data(@NotNull final String name, @NotNull final String value) {
 		this.params.put(name, value);
 		return this;
 	}
@@ -329,7 +341,7 @@ public final class JsoupUtils {
 		return this;
 	}
 
-	@Contract(pure = true) public JsoupUtils data(final String key, final String filename, final InputStream inputStream) {
+	@Contract(pure = true) public JsoupUtils data(@NotNull final String key, @NotNull final String filename, @NotNull final InputStream inputStream) {
 		stream = TupleUtil.Tuple(key, filename, inputStream);
 		return this;
 	}
@@ -493,7 +505,7 @@ public final class JsoupUtils {
 	 * @param method Method类型
 	 * @return Document
 	 */
-	@Contract(pure = true) public Document get(final Method method) {
+	@Contract(pure = true) public Document get(@NotNull final Method method) {
 		Response response = execute(method);
 		return Judge.isNull(response) ? null : Jsoup.parse(response.body());
 	}
@@ -513,7 +525,7 @@ public final class JsoupUtils {
 	 * @param method Method类型
 	 * @return Response
 	 */
-	@Contract(pure = true) public Response execute(Method method) {
+	@Contract(pure = true) public Response execute(@NotNull Method method) {
 		Response response = executeProgram(method);
 		int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : Objects.requireNonNull(response).statusCode();
 		for (int i = 0;
@@ -535,7 +547,7 @@ public final class JsoupUtils {
 	 * @param method Method类型
 	 * @return Response
 	 */
-	@Contract(pure = true) private Response executeProgram(final Method method) {
+	@Contract(pure = true) private Response executeProgram(@NotNull final Method method) {
 		Connection conn = Jsoup.connect(url).userAgent(UserAgentUtils.random());
 		conn = Judge.isNull(request) ? conn : conn.request(request);
 		conn = headers.isEmpty() ? conn : conn.headers(headers);
