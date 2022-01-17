@@ -33,7 +33,7 @@ public class LocalCookies {
 	private File cookieStore;
 
 	private LocalCookies() {
-		userHome = new File(System.getProperty("user.home") + "\\AppData\\Local\\Microsoft\\Edge\\User Data");
+		userHome = new File(System.getProperty("user.home"), "AppData\\Local\\Microsoft\\Edge\\User Data");
 	}
 
 	/**
