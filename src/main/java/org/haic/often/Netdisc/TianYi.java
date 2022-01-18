@@ -13,6 +13,8 @@ import org.jsoup.nodes.Element;
 import java.util.*;
 
 /**
+ * 天翼云API
+ *
  * @author haicdust
  * @version 1.0
  * @since 2022/1/18 22:43
