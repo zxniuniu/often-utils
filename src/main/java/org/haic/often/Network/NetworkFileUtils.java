@@ -595,7 +595,14 @@ public final class NetworkFileUtils {
 		return HttpStatus.SC_OK;
 	}
 
-	private int addPiece(int start, int end) {
+	/**
+	 * 添加区块线程
+	 *
+	 * @param start 起始位
+	 * @param end   结束位
+	 * @return 状态码
+	 */
+	@Contract(pure = true) private int addPiece(int start, int end) {
 		if (infos.contains(start + "-" + end)) {
 			return HttpStatus.SC_PARTIAL_CONTENT;
 		}
@@ -612,7 +619,7 @@ public final class NetworkFileUtils {
 	 *
 	 * @return 下载并写入是否成功(状态码)
 	 */
-	private int writeFull() {
+	@Contract(pure = true) private int writeFull() {
 		return writeFull(
 				JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
 						.retry(unlimitedRetry).errorExit(errorExit).execute());
@@ -624,7 +631,7 @@ public final class NetworkFileUtils {
 	 * @param response 网页Response对象
 	 * @return 下载并写入是否成功(状态码)
 	 */
-	private int writeFull(final Response response) {
+	@Contract(pure = true) private int writeFull(final Response response) {
 		try (BufferedInputStream bufferedInputStream = response.bodyStream();
 				BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(storage))) {
 			IOUtils.copy(bufferedInputStream, bufferedOutputStream, bufferSize);
@@ -641,7 +648,7 @@ public final class NetworkFileUtils {
 	 * @param end   块结束位
 	 * @return 下载并写入是否成功(状态码)
 	 */
-	private int writePiece(final int start, final int end) {
+	@Contract(pure = true) private int writePiece(final int start, final int end) {
 		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies)
 				.referrer(referrer).execute();
 		return Judge.isNull(piece) ?
@@ -656,7 +663,7 @@ public final class NetworkFileUtils {
 	 * @param end   块结束位 * @param piece 块Response对象
 	 * @return 下载并写入是否成功(状态码)
 	 */
-	private int writePiece(final int start, final int end, final Response piece) {
+	@Contract(pure = true) private int writePiece(final int start, final int end, final Response piece) {
 		try (BufferedInputStream inputStream = piece.bodyStream();
 				RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
 			output.seek(start);

@@ -342,7 +342,7 @@ public final class JsoupUtils {
 	}
 
 	@Contract(pure = true) public JsoupUtils data(@NotNull final String key, @NotNull final String filename, @NotNull final InputStream inputStream) {
-		stream = TupleUtil.Tuple(key, filename, inputStream);
+		stream = TupleUtil.tuple(key, filename, inputStream);
 		return this;
 	}
 
