@@ -465,9 +465,10 @@ public final class NetworkFileUtils {
 			// 获取文件名
 			if (Judge.isEmpty(fileName)) {
 				String disposition = Objects.requireNonNull(response).header("Content-Disposition");
-				fileName = TranscodUtils.decodeByURL(Judge.isNull(disposition) ?
-						url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1) :
-						disposition.substring(disposition.indexOf("filename=") + 10));
+				fileName = Judge.isNull(disposition) ?
+						TranscodUtils.decodeByURL(
+								url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)) :
+						URIUtils.getFileNameForDisposition(disposition);
 			}
 			// 文件名排除非法字符
 			fileName = FilesUtils.illegalFileName(fileName);

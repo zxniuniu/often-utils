@@ -175,6 +175,19 @@ public class URIUtils {
 	}
 
 	/**
+	 * 获取 URL请求头Content-Disposition文件名属性
+	 *
+	 * @param disposition ontent-Disposition
+	 * @return 文件名
+	 */
+	@Contract(pure = true) public static String getFileNameForDisposition(final @NotNull String disposition) {
+		String filename = disposition.substring(disposition.lastIndexOf("filename"));
+		filename = filename.substring(filename.indexOf("=") + 1).replaceAll("\"", "");
+		filename = filename.contains("'") ? filename.substring(filename.lastIndexOf("'") + 1) : filename;
+		return TranscodUtils.decodeByURL(filename);
+	}
+
+	/**
 	 * 迅雷磁链转换直链
 	 *
 	 * @param thunder 迅雷磁力链接
