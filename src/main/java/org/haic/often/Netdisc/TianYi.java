@@ -20,9 +20,9 @@ import java.util.*;
  * @since 2022/1/18 22:43
  */
 public class TianYi {
-	private final static String dataApi = "https://cloud.189.cn/api/open/share/getShareInfoByCode.action";
-	private final static String listApi = "https://cloud.189.cn/api/open/share/listShareDir.action";
-	private final static String downApi = "https://cloud.189.cn/api/open/file/getFileDownloadUrl.action";
+	private static final String dataApi = "https://cloud.189.cn/api/open/share/getShareInfoByCode.action";
+	private static final String listApi = "https://cloud.189.cn/api/open/share/listShareDir.action";
+	private static final String downApi = "https://cloud.189.cn/api/open/file/getFileDownloadUrl.action";
 
 	/**
 	 * 在需要提取码但自己没有时,可直接获得文件直链<br/>

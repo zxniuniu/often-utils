@@ -24,17 +24,21 @@ import java.util.Objects;
  */
 public class LanZou {
 
+	private static final String domain = "https://wws.lanzoux.com/";
+
 	/**
 	 * 获取目录页面文件直链集合
 	 *
-	 * @param lanzurl 蓝奏URL
-	 * @param passwd  访问密码
+	 * @param lanzouUrl 蓝奏URL
+	 * @param passwd    访问密码
 	 * @return 文件直链集合
 	 */
-	@NotNull @Contract(pure = true) public static Map<String, String> getPageStraights(String lanzurl, String passwd) {
+	@NotNull @Contract(pure = true)
+
+	public static Map<String, String> getPageStraights(String lanzouUrl, String passwd) {
 		String javascript = null;
 		while (Judge.isNull(javascript)) {
-			Elements elements = JsoupUtils.connect(lanzurl).get().select("script[type='text/javascript']");
+			Elements elements = JsoupUtils.connect(lanzouUrl).get().select("script[type='text/javascript']");
 			javascript = elements.isEmpty() ? null : String.valueOf(elements.get(1));
 		}
 		String infos = javascript.substring(154, javascript.indexOf("隐藏") - 60).replaceAll("'*", "");
@@ -57,8 +61,7 @@ public class LanZou {
 		params.put("k", k);
 		params.put("pwd", passwd);
 		// 处理json数据
-		String lanzouUrl = "https://wws.lanzoux.com/";
-		JSONArray jsonArray = JSONObject.parseObject(JsoupUtils.connect(lanzouUrl + "filemoreajax.php").data(params).execute(Connection.Method.POST).body())
+		JSONArray jsonArray = JSONObject.parseObject(JsoupUtils.connect(domain + "filemoreajax.php").data(params).execute(Connection.Method.POST).body())
 				.getJSONArray("text");
 		Map<String, String> result = new HashMap<>();
 		for (int i = 0; i < jsonArray.size(); i++) {
@@ -75,21 +78,21 @@ public class LanZou {
 	 * @return 蓝奏云URL直链
 	 */
 	@Contract(pure = true) public static String getStraight(final @NotNull String lanzouUrl) {
-		return JsoupUtils.connect(Objects.requireNonNull(HtmlUnitUtils.connect(
-						"https://wws.lanzoux.com" + Objects.requireNonNull(JsoupUtils.connect(lanzouUrl).get().selectFirst("iframe[class='ifr2']")).attr("src"))
-				.waitJSTime(1000).get().selectFirst("div[id='go'] a")).attr("href")).followRedirects(false).execute().header("Location");
+		return JsoupUtils.connect(Objects.requireNonNull(
+				HtmlUnitUtils.connect(domain + Objects.requireNonNull(JsoupUtils.connect(lanzouUrl).get().selectFirst("iframe[class='ifr2']")).attr("src"))
+						.waitJSTime(1000).get().selectFirst("div[id='go'] a")).attr("href")).followRedirects(false).execute().header("Location");
 	}
 
 	/**
 	 * 获取目录页面文件直链集合
 	 *
-	 * @param lanzurl 蓝奏URL
+	 * @param lanzouUrl 蓝奏URL
 	 * @return 文件直链集合
 	 */
-	@NotNull @Contract(pure = true) public static Map<String, String> getPageStraights(String lanzurl) {
+	@NotNull @Contract(pure = true) public static Map<String, String> getPageStraights(String lanzouUrl) {
 		Map<String, String> result = new HashMap<>();
-		HtmlUnitUtils.connect(lanzurl).waitJSTime(1000).get().select("div[id='name']")
-				.forEach(name -> result.put(name.text(), "https://wws.lanzoux.com" + name.select("a").attr("href")));
+		HtmlUnitUtils.connect(lanzouUrl).waitJSTime(1000).get().select("div[id='name']")
+				.forEach(name -> result.put(name.text(), domain + name.select("a").attr("href")));
 		return result;
 	}
 }

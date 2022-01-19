@@ -125,8 +125,7 @@ public final class JsoupUtils {
 	 */
 	@Contract(pure = true) public JsoupUtils requestBody(@NotNull final String requestBody) {
 		if (URIUtils.isJson(requestBody)) {
-			headers.put("Accept", "application/json, text/javascript, */*");
-			headers.put("Content-Type", "application/x-www-form-urlencoded");
+			headers.put("Content-Type", "application/json;charset=UTF-8");
 		}
 		this.requestBody = requestBody;
 		return this;
