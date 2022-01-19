@@ -11,7 +11,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
-import java.nio.file.Files;
 import java.security.Security;
 import java.sql.*;
 import java.util.Date;
@@ -232,12 +231,10 @@ public class LocalCookies {
 			HashSet<Cookie> cookies = new HashSet<>();
 			Connection connection = null;
 			try {
-				cookieStoreCopy.delete();
-				Files.copy(cookieStore.toPath(), cookieStoreCopy.toPath());
 				// load the sqlite-JDBC driver using the current class loader
 				Class.forName("org.sqlite.JDBC");
 				// create a database connection
-				connection = DriverManager.getConnection("jdbc:sqlite:" + cookieStoreCopy.getAbsolutePath());
+				connection = DriverManager.getConnection("jdbc:sqlite:" + cookieStore.getAbsolutePath());
 				Statement statement = connection.createStatement();
 				statement.setQueryTimeout(30); // set timeout to 30 seconds
 				ResultSet result;
@@ -255,7 +252,6 @@ public class LocalCookies {
 					EncryptedCookie encryptedCookie = new EncryptedCookie(name, encryptedBytes, expires, path, domain, cookieStore);
 					DecryptedCookie decryptedCookie = decrypt(encryptedCookie);
 					cookies.add(Objects.requireNonNullElse(decryptedCookie, encryptedCookie));
-					cookieStoreCopy.delete();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

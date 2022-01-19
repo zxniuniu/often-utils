@@ -1,7 +1,7 @@
 package org.haic.often;
 
-import com.alibaba.fastjson.JSONObject;
-import org.haic.often.Network.HttpsUtils;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Unit test for simple App.
@@ -20,12 +20,14 @@ public class AppTest {
 		//  .interval(50).multithread(10).retry(true).download("F:\\Downloads");
 		//for (int i = 0; i < 100; i++) {
 		//System.out.println(UserAgentUtils.randomPE());
+		Map<String, String> cookies2 = LocalCookies.home().getCookiesForDomain("baidu.com");
+		Iterator<Map.Entry<String, String>> entries2 = cookies2.entrySet().iterator();
+		while (entries2.hasNext()) {
+			Map.Entry<String, String> entry = entries2.next();
 
-		JSONObject dataApiJson = new JSONObject();
-		dataApiJson.put("share_id", "7PNghyz3gYv");
-		System.out.println(dataApiJson);
-		String xx = HttpsUtils.connect(aliDataApi).requestBody(dataApiJson.toString()).post().toString();
-		System.out.println(xx);
+			//	System.out.println(entry.getKey() + " = " + entry.getValue());
+		}
+		System.out.println(cookies2.get("H_WISE_SIDS"));
 
 	}
 }
