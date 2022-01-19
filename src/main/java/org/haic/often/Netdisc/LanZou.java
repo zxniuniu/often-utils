@@ -61,8 +61,15 @@ public class LanZou {
 		params.put("k", k);
 		params.put("pwd", passwd);
 		// 处理json数据
-		JSONArray jsonArray = JSONObject.parseObject(JsoupUtils.connect(domain + "filemoreajax.php").data(params).execute(Connection.Method.POST).body())
-				.getJSONArray("text");
+		JSONArray jsonArray = null;
+		while (Judge.isNull(jsonArray)) {
+			try {
+				jsonArray = JSONObject.parseObject(JsoupUtils.connect(domain + "filemoreajax.php").data(params).execute(Connection.Method.POST).body())
+						.getJSONArray("text");
+			} catch (Exception e) {
+				//e.printStackTrace();
+			}
+		}
 		Map<String, String> result = new HashMap<>();
 		for (int i = 0; i < jsonArray.size(); i++) {
 			JSONObject info = jsonArray.getJSONObject(i);
