@@ -24,6 +24,7 @@ public class AppTest {
 		Iterator<Map.Entry<String, String>> entries2 = cookies2.entrySet().iterator();
 		while (entries2.hasNext()) {
 			Map.Entry<String, String> entry = entries2.next();
+			
 			System.out.println(entry.getKey() + " = " + entry.getValue());
 		}
 
