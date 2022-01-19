@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 public final class HttpsUtils {
 	private String url; // URL
 	private String params; // 参数
+	private String requestBody; // JSON请求参数
 	private String referrer; // 上一页
 	private int retry; // 请求异常重试次数
 	private int MILLISECONDS_SLEEP; // 重试等待时间
@@ -310,6 +311,14 @@ public final class HttpsUtils {
 		return this;
 	}
 
+	@Contract(pure = true) public HttpsUtils requestBody(@NotNull final String requestBody) {
+		if (URIUtils.isJson(requestBody)) {
+			headers.put("Content-Type", "application/json;charset=UTF-8");
+		}
+		this.requestBody = requestBody;
+		return this;
+	}
+
 	/**
 	 * 获取 请求头
 	 *
@@ -478,7 +487,6 @@ public final class HttpsUtils {
 			conn.setReadTimeout(timeout); // 设置超时
 
 			// 设置上一页
-
 			if (!headers.isEmpty()) {
 				headers.put("Referer", referrer);
 			}
@@ -493,7 +501,12 @@ public final class HttpsUtils {
 				// 获取URLConnection对象对应的输出流
 				try (OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream(), StandardCharsets.UTF_8)) {
 					// 发送请求参数
-					out.write(params);
+					if (!Judge.isEmpty(params)) {
+						out.write(params);
+					}
+					if (!Judge.isEmpty(requestBody)) {
+						out.write(requestBody);
+					}
 					// flush输出流的缓冲
 					out.flush();
 				} catch (IOException e) {
