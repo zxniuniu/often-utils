@@ -25,9 +25,8 @@ public class AppTest {
 		while (entries2.hasNext()) {
 			Map.Entry<String, String> entry = entries2.next();
 
-			//	System.out.println(entry.getKey() + " = " + entry.getValue());
+			System.out.println(entry.getKey() + " = " + entry.getValue());
 		}
-		System.out.println(cookies2.get("H_WISE_SIDS"));
 
 	}
 }

@@ -12,8 +12,10 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.security.Security;
-import java.sql.*;
-import java.util.Date;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -229,12 +231,13 @@ public class LocalCookies {
 		 */
 		@Override protected Map<String, String> processCookies(File cookieStore, String domainFilter) {
 			HashSet<Cookie> cookies = new HashSet<>();
-			Connection connection = null;
-			try {
-				// load the sqlite-JDBC driver using the current class loader
+			try { // load the sqlite-JDBC driver using the current class loader
 				Class.forName("org.sqlite.JDBC");
-				// create a database connection
-				connection = DriverManager.getConnection("jdbc:sqlite:" + cookieStore.getAbsolutePath());
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			// create a database connection
+			try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + cookieStore.getAbsolutePath())) {
 				Statement statement = connection.createStatement();
 				statement.setQueryTimeout(30); // set timeout to 30 seconds
 				ResultSet result;
@@ -257,14 +260,6 @@ public class LocalCookies {
 				e.printStackTrace();
 				// if the error message is "out of memory",
 				// it probably means no database file is found
-			} finally {
-				try {
-					if (connection != null) {
-						connection.close();
-					}
-				} catch (SQLException e) {
-					// connection close failed
-				}
 			}
 			return cookies.parallelStream().filter(cookie -> !Judge.isEmpty(cookie.getValue()))
 					.collect(Collectors.toMap(LocalCookies.Cookie::getName, LocalCookies.Cookie::getValue, (e1, e2) -> e1));
