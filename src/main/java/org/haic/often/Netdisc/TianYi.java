@@ -13,7 +13,7 @@ import org.jsoup.nodes.Element;
 import java.util.*;
 
 /**
- * 天翼云API
+ * 天翼云盘API
  *
  * @author haicdust
  * @version 1.0

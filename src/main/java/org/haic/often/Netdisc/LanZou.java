@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 蓝奏云API
+ * 蓝奏云盘API
  *
  * @author haicdust
  * @version 1.0
