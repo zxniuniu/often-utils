@@ -1,5 +1,7 @@
 package org.haic.often;
 
+import org.haic.often.ChromeBrowser.LocalCookies;
+
 import java.util.Iterator;
 import java.util.Map;
 

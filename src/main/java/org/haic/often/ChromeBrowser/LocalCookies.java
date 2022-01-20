@@ -1,9 +1,11 @@
-package org.haic.often;
+package org.haic.often.ChromeBrowser;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.windpapi4j.WinDPAPI;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.haic.often.Judge;
+import org.haic.often.ReadWriteUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
