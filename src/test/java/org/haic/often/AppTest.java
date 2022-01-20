@@ -10,9 +10,9 @@ import java.util.Map;
  */
 public class AppTest {
 
-	private static final String proxyHost = "127.0.0.1";
-	private static final int proxyPort = 7890;
-	private static final String aliDataApi = "https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous";
+	public static final String proxyHost = "127.0.0.1";
+	public static final int proxyPort = 7890;
+	public static final String aliDataApi = "https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous";
 
 	public static void main(String[] args) {
 		//  String url = "https://files.yande.re/image/48126bd4124671beefdebe39b9b7bbf8/yande.re%20906157%20bikini%20breasts%20garter%20maid%20mignon%20nipples%20no_bra%20nopan%20pointy_ears%20see_through%20swimsuits%20tail%20thighhighs%20wet%20wet_clothes.png";

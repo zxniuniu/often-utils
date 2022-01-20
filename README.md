@@ -39,8 +39,9 @@ ZipUtils.origin(file).out(qq_tempfile).addFiles(file);
 文件解压，简单示例  
 ZipUtils.origin(file).charset("GBK").deCompress(temppath);
 
-获取本地浏览器cookie Map<String, String> cookies = LocalCookies.home() //home方法,默认win版edge用户路径,其它浏览器添加参数,路径至User Data目录  
+获取本地浏览器cookie  
+Map<String, String> cookies = LocalCookies.home() //home方法,默认win版edge用户路径,其它浏览器添加参数,路径至User Data目录  
 .getCookiesForDomain("pixiv.net"); //获取对应域  
-获取本地浏览器LoginData  
+获取本地浏览器LoginData(账号和密码)  
 Map<String, String> cookies = LoginData.home() //home方法,默认win版edge用户路径,其它浏览器添加参数,路径至User Data目录  
 .getLoginDatasForDomain("pixiv.net"); //获取对应域  
