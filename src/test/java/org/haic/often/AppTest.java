@@ -20,13 +20,15 @@ public class AppTest {
 		//  .interval(50).multithread(10).retry(true).download("F:\\Downloads");
 		//for (int i = 0; i < 100; i++) {
 		//System.out.println(UserAgentUtils.randomPE());
-		Map<String, String> cookies2 = LocalCookies.home().getCookiesForDomain("baidu.com");
+		Map<String, String> cookies2 = LocalCookies.home().getCookiesForDomain("aliyundrive.com");
 		Iterator<Map.Entry<String, String>> entries2 = cookies2.entrySet().iterator();
 		while (entries2.hasNext()) {
 			Map.Entry<String, String> entry = entries2.next();
-			
+
 			System.out.println(entry.getKey() + " = " + entry.getValue());
 		}
+
+		System.exit(0);
 
 	}
 }

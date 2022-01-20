@@ -11,11 +11,10 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
+import java.nio.file.Files;
 import java.security.Security;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.Date;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -92,6 +91,13 @@ public class LocalCookies {
 		protected String domain;
 		protected File cookieStore;
 
+		public Cookie(String name, byte[] encryptedValue, String domain, File cookieStore) {
+			this.name = name;
+			this.encryptedValue = encryptedValue;
+			this.domain = domain;
+			this.cookieStore = cookieStore;
+		}
+
 		public Cookie(String name, byte[] encryptedValue, Date expires, String path, String domain, File cookieStore) {
 			this.name = name;
 			this.encryptedValue = encryptedValue;
@@ -157,6 +163,7 @@ public class LocalCookies {
 		@Override public String getValue() {
 			return decryptedValue;
 		}
+
 	}
 
 	public static class EncryptedCookie extends Cookie {
@@ -176,7 +183,6 @@ public class LocalCookies {
 	}
 
 	public abstract class Browser {
-
 		/**
 		 * A file that should be used to make a temporary copy of the browser's cookie store
 		 */
@@ -217,8 +223,42 @@ public class LocalCookies {
 	}
 
 	public class ChromeBrowser extends Browser {
-		ChromeBrowser(File userHome) {
+		public ChromeBrowser(File userHome) {
 			userHome(userHome);
+		}
+
+		protected static byte[] encryptedValueDecrypt(byte[] encryptedValue, String encryptedKey) {
+			Security.addProvider(new BouncyCastleProvider());
+
+			int keyLength = 256 / 8;
+			int nonceLength = 96 / 8;
+			String kEncryptionVersionPrefix = "v10";
+			int GCM_TAG_LENGTH = 16;
+
+			try {
+				byte[] encryptedKeyBytes = Base64.decodeBase64(encryptedKey);
+				assertTrue(new String(encryptedKeyBytes).startsWith("DPAPI"));
+				encryptedKeyBytes = Arrays.copyOfRange(encryptedKeyBytes, "DPAPI".length(), encryptedKeyBytes.length);
+				WinDPAPI winDPAPI = WinDPAPI.newInstance(WinDPAPI.CryptProtectFlag.CRYPTPROTECT_UI_FORBIDDEN);
+				byte[] keyBytes = winDPAPI.unprotectData(encryptedKeyBytes);
+				assertEquals(keyLength, keyBytes.length);
+				byte[] nonce = Arrays.copyOfRange(encryptedValue, kEncryptionVersionPrefix.length(), kEncryptionVersionPrefix.length() + nonceLength);
+				encryptedValue = Arrays.copyOfRange(encryptedValue, kEncryptionVersionPrefix.length() + nonceLength, encryptedValue.length);
+				Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+				SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
+				GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, nonce);
+				cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmParameterSpec);
+				encryptedValue = cipher.doFinal(encryptedValue);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			return encryptedValue;
+		}
+
+		public static String getEncryptedKey(File userHome) {
+			File userState = new File(userHome, "Local State");
+			JSONObject jsonObject = JSONObject.parseObject(JSONObject.parseObject(ReadWriteUtils.orgin(userState).text()).getString("os_crypt"));
+			return jsonObject.getString("encrypted_key");
 		}
 
 		/**
@@ -231,13 +271,14 @@ public class LocalCookies {
 		 */
 		@Override protected Map<String, String> processCookies(File cookieStore, String domainFilter) {
 			HashSet<Cookie> cookies = new HashSet<>();
-			try { // load the sqlite-JDBC driver using the current class loader
+			Connection connection = null;
+			try {
+				cookieStoreCopy.delete();
+				Files.copy(cookieStore.toPath(), cookieStoreCopy.toPath());
+				// load the sqlite-JDBC driver using the current class loader
 				Class.forName("org.sqlite.JDBC");
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-			// create a database connection
-			try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + cookieStore.getAbsolutePath())) {
+				// create a database connection
+				connection = DriverManager.getConnection("jdbc:sqlite:" + cookieStoreCopy.getAbsolutePath());
 				Statement statement = connection.createStatement();
 				statement.setQueryTimeout(30); // set timeout to 30 seconds
 				ResultSet result;
@@ -260,6 +301,15 @@ public class LocalCookies {
 				e.printStackTrace();
 				// if the error message is "out of memory",
 				// it probably means no database file is found
+			} finally {
+				try { // 关闭数据库
+					if (connection != null) {
+						connection.close();
+					}
+				} catch (SQLException e) {
+					// connection close failed
+				}
+				cookieStoreCopy.delete(); // 删除备份
 			}
 			return cookies.parallelStream().filter(cookie -> !Judge.isEmpty(cookie.getValue()))
 					.collect(Collectors.toMap(LocalCookies.Cookie::getName, LocalCookies.Cookie::getValue, (e1, e2) -> e1));
@@ -272,7 +322,7 @@ public class LocalCookies {
 		 * @return decrypted cookie
 		 */
 		@Override protected DecryptedCookie decrypt(EncryptedCookie encryptedCookie) {
-			String encryptedKey = getEncryptedKey();
+			String encryptedKey = getEncryptedKey(userHome);
 			byte[] decryptedBytes = encryptedValueDecrypt(encryptedCookie.encryptedValue, encryptedKey);
 			if (decryptedBytes == null) {
 				return null;
@@ -280,45 +330,6 @@ public class LocalCookies {
 				return new DecryptedCookie(encryptedCookie.getName(), encryptedCookie.getEncryptedValue(), new String(decryptedBytes),
 						encryptedCookie.getExpires(), encryptedCookie.getPath(), encryptedCookie.getDomain(), encryptedCookie.getCookieStore());
 			}
-		}
-
-		private static byte[] encryptedValueDecrypt(byte[] encryptedValue, String encryptedKey) {
-			Security.addProvider(new BouncyCastleProvider());
-
-			int keyLength = 256 / 8;
-			int nonceLength = 96 / 8;
-			String kEncryptionVersionPrefix = "v10";
-			int GCM_TAG_LENGTH = 16;
-
-			try {
-				byte[] encryptedKeyBytes = Base64.decodeBase64(encryptedKey);
-				assertTrue(new String(encryptedKeyBytes).startsWith("DPAPI"));
-				encryptedKeyBytes = Arrays.copyOfRange(encryptedKeyBytes, "DPAPI".length(), encryptedKeyBytes.length);
-
-				WinDPAPI winDPAPI = WinDPAPI.newInstance(WinDPAPI.CryptProtectFlag.CRYPTPROTECT_UI_FORBIDDEN);
-				byte[] keyBytes = winDPAPI.unprotectData(encryptedKeyBytes);
-
-				assertEquals(keyLength, keyBytes.length);
-
-				byte[] nonce = Arrays.copyOfRange(encryptedValue, kEncryptionVersionPrefix.length(), kEncryptionVersionPrefix.length() + nonceLength);
-
-				encryptedValue = Arrays.copyOfRange(encryptedValue, kEncryptionVersionPrefix.length() + nonceLength, encryptedValue.length);
-
-				Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-				SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
-				GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, nonce);
-				cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmParameterSpec);
-				encryptedValue = cipher.doFinal(encryptedValue);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			return encryptedValue;
-		}
-
-		private String getEncryptedKey() {
-			File userState = new File(userHome, "Local State");
-			JSONObject jsonObject = JSONObject.parseObject(JSONObject.parseObject(ReadWriteUtils.orgin(userState).text()).getString("os_crypt"));
-			return jsonObject.getString("encrypted_key");
 		}
 
 	}
