@@ -68,7 +68,7 @@ public class FilesUtils {
 				Desktop.getDesktop().open(new File(folderPath));
 				return true;
 			} catch (IOException e) {
-				return false;
+				e.printStackTrace();
 			}
 		}
 		return false;
@@ -96,7 +96,6 @@ public class FilesUtils {
 						.flatMap(file -> isBlankDirectory(file) && file.delete() ? Stream.of(file.getPath()) : deleteBlankDirectory(file).parallelStream())
 						.collect(Collectors.toList()) :
 				new ArrayList<>();
-
 	}
 
 	/**
@@ -137,7 +136,7 @@ public class FilesUtils {
 	 */
 	@Contract(pure = true) public static boolean deleteDirectory(final @NotNull File folder) {
 		return folder.exists() && !Arrays.stream(Objects.requireNonNull(folder.listFiles())).parallel()
-				.map(file -> file.isDirectory() ? deleteDirectory(file) : file.delete()).collect(Collectors.toList()).contains(false) && folder.delete();
+				.map(file -> file.isDirectory() ? deleteDirectory(file) : file.delete()).toList().contains(false) && folder.delete();
 	}
 
 	/**
@@ -272,11 +271,47 @@ public class FilesUtils {
 	 * @param files 文件夹或文件对象
 	 * @return 文件对象列表
 	 */
-	@NotNull @Contract(pure = true) public static List<File> iterateFiles(final @NotNull File files) {
+	@NotNull @Contract(pure = true) public static List<File> iterateFiles(@NotNull final File files) {
 		return files.isDirectory() ?
 				Arrays.stream(Objects.requireNonNull(files.listFiles())).parallel().flatMap(file -> iterateFiles(file).parallelStream())
 						.collect(Collectors.toList()) :
 				files.isFile() ? Collections.singletonList(files) : new ArrayList<>();
+	}
+
+	/**
+	 * @param files  文件夹或文件对象
+	 * @param suffix 文件后缀名
+	 * @return 文件对象列表
+	 */
+	@NotNull @Contract(pure = true) public static List<File> iterateFilesOfSuffix(@NotNull final File files, @NotNull final String suffix) {
+		return iterateFilesPathOfSuffix(files, suffix).parallelStream().map(File::new).collect(Collectors.toList());
+	}
+
+	/**
+	 * @param filesPath 文件夹或文件路径
+	 * @param suffix    文件后缀名
+	 * @return 文件对象列表
+	 */
+	@NotNull @Contract(pure = true) public static List<File> iterateFilesOfSuffix(@NotNull final String filesPath, @NotNull final String suffix) {
+		return iterateFilesOfSuffix(new File(filesPath), suffix);
+	}
+
+	/**
+	 * @param filesPath 文件夹或文件路径
+	 * @param suffix    文件后缀名
+	 * @return 文件路径列表
+	 */
+	@NotNull @Contract(pure = true) public static List<String> iterateFilesPathOfSuffix(@NotNull final String filesPath, @NotNull final String suffix) {
+		return iterateFilesPathOfSuffix(new File(filesPath), suffix);
+	}
+
+	/**
+	 * @param files  文件夹或文件对象
+	 * @param suffix 文件后缀名
+	 * @return 文件路径列表
+	 */
+	@NotNull @Contract(pure = true) public static List<String> iterateFilesPathOfSuffix(@NotNull final File files, @NotNull final String suffix) {
+		return iterateFilesPath(files).parallelStream().filter(file -> file.endsWith((char) 46 + suffix)).collect(Collectors.toList());
 	}
 
 	/**
