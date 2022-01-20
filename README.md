@@ -20,7 +20,7 @@ Document doc = JsoupUtils.connect(url)
 .proxy(proxyHost, proxyPort)  
 .retry(MAX_RETRY, MILLISECONDS_SLEEP)  //重试次数，以及重试等待间隔  
 .errorExit(errorExit)  //抛出执行异常  
-.GetDocument();
+.get(); // post()
 
 对应文件读写ReadWriteUtils类，简单示例  
 String str = ReadWriteUtils.orgin(filePath).text(); //读取文件文本  
@@ -39,6 +39,8 @@ ZipUtils.origin(file).out(qq_tempfile).addFiles(file);
 文件解压，简单示例  
 ZipUtils.origin(file).charset("GBK").deCompress(temppath);
 
-获取本地浏览器cookie,简单示例  
-Map<String, String> cookies = LocalCookies.home() //home方法,默认win版edge用户路径,其它浏览器添加参数,路径至User Data目录  
-.getCookiesForDomain("pixiv.net"); //获取对应域
+获取本地浏览器cookie Map<String, String> cookies = LocalCookies.home() //home方法,默认win版edge用户路径,其它浏览器添加参数,路径至User Data目录  
+.getCookiesForDomain("pixiv.net"); //获取对应域  
+获取本地浏览器LoginData  
+Map<String, String> cookies = LoginData.home() //home方法,默认win版edge用户路径,其它浏览器添加参数,路径至User Data目录  
+.getLoginDatasForDomain("pixiv.net"); //获取对应域  
