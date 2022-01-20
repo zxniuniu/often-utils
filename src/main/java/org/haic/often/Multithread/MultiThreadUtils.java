@@ -50,7 +50,7 @@ public class MultiThreadUtils {
 	 * @param <E>    泛型
 	 * @return 返回值
 	 */
-	@Contract(pure = true) public static <E> E GetFuture(final @NotNull Future<E> future) {
+	@Contract(pure = true) public static <E> E getFuture(final @NotNull Future<E> future) {
 		E result = null;
 		try {
 			result = future.get(); // 获得返回值
@@ -63,7 +63,7 @@ public class MultiThreadUtils {
 	/**
 	 * 输出程序运行时间，请在程序开始处加入函数
 	 */
-	@Contract(pure = true) public static void RunTime() {
+	@Contract(pure = true) public static void runTime() {
 		long start = System.currentTimeMillis(); // 获取开始时间
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			long end = System.currentTimeMillis(); // 获取结束时间

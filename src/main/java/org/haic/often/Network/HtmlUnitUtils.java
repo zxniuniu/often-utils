@@ -609,7 +609,7 @@ public final class HtmlUnitUtils {
 		if (!cookies.isEmpty()) { // 设置cookies
 			webClient.getCookieManager().setCookiesEnabled(true);
 			for (Entry<String, String> cookie : cookies.entrySet()) {
-				webClient.getCookieManager().addCookie(new Cookie(URIUtils.GetDomain(url), cookie.getKey(), cookie.getValue()));
+				webClient.getCookieManager().addCookie(new Cookie(URIUtils.getDomain(url), cookie.getKey(), cookie.getValue()));
 			}
 		}
 
@@ -647,7 +647,7 @@ public final class HtmlUnitUtils {
 	 * @return WebRequest
 	 */
 	@Contract(pure = true) private WebRequest getWebRequest(final HttpMethod method) {
-		WebRequest webRequest = new WebRequest(URIUtils.GetURL(url), method);
+		WebRequest webRequest = new WebRequest(URIUtils.getURL(url), method);
 		if (!Judge.isNull(request)) {
 			webRequest.setAdditionalHeader("Set-Cookie", request.getAdditionalHeader("Set-Cookie"));
 		}

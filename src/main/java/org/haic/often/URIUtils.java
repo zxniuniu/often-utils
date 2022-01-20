@@ -24,7 +24,7 @@ public class URIUtils {
 	 * @param url URL
 	 * @return URI对象
 	 */
-	@NotNull @Contract(pure = true) public static URI GetURI(final @NotNull String url) {
+	@NotNull @Contract(pure = true) public static URI getURI(final @NotNull String url) {
 		URI uri = null;
 		try {
 			uri = new URI(url);
@@ -40,7 +40,7 @@ public class URIUtils {
 	 * @param url URL
 	 * @return URL对象
 	 */
-	@NotNull @Contract(pure = true) public static URL GetURL(final @NotNull String url) {
+	@NotNull @Contract(pure = true) public static URL getURL(final @NotNull String url) {
 		URL uri = null;
 		try {
 			uri = new URL(url);
@@ -56,8 +56,8 @@ public class URIUtils {
 	 * @param url URL
 	 * @return 字符串
 	 */
-	@NotNull @Contract(pure = true) public static String GetDomain(final @NotNull String url) {
-		return GetURI(url).getHost();
+	@NotNull @Contract(pure = true) public static String getDomain(final @NotNull String url) {
+		return getURI(url).getHost();
 	}
 
 	/**

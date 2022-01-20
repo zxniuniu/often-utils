@@ -93,7 +93,7 @@ public final class JsoupUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public JsoupUtils file(@NotNull final File file) {
-		return data("file", file.getName(), IOUtils.GetFileInputStream(file));
+		return data("file", file.getName(), IOUtils.getFileInputStream(file));
 	}
 
 	/**

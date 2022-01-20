@@ -49,30 +49,6 @@ public final class NetworkFileUtils {
 	private ExecutorService executorService; // 下载线程池
 	private Method method;// 下载模式
 
-	/**
-	 * 下载方法名常量<br/>
-	 * FILE - 配置文件下载<br/>
-	 * FULL - 全量下载模式<br/>
-	 * MULTITHREAD - 多线程模式<br/>
-	 * INTELLIGENT - 智能多线程模式
-	 */
-	public enum Method {
-		FILE("file"), // 配置文件下载
-		FULL("full"),  //全量下载模式
-		PIECE("piece"), // 分块多线程模式
-		MULTITHREAD("multithread");  // 经典多线程模式
-
-		private final String value;
-
-		Method(final String value) {
-			this.value = value;
-		}
-
-		public final String getValue() {
-			return value;
-		}
-	}
-
 	private NetworkFileUtils() {
 		MAX_THREADS = 16; // 默认16线程下载
 		interval = 50; // 默认异步访问间隔50毫秒
@@ -91,17 +67,6 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true) public static NetworkFileUtils connect(final @NotNull String url) {
 		return config().url(url);
-	}
-
-	/**
-	 * 设置 URI
-	 *
-	 * @param url 链接
-	 * @return this
-	 */
-	@Contract(pure = true) private NetworkFileUtils url(final @NotNull String url) {
-		this.url = url;
-		return this;
 	}
 
 	/**
@@ -127,6 +92,26 @@ public final class NetworkFileUtils {
 	}
 
 	/**
+	 * 获取新的 NetworkFileUtils 对象
+	 *
+	 * @return this
+	 */
+	@Contract(pure = true) private static NetworkFileUtils config() {
+		return new NetworkFileUtils();
+	}
+
+	/**
+	 * 设置 URI
+	 *
+	 * @param url 链接
+	 * @return this
+	 */
+	@Contract(pure = true) private NetworkFileUtils url(final @NotNull String url) {
+		this.url = url;
+		return this;
+	}
+
+	/**
 	 * 设置 配置文件
 	 *
 	 * @param conf 配置文件
@@ -136,15 +121,6 @@ public final class NetworkFileUtils {
 		this.method = Method.FILE;
 		this.conf = conf;
 		return this;
-	}
-
-	/**
-	 * 获取新的 NetworkFileUtils 对象
-	 *
-	 * @return this
-	 */
-	@Contract(pure = true) private static NetworkFileUtils config() {
-		return new NetworkFileUtils();
 	}
 
 	/**
@@ -575,7 +551,7 @@ public final class NetworkFileUtils {
 		}
 		// 效验文件完整性
 		String md5;
-		if (!Judge.isEmpty(hash) && !(md5 = FilesUtils.GetMD5(storage)).equals(hash)) {
+		if (!Judge.isEmpty(hash) && !(md5 = FilesUtils.getMD5(storage)).equals(hash)) {
 			storage.delete(); // 删除下载错误的文件
 			if (!ReadWriteUtils.orgin(conf).append(false).text(fileInfo.toJSONString())) { // 重置信息文件
 				throw new RuntimeException("Configuration file reset information failed");
@@ -680,6 +656,30 @@ public final class NetworkFileUtils {
 			// e.printStackTrace();
 		}
 		return HttpStatus.SC_REQUEST_TIMEOUT;
+	}
+
+	/**
+	 * 下载方法名常量<br/>
+	 * FILE - 配置文件下载<br/>
+	 * FULL - 全量下载模式<br/>
+	 * MULTITHREAD - 多线程模式<br/>
+	 * INTELLIGENT - 智能多线程模式
+	 */
+	public enum Method {
+		FILE("file"), // 配置文件下载
+		FULL("full"),  //全量下载模式
+		PIECE("piece"), // 分块多线程模式
+		MULTITHREAD("multithread");  // 经典多线程模式
+
+		private final String value;
+
+		Method(final String value) {
+			this.value = value;
+		}
+
+		public final String getValue() {
+			return value;
+		}
 	}
 
 }

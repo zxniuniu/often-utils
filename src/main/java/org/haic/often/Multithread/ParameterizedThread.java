@@ -3,9 +3,8 @@ package org.haic.often.Multithread;
 /**
  * ParameterizedThread defines a thread with a generic parameter
  *
+ * @param <T> 泛型
  * @author haicdust
- * @param <T>
- *            泛型
  */
 public class ParameterizedThread<T> implements Runnable {
 
@@ -15,8 +14,7 @@ public class ParameterizedThread<T> implements Runnable {
 	/**
 	 * Constructor
 	 *
-	 * @param T
-	 *            泛型
+	 * @param T 泛型
 	 */
 	public ParameterizedThread(final T T, final ParameterizedThreadStart<T> parameterStart) {
 		this.T = T;
@@ -28,15 +26,14 @@ public class ParameterizedThread<T> implements Runnable {
 	 *
 	 * @return 泛型
 	 */
-	public T GetContext() {
+	public T getContext() {
 		return T;
 	}
 
 	/**
 	 * run method to be called in that separately executing thread.
 	 */
-	@Override
-	public void run() {
+	@Override public void run() {
 		parameterStart.run(T);
 	}
 }

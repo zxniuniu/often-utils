@@ -1,16 +1,5 @@
 package org.haic.often.Compress;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -21,6 +10,17 @@ import org.haic.often.Judge;
 import org.haic.often.ReadWriteUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author haicdust
@@ -41,8 +41,7 @@ public class ZipUtils {
 	/**
 	 * 获取新的ZipUtils对象并设置压缩包文件
 	 *
-	 * @param archive
-	 *            压缩包路径
+	 * @param archive 压缩包路径
 	 * @return new ZipUtils
 	 */
 	public static ZipUtils origin(String archive) {
@@ -52,8 +51,7 @@ public class ZipUtils {
 	/**
 	 * 获取新的ZipUtils对象并设置压缩包文件
 	 *
-	 * @param archive
-	 *            压缩包
+	 * @param archive 压缩包
 	 * @return new ZipUtils
 	 */
 	public static ZipUtils origin(File archive) {
@@ -73,8 +71,7 @@ public class ZipUtils {
 	/**
 	 * 设置 压缩包文件
 	 *
-	 * @param archive
-	 *            压缩包文件
+	 * @param archive 压缩包文件
 	 * @return this
 	 */
 	private ZipUtils archive(File archive) {
@@ -84,9 +81,8 @@ public class ZipUtils {
 
 	/**
 	 * 在解压压缩包时使用，解压至压缩包名称的文件夹
-	 * 
-	 * @param archiveName
-	 *            启用 解压使用压缩包名称文件夹
+	 *
+	 * @param archiveName 启用 解压使用压缩包名称文件夹
 	 * @return this
 	 */
 	public ZipUtils archiveName(boolean archiveName) {
@@ -97,8 +93,7 @@ public class ZipUtils {
 	/**
 	 * 设置 字符集编码格式名称
 	 *
-	 * @param charsetName
-	 *            字符集编码格式名称
+	 * @param charsetName 字符集编码格式名称
 	 * @return this
 	 */
 	public ZipUtils charset(String charsetName) {
@@ -109,8 +104,7 @@ public class ZipUtils {
 	/**
 	 * 设置添加文件时输出文件路径
 	 *
-	 * @param out
-	 *            输出文件路径
+	 * @param out 输出文件路径
 	 * @return this
 	 */
 	public ZipUtils out(String out) {
@@ -120,8 +114,7 @@ public class ZipUtils {
 	/**
 	 * 设置添加文件时输出文件
 	 *
-	 * @param out
-	 *            输出文件
+	 * @param out 输出文件
 	 * @return this
 	 */
 	public ZipUtils out(File out) {
@@ -132,8 +125,7 @@ public class ZipUtils {
 	/**
 	 * 压缩文件夹时，包含根目录
 	 *
-	 * @param includeRoot
-	 *            启用 包含根目录
+	 * @param includeRoot 启用 包含根目录
 	 * @return this
 	 */
 	public ZipUtils includeRoot(boolean includeRoot) {
@@ -144,8 +136,7 @@ public class ZipUtils {
 	/**
 	 * 解压ZIP压缩包
 	 *
-	 * @param out
-	 *            输出文件夹路径
+	 * @param out 输出文件夹路径
 	 * @return 解压的文件列表
 	 */
 	public List<String> deCompress(final @NotNull String out) {
@@ -155,12 +146,10 @@ public class ZipUtils {
 	/**
 	 * 解压ZIP压缩包
 	 *
-	 * @param out
-	 *            输出文件夹
+	 * @param out 输出文件夹
 	 * @return 解压的文件列表
 	 */
-	@Contract(pure = true)
-	public List<String> deCompress(final @NotNull File out) {
+	@Contract(pure = true) public List<String> deCompress(final @NotNull File out) {
 		if (!archive.isFile()) {
 			throw new RuntimeException("Not found or not file " + archive);
 		}
@@ -171,7 +160,8 @@ public class ZipUtils {
 				if (archiveEntry.isDirectory()) {
 					continue;
 				}
-				File curfile = new File(archiveName ? new File(out, archive.getName().substring(0, archive.getName().lastIndexOf(46))) : out, archiveEntry.getName());
+				File curfile = new File(archiveName ? new File(out, archive.getName().substring(0, archive.getName().lastIndexOf(46))) : out,
+						archiveEntry.getName());
 				FilesUtils.createFolder(curfile.getParentFile());
 				IOUtils.copy(inputStream, new FileOutputStream(curfile)); // 将文件写出到解压的目录
 				result.add(archiveEntry.getName());
@@ -185,8 +175,7 @@ public class ZipUtils {
 	/**
 	 * 压缩文件或文件夹
 	 *
-	 * @param origin
-	 *            文件或文件夹路径
+	 * @param origin 文件或文件夹路径
 	 * @return 添加压缩包中的文件列表
 	 */
 	public List<String> compress(final @NotNull String origin) {
@@ -196,27 +185,23 @@ public class ZipUtils {
 	/**
 	 * 压缩文件或文件夹
 	 *
-	 * @param origin
-	 *            文件或文件夹
+	 * @param origin 文件或文件夹
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true)
-	public List<String> compress(final @NotNull File origin) {
+	@Contract(pure = true) public List<String> compress(final @NotNull File origin) {
 		if (!origin.exists()) {
 			throw new RuntimeException("Not found " + origin);
 		}
-		return compress(GetFilesInfo(origin));
+		return compress(getFilesInfo(origin));
 	}
 
 	/**
 	 * 将列表的bytes添加进压缩包
 	 *
-	 * @param origin
-	 *            文件信息
+	 * @param origin 文件信息
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true)
-	public List<String> compress(final @NotNull Map<String, byte[]> origin) {
+	@Contract(pure = true) public List<String> compress(final @NotNull Map<String, byte[]> origin) {
 		List<String> result = new ArrayList<>();
 		try (ZipArchiveOutputStream archiveOutputStream = new ZipArchiveOutputStream(archive)) {
 			result = compress(origin, archiveOutputStream);
@@ -229,10 +214,8 @@ public class ZipUtils {
 	/**
 	 * 将列表的bytes添加到指定输出流
 	 *
-	 * @param outputStream
-	 *            输出流
-	 * @param origin
-	 *            文件信息
+	 * @param outputStream 输出流
+	 * @param origin       文件信息
 	 * @return 添加压缩包中的文件列表
 	 */
 	private List<String> compress(final @NotNull Map<String, byte[]> origin, ZipArchiveOutputStream outputStream) {
@@ -252,22 +235,18 @@ public class ZipUtils {
 	/**
 	 * 将bytes添加进压缩包
 	 *
-	 * @param bytes
-	 *            文件Bytes
-	 * @param entryName
-	 *            在压缩包中显示的路径、名称
+	 * @param bytes     文件Bytes
+	 * @param entryName 在压缩包中显示的路径、名称
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true)
-	public List<String> compress(final byte[] bytes, final @NotNull String entryName) {
+	@Contract(pure = true) public List<String> compress(final byte[] bytes, final @NotNull String entryName) {
 		return compress(Map.of(entryName, bytes));
 	}
 
 	/**
 	 * 添加文件或文件夹
 	 *
-	 * @param origin
-	 *            文件或文件夹路径
+	 * @param origin 文件或文件夹路径
 	 * @return 添加压缩包中的文件列表
 	 */
 	public List<String> addFiles(final @NotNull String origin) {
@@ -277,22 +256,18 @@ public class ZipUtils {
 	/**
 	 * 添加文件或文件夹
 	 *
-	 * @param origin
-	 *            文件或文件夹
+	 * @param origin 文件或文件夹
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true)
-	public List<String> addFiles(final @NotNull File origin) {
-		return addBytes(GetFilesInfo(origin));
+	@Contract(pure = true) public List<String> addFiles(final @NotNull File origin) {
+		return addBytes(getFilesInfo(origin));
 	}
 
 	/**
 	 * 将字符串添加到压缩包中
 	 *
-	 * @param str
-	 *            字符串
-	 * @param entryName
-	 *            在压缩包中显示的路径、名称
+	 * @param str       字符串
+	 * @param entryName 在压缩包中显示的路径、名称
 	 * @return 添加压缩包中的文件列表
 	 */
 	@Contract(pure = true)
@@ -304,26 +279,21 @@ public class ZipUtils {
 	/**
 	 * 往压缩包中添加bytes
 	 *
-	 * @param bytes
-	 *            文件bytes
-	 * @param entryName
-	 *            在压缩包中显示的路径、名称
+	 * @param bytes     文件bytes
+	 * @param entryName 在压缩包中显示的路径、名称
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true)
-	public List<String> addByte(final byte[] bytes, final @NotNull String entryName) {
+	@Contract(pure = true) public List<String> addByte(final byte[] bytes, final @NotNull String entryName) {
 		return addBytes(Map.of(entryName, bytes));
 	}
 
 	/**
 	 * 往压缩包中添加列表中的bytes
 	 *
-	 * @param origin
-	 *            bytes列表
+	 * @param origin bytes列表
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true)
-	public List<String> addBytes(final @NotNull Map<String, byte[]> origin) {
+	@Contract(pure = true) public List<String> addBytes(final @NotNull Map<String, byte[]> origin) {
 		if (!archive.isFile()) {
 			throw new RuntimeException("Not found or not file " + archive);
 		}
@@ -359,20 +329,19 @@ public class ZipUtils {
 	/**
 	 * 获取文件信息
 	 *
-	 * @param origin
-	 *            来源文件或文件夹
+	 * @param origin 来源文件或文件夹
 	 * @return 文件列表信息集合
 	 */
-	@NotNull
-	@Contract(pure = true)
-	private Map<String, byte[]> GetFilesInfo(final @NotNull File origin) {
+	@NotNull @Contract(pure = true) private Map<String, byte[]> getFilesInfo(final @NotNull File origin) {
 		if (!origin.exists()) {
 			throw new RuntimeException("Not found " + origin);
 		}
-		return origin.isFile() ? Map.of(includeRoot ? origin.getParentFile().getName() + "/" : "" + origin.getName(), ReadWriteUtils.orgin(origin).array())
-				: FilesUtils.iterateFiles(origin).parallelStream()
-						.collect(Collectors.toMap(file -> includeRoot ? origin.getName() + "/" : "" + file.getAbsolutePath().substring(origin.getAbsolutePath().length() + 1).replaceAll("\\\\", "/"),
-								file -> ReadWriteUtils.orgin(file).array()));
+		return origin.isFile() ?
+				Map.of(includeRoot ? origin.getParentFile().getName() + "/" : "" + origin.getName(), ReadWriteUtils.orgin(origin).array()) :
+				FilesUtils.iterateFiles(origin).parallelStream().collect(Collectors.toMap(file -> includeRoot ?
+								origin.getName() + "/" :
+								"" + file.getAbsolutePath().substring(origin.getAbsolutePath().length() + 1).replaceAll("\\\\", "/"),
+						file -> ReadWriteUtils.orgin(file).array()));
 	}
 
 }

@@ -304,7 +304,7 @@ public final class Aria2Utils {
 	 * @return 返回的json信息
 	 */
 	@Contract(pure = true) public String send() {
-		WebSocketClient socket = new WebSocketClient(URIUtils.GetURI(aria2RpcUrl)) {
+		WebSocketClient socket = new WebSocketClient(URIUtils.getURI(aria2RpcUrl)) {
 			@Override @Contract(pure = true) public void onOpen(ServerHandshake handshakedata) {
 				send(getJsonArray().toJSONString());
 			}

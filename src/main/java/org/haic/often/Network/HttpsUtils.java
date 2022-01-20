@@ -462,10 +462,10 @@ public final class HttpsUtils {
 
 			// 打开和URL之间的连接
 			if (Judge.isEmpty(proxyHost) || Judge.isEmpty(proxyPort)) {
-				conn = (HttpURLConnection) URIUtils.GetURL(url).openConnection();
+				conn = (HttpURLConnection) URIUtils.getURL(url).openConnection();
 			} else { // 使用代理模式
 				@SuppressWarnings("static-access") Proxy proxy = new Proxy(Proxy.Type.DIRECT.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-				conn = (HttpURLConnection) URIUtils.GetURL(url).openConnection(proxy);
+				conn = (HttpURLConnection) URIUtils.getURL(url).openConnection(proxy);
 			}
 
 			// https 忽略证书验证
