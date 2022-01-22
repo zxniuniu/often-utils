@@ -25,7 +25,7 @@ public class ALiYunPan {
 	/**
 	 * 获得分享页面所有文件直链(方法暂时废弃,阿里云盘限制,分享页面获取链接无用,需保存至个人盘内才能获取直链)
 	 *
-	 * @param shareUrl      sharePwd
+	 * @param shareUrl      分享链接
 	 * @param authorization 身份识别信息,登录后,可在开发者本地存储(Local Storage)获取token项access_token值,或者在网络请求头中查找
 	 * @return Map - 文件名, 文件直链
 	 */
@@ -51,6 +51,13 @@ public class ALiYunPan {
 		return filesStraight;
 	}
 
+	/**
+	 * @param shareId       发现链接ID
+	 * @param fileid        文件ID
+	 * @param shareToken    shareToken
+	 * @param authorization 身份识别信息,登录后,可在开发者本地存储(Local Storage)获取token项access_token值,或者在网络请求头中查找
+	 * @return 文件直链
+	 */
 	public static String getStraight(String shareId, String fileid, String shareToken, String authorization) {
 		JSONObject apiJson = new JSONObject();
 		apiJson.put("share_id", shareId);
