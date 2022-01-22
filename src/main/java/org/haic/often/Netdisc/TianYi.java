@@ -30,7 +30,7 @@ public class TianYi {
 	 *
 	 * @param url     天翼URL
 	 * @param cookies cookies
-	 * @return 文件自链
+	 * @return 文件直链
 	 */
 	@NotNull @Contract(pure = true) public static String getFileUrlOfNotCode(@NotNull final String url, @NotNull final Map<String, String> cookies) {
 		FourTuple<String, String, String, String> urlInfo = getUrlInfo(url);
@@ -42,7 +42,7 @@ public class TianYi {
 	 *
 	 * @param url     天翼URL
 	 * @param cookies cookies
-	 * @return Map - 文件名 ,文件自链
+	 * @return Map - 文件名 ,文件直链
 	 */
 	@NotNull @Contract(pure = true) public static Map<String, String> getFilesUrl(@NotNull final String url, @NotNull final Map<String, String> cookies) {
 		return getFilesUrl(url, "", cookies);
@@ -54,7 +54,7 @@ public class TianYi {
 	 * @param url        天翼URL
 	 * @param accessCode 提取码
 	 * @param cookies    cookies
-	 * @return Map - 文件名 ,文件自链
+	 * @return Map - 文件名 ,文件直链
 	 */
 	@NotNull @Contract(pure = true) public static Map<String, String> getFilesUrl(@NotNull final String url, String accessCode,
 			@NotNull final Map<String, String> cookies) {
