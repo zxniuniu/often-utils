@@ -19,7 +19,7 @@ import java.util.*;
  * @version 1.0
  * @since 2022/1/18 22:43
  */
-public class TianYi {
+public class TianYiYunPan {
 	private static final String dataApi = "https://cloud.189.cn/api/open/share/getShareInfoByCode.action";
 	private static final String listApi = "https://cloud.189.cn/api/open/share/listShareDir.action";
 	private static final String downApi = "https://cloud.189.cn/api/open/file/getFileDownloadUrl.action";
@@ -38,7 +38,7 @@ public class TianYi {
 	}
 
 	/**
-	 * 获得所有文件的直链(无密码)
+	 * 获得分享页面所有文件的直链(无密码)
 	 *
 	 * @param url     天翼URL
 	 * @param cookies cookies
@@ -49,14 +49,14 @@ public class TianYi {
 	}
 
 	/**
-	 * 获得所有文件的直链
+	 * 获得分享页面所有文件的直链
 	 *
 	 * @param url        天翼URL
 	 * @param accessCode 提取码
 	 * @param cookies    cookies
 	 * @return Map - 文件名 ,文件直链
 	 */
-	@NotNull @Contract(pure = true) public static Map<String, String> getFilesUrl(@NotNull final String url, String accessCode,
+	@NotNull @Contract(pure = true) public static Map<String, String> getFilesUrl(@NotNull final String url, @NotNull final String accessCode,
 			@NotNull final Map<String, String> cookies) {
 		Map<String, String> fileUrls = new HashMap<>();
 		for (ThreeTuple<String, String, String> fileInfo : getFilesInfo(url, accessCode)) {

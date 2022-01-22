@@ -22,12 +22,12 @@ import java.util.Objects;
  * @version 1.0
  * @since 2022/1/18 23:59
  */
-public class LanZou {
+public class LanZouYunPan {
 
 	private static final String domain = "https://wws.lanzoux.com/";
 
 	/**
-	 * 获取目录页面文件直链集合
+	 * 获取分享页面页面文件直链集合
 	 *
 	 * @param lanzouUrl 蓝奏URL
 	 * @param passwd    访问密码
@@ -35,7 +35,7 @@ public class LanZou {
 	 */
 	@NotNull @Contract(pure = true)
 
-	public static Map<String, String> getPageStraights(String lanzouUrl, String passwd) {
+	public static Map<String, String> getPageStraights(@NotNull final String lanzouUrl, @NotNull final String passwd) {
 		String javascript = null;
 		while (Judge.isNull(javascript)) {
 			Elements elements = JsoupUtils.connect(lanzouUrl).get().select("script[type='text/javascript']");
@@ -84,19 +84,19 @@ public class LanZou {
 	 * @param lanzouUrl 蓝奏云文件链接
 	 * @return 蓝奏云URL直链
 	 */
-	@Contract(pure = true) public static String getStraight(final @NotNull String lanzouUrl) {
+	@Contract(pure = true) public static String getStraight(@NotNull final String lanzouUrl) {
 		return JsoupUtils.connect(Objects.requireNonNull(
 				HtmlUnitUtils.connect(domain + Objects.requireNonNull(JsoupUtils.connect(lanzouUrl).get().selectFirst("iframe[class='ifr2']")).attr("src"))
 						.waitJSTime(1000).get().selectFirst("div[id='go'] a")).attr("href")).followRedirects(false).execute().header("Location");
 	}
 
 	/**
-	 * 获取目录页面文件直链集合
+	 * 获取分享页面文件直链集合
 	 *
 	 * @param lanzouUrl 蓝奏URL
 	 * @return 文件直链集合
 	 */
-	@NotNull @Contract(pure = true) public static Map<String, String> getPageStraights(String lanzouUrl) {
+	@NotNull @Contract(pure = true) public static Map<String, String> getPageStraights(@NotNull final String lanzouUrl) {
 		Map<String, String> result = new HashMap<>();
 		HtmlUnitUtils.connect(lanzouUrl).waitJSTime(1000).get().select("div[id='name']")
 				.forEach(name -> result.put(name.text(), domain + name.select("a").attr("href")));
