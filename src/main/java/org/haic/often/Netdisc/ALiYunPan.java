@@ -17,9 +17,9 @@ import java.util.Map;
  */
 public class ALiYunPan {
 
-	private static final String aliDataApi = "https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous";
-	private static final String alidownApi = "https://api.aliyundrive.com/v2/file/get_share_link_download_url";
-	// private static final String aliFileListApi = "https://api.aliyundrive.com/adrive/v3/file/list";
+	private static final String dataApi = "https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous";
+	private static final String downApi = "https://api.aliyundrive.com/v2/file/get_share_link_download_url";
+	// private static final String fileListApi = "https://api.aliyundrive.com/adrive/v3/file/list";
 	private static final String shareTokenApi = "https://api.aliyundrive.com/v2/share_link/get_share_token";
 
 	/**
@@ -58,7 +58,7 @@ public class ALiYunPan {
 		Map<String, String> headers = new HashMap<>();
 		headers.put("x-share-token", shareToken);
 		headers.put("authorization", authorization.startsWith("Bearer") ? authorization : "Bearer " + authorization);
-		Document doc = JsoupUtils.connect(alidownApi).headers(headers).requestBody(apiJson.toString()).post();
+		Document doc = JsoupUtils.connect(downApi).headers(headers).requestBody(apiJson.toString()).post();
 		return JSONObject.parseObject(doc.text()).getString("download_url");
 
 	}
@@ -72,7 +72,7 @@ public class ALiYunPan {
 	public static Map<String, String> getFilesInfo(String shareId) {
 		JSONObject apiJson = new JSONObject();
 		apiJson.put("share_id", shareId);
-		Document doc = JsoupUtils.connect(aliDataApi).requestBody(apiJson.toString()).post();
+		Document doc = JsoupUtils.connect(dataApi).requestBody(apiJson.toString()).post();
 		JSONArray fileInfoArray = JSONArray.parseArray(JSONObject.parseObject(doc.text()).getString("file_infos"));
 		Map<String, String> filesInfo = new HashMap<>();
 		for (int i = 0; i < fileInfoArray.size(); i++) {
