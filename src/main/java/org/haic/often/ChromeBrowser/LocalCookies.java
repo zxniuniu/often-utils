@@ -193,7 +193,7 @@ public class LocalCookies {
 		/**
 		 * Returns all cookies
 		 */
-		public Map<String, String> getCookies() {
+		public Set<Cookie> getCookies() {
 			return processCookies(cookieStore, null);
 		}
 
@@ -201,7 +201,8 @@ public class LocalCookies {
 		 * Returns cookies for a given domain
 		 */
 		public Map<String, String> getCookiesForDomain(String domain) {
-			return processCookies(cookieStore, domain);
+			return processCookies(cookieStore, domain).parallelStream().filter(cookie -> !Judge.isEmpty(cookie.getValue()))
+					.collect(Collectors.toMap(LocalCookies.Cookie::getName, LocalCookies.Cookie::getValue, (e1, e2) -> e1));
 		}
 
 		/**
@@ -212,7 +213,7 @@ public class LocalCookies {
 		 * @param domainFilter 域名
 		 * @return cookie set
 		 */
-		protected abstract Map<String, String> processCookies(File cookieStore, String domainFilter);
+		protected abstract Set<Cookie> processCookies(File cookieStore, String domainFilter);
 
 		/**
 		 * Decrypts an encrypted cookie
@@ -271,8 +272,8 @@ public class LocalCookies {
 		 * @param domainFilter domain
 		 * @return decrypted cookie
 		 */
-		@Override protected Map<String, String> processCookies(File cookieStore, String domainFilter) {
-			HashSet<Cookie> cookies = new HashSet<>();
+		@Override protected Set<Cookie> processCookies(File cookieStore, String domainFilter) {
+			Set<Cookie> cookies = new HashSet<>();
 			Connection connection = null;
 			try {
 				cookieStoreCopy.delete();
@@ -313,8 +314,7 @@ public class LocalCookies {
 				}
 				cookieStoreCopy.delete(); // 删除备份
 			}
-			return cookies.parallelStream().filter(cookie -> !Judge.isEmpty(cookie.getValue()))
-					.collect(Collectors.toMap(LocalCookies.Cookie::getName, LocalCookies.Cookie::getValue, (e1, e2) -> e1));
+			return cookies;
 		}
 
 		/**

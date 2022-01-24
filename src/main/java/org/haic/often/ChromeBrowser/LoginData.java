@@ -8,9 +8,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.sql.*;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -140,7 +138,7 @@ public class LoginData {
 		/**
 		 * Returns all cookies
 		 */
-		public Map<String, String> getLoginDatas() {
+		public Set<Cookie> getLoginDatas() {
 			return processCookies(cookieStore, null);
 		}
 
@@ -148,7 +146,8 @@ public class LoginData {
 		 * Returns cookies for a given domain
 		 */
 		public Map<String, String> getLoginDatasForDomain(String domain) {
-			return processCookies(cookieStore, domain);
+			return processCookies(cookieStore, domain).parallelStream().filter(cookie -> !Judge.isEmpty(cookie.getValue()))
+					.collect(Collectors.toMap(Cookie::getName, Cookie::getValue, (e1, e2) -> e1));
 		}
 
 		/**
@@ -159,7 +158,7 @@ public class LoginData {
 		 * @param domainFilter 域名
 		 * @return cookie set
 		 */
-		protected abstract Map<String, String> processCookies(File cookieStore, String domainFilter);
+		protected abstract Set<Cookie> processCookies(File cookieStore, String domainFilter);
 
 		/**
 		 * Decrypts an encrypted cookie
@@ -185,8 +184,8 @@ public class LoginData {
 		 * @param domainFilter domain
 		 * @return decrypted cookie
 		 */
-		@Override protected Map<String, String> processCookies(File cookieStore, String domainFilter) {
-			HashSet<Cookie> cookies = new HashSet<>();
+		@Override protected Set<Cookie> processCookies(File cookieStore, String domainFilter) {
+			Set<Cookie> cookies = new HashSet<>();
 			Connection connection = null;
 			try {
 				cookieStoreCopy.delete();
@@ -226,8 +225,7 @@ public class LoginData {
 				}
 				cookieStoreCopy.delete(); // 删除备份
 			}
-			return cookies.parallelStream().filter(cookie -> !Judge.isEmpty(cookie.getValue()))
-					.collect(Collectors.toMap(Cookie::getName, Cookie::getValue, (e1, e2) -> e1));
+			return cookies;
 		}
 
 		/**
