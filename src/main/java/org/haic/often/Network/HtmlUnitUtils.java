@@ -57,7 +57,7 @@ public final class HtmlUnitUtils {
 	private HtmlUnitUtils() {
 		followRedirects = true;
 		isCloseWebClient = true;
-		headers.put("User-Agent", UserAgentUtils.random()); // 设置随机请求头
+		headers.put("user-agent", UserAgentUtils.random()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
 	}
@@ -100,7 +100,7 @@ public final class HtmlUnitUtils {
 	 */
 	@Contract(pure = true) public HtmlUnitUtils requestBody(@NotNull final String requestBody) {
 		if (URIUtils.isJson(requestBody)) {
-			headers.put("Content-Type", "application/json;charset=UTF-8");
+			headers.put("content-type", "application/json;charset=UTF-8");
 		}
 		this.requestBody = requestBody;
 		return this;
@@ -707,11 +707,7 @@ public final class HtmlUnitUtils {
 		if (!Judge.isEmpty(referrer)) { // 设置请求报文头里的 Referer 字段
 			webRequest.setAdditionalHeader("referer", referrer);
 		}
-
-		if (!headers.isEmpty()) { // 设置headers
-			webRequest.setAdditionalHeaders(headers);
-		}
-
+		webRequest.setAdditionalHeaders(headers); // 设置headers
 		if (!cookies.isEmpty()) { // 设置cookies
 			webRequest.setAdditionalHeader("cookie", cookies.toString().replaceAll(",", ";").replace("{", "").replace("}", ""));
 		}

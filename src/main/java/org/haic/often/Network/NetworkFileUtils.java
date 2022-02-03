@@ -397,7 +397,7 @@ public final class NetworkFileUtils {
 		if (!Judge.isEmpty(authorization)) {
 			headers.put("Authorization", authorization);
 		}
-		Response response = JsoupUtils.connect(url).headers(headers).header("Content-Type", "multipart/form-data").file(file).proxy(proxy).cookies(cookies)
+		Response response = JsoupUtils.connect(url).headers(headers).header("content-type", "multipart/form-data").file(file).proxy(proxy).cookies(cookies)
 				.referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).execute();
 		return Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
 	}
@@ -640,7 +640,7 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	@Contract(pure = true) private int writePiece(final int start, final int end) {
-		Response piece = JsoupUtils.connect(url).proxy(proxy).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer)
+		Response piece = JsoupUtils.connect(url).proxy(proxy).headers(headers).header("range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer)
 				.execute();
 		return Judge.isNull(piece) ?
 				HttpStatus.SC_REQUEST_TIMEOUT :

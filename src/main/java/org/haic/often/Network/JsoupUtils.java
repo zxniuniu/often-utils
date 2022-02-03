@@ -50,6 +50,7 @@ public final class JsoupUtils {
 
 	private JsoupUtils() {
 		followRedirects = true;
+		headers.put("user-agent", UserAgentUtils.random()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
 		proxy(Proxy.NO_PROXY);
@@ -129,7 +130,7 @@ public final class JsoupUtils {
 	 */
 	@Contract(pure = true) public JsoupUtils requestBody(@NotNull final String requestBody) {
 		if (URIUtils.isJson(requestBody)) {
-			headers.put("Content-Type", "application/json;charset=UTF-8");
+			headers.put("content-type", "application/json;charset=UTF-8");
 		}
 		this.requestBody = requestBody;
 		return this;
@@ -564,15 +565,14 @@ public final class JsoupUtils {
 	 * @return Response
 	 */
 	@Contract(pure = true) private Response executeProgram(@NotNull final Method method) {
-		Connection conn = Jsoup.connect(url).userAgent(UserAgentUtils.random());
+		Connection conn = Jsoup.connect(url).headers(headers).proxy(proxy).timeout(timeout).method(method).maxBodySize(maxBodySize)
+				.followRedirects(followRedirects);
 		conn = Judge.isNull(request) ? conn : conn.request(request);
-		conn = headers.isEmpty() ? conn : conn.headers(headers);
 		conn = cookies.isEmpty() ? conn : conn.cookies(cookies);
 		conn = params.isEmpty() ? conn : conn.data(params);
 		conn = Judge.isNull(stream) ? conn : conn.data(stream.first, stream.second, stream.third);
 		conn = Judge.isEmpty(referrer) ? conn : conn.referrer(referrer);
 		conn = Judge.isEmpty(requestBody) ? conn : conn.requestBody(requestBody);
-		conn = conn.proxy(proxy).timeout(timeout).method(method).maxBodySize(maxBodySize).followRedirects(followRedirects);
 		Response response;
 		try {
 			response = conn.ignoreContentType(true).ignoreHttpErrors(true).execute();

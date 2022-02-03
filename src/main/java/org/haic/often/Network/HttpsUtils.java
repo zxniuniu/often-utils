@@ -225,7 +225,7 @@ public final class HttpsUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HttpsUtils cookies(@NotNull final Map<String, String> cookies) {
-		headers.put("Cookie", "");
+		headers.put("cookie", "");
 		for (Map.Entry<String, String> cookie : cookies.entrySet()) {
 			cookie(cookie.getKey(), cookie.getValue());
 		}
@@ -318,7 +318,7 @@ public final class HttpsUtils {
 
 	@Contract(pure = true) public HttpsUtils requestBody(@NotNull final String requestBody) {
 		if (URIUtils.isJson(requestBody)) {
-			headers.put("Content-Type", "application/json;charset=UTF-8");
+			headers.put("content-type", "application/json;charset=UTF-8");
 		}
 		this.requestBody = requestBody;
 		return this;
@@ -487,8 +487,8 @@ public final class HttpsUtils {
 			conn.setReadTimeout(timeout); // 设置超时
 
 			// 设置上一页
-			if (!headers.isEmpty()) {
-				headers.put("Referer", referrer);
+			if (!referrer.isEmpty()) {
+				headers.put("referer", referrer);
 			}
 
 			// 设置通用的请求属性
