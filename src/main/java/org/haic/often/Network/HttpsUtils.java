@@ -400,7 +400,7 @@ public final class HttpsUtils {
 	 * @param method 请求方法 HttpMethod
 	 * @return 响应结果
 	 */
-	@Contract(pure = true) public Document get(final HttpMethod method) {
+	@Contract(pure = true) public Document get(@NotNull final HttpMethod method) {
 		HttpURLConnection conn = execute(method).conn();
 		String result;
 		try (InputStreamReader inputStream = URIUtils.statusIsOK(conn.getResponseCode()) ?
@@ -428,7 +428,7 @@ public final class HttpsUtils {
 	 * @param method 请求方法 HttpMethod
 	 * @return 响应结果
 	 */
-	@Contract(pure = true) public HttpsUtils execute(final HttpMethod method) {
+	@Contract(pure = true) public HttpsUtils execute(@NotNull final HttpMethod method) {
 		int statusCode = executeProgram(method).statusCode();
 		for (int i = 0;
 			 !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && !excludeErrorStatusCodes.contains(statusCode) && (i < retry
@@ -448,7 +448,7 @@ public final class HttpsUtils {
 	 * @param method http响应类型 HttpMethod
 	 * @return 响应结果
 	 */
-	@Contract(pure = true) private HttpsUtils executeProgram(final HttpMethod method) {
+	@Contract(pure = true) private HttpsUtils executeProgram(@NotNull final HttpMethod method) {
 		return executeProgram(url, method);
 	}
 
@@ -459,7 +459,7 @@ public final class HttpsUtils {
 	 * @param method http响应类型 HttpMethod
 	 * @return 响应结果
 	 */
-	@Contract(pure = true) private HttpsUtils executeProgram(String url, final HttpMethod method) {
+	@Contract(pure = true) private HttpsUtils executeProgram(@NotNull String url, @NotNull final HttpMethod method) {
 		try {
 			if (method == HttpMethod.GET && !Judge.isEmpty(params)) {
 				url = url + "?" + params;
