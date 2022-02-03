@@ -1,7 +1,6 @@
 package org.haic.often.Network;
 
 import org.apache.http.HttpStatus;
-import org.haic.often.IOUtils;
 import org.haic.often.Judge;
 import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.Tuple.ThreeTuple;
@@ -17,9 +16,7 @@ import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -31,6 +28,7 @@ import java.util.*;
  */
 public final class JsoupUtils {
 
+	private final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 	private String url; // 请求URL
 	private String referrer; // 上一页
 	private String requestBody; // 请求数据(JSON)
@@ -48,7 +46,6 @@ public final class JsoupUtils {
 	private Map<String, String> params = new HashMap<>(); // params
 	private Request request; // 会话
 	private ThreeTuple<String, String, InputStream> stream; // 数据流
-	private final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 
 	private JsoupUtils() {
 		followRedirects = true;
@@ -93,7 +90,12 @@ public final class JsoupUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public JsoupUtils file(@NotNull final File file) {
-		return data("file", file.getName(), IOUtils.getFileInputStream(file));
+		try {
+			return data("file", file.getName(), new BufferedInputStream(new FileInputStream(file)));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return this;
 	}
 
 	/**

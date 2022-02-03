@@ -28,7 +28,7 @@ public class TranscodUtils {
      */
     @NotNull
     @Contract(pure = true)
-    public static String decodeByURL(final @NotNull String url) {
+    public static String decodeByURL(@NotNull final String url) {
         String prevURL = "";
         String decodeURL = url;
         while (!prevURL.equals(decodeURL)) {
@@ -46,7 +46,7 @@ public class TranscodUtils {
      */
     @NotNull
     @Contract(pure = true)
-    public static String encodeByURL(final @NotNull String url) {
+    public static String encodeByURL(@NotNull final String url) {
         return URLEncoder.encode(url, StandardCharsets.UTF_8);
     }
 
@@ -58,7 +58,7 @@ public class TranscodUtils {
      */
     @NotNull
     @Contract(pure = true)
-    public static String unicodeStr2String(final @NotNull String unicodeStr) {
+    public static String unicodeStr2String(@NotNull final String unicodeStr) {
         final String regex = "\\\\u[a-f0-9A-F]{1,4}";
         int count = 0;
         Matcher matcher = Pattern.compile(regex).matcher(unicodeStr);
@@ -84,7 +84,7 @@ public class TranscodUtils {
      */
     @NotNull
     @Contract(pure = true)
-    public static String string2Unicode(final @NotNull String str) {
+    public static String string2Unicode(@NotNull final String str) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < str.length(); i++) {
             result.append("\\u").append(Integer.toHexString(str.charAt(i))); // 转换为unicode
@@ -100,7 +100,7 @@ public class TranscodUtils {
      */
     @NotNull
     @Contract(pure = true)
-    public static String unicode2String(final @NotNull String unicode) {
+    public static String unicode2String(@NotNull final String unicode) {
         StringBuilder result = new StringBuilder();
         String[] hex = unicode.split("\\\\u");
         for (int i = 1; i < hex.length; i++) {
@@ -117,7 +117,7 @@ public class TranscodUtils {
      */
     @NotNull
     @Contract(pure = true)
-    public static String utf8ByGBK(final @NotNull String str) {
+    public static String utf8ByGBK(@NotNull final String str) {
         String result = null;
         try {
             result = new String(str.getBytes("GBK"), StandardCharsets.UTF_8);
@@ -135,7 +135,7 @@ public class TranscodUtils {
      */
     @NotNull
     @Contract(pure = true)
-    public static String utf8ToGBK(final @NotNull String str) {
+    public static String utf8ToGBK(@NotNull final String str) {
         String result = null;
         try {
             result = new String(str.getBytes(StandardCharsets.UTF_8), "GBK");

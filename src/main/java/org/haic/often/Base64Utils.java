@@ -30,7 +30,7 @@ public class Base64Utils {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String encryptToBase64(final @NotNull String str) {
+	public static String encryptToBase64(@NotNull final String str) {
 		return encryptToBase64(str, StandardCharsets.UTF_8);
 	}
 
@@ -45,7 +45,7 @@ public class Base64Utils {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String encryptToBase64(final @NotNull String str, String charsetName) {
+	public static String encryptToBase64(@NotNull final String str, String charsetName) {
 		return encryptToBase64(str, Charset.forName(charsetName));
 	}
 
@@ -60,7 +60,7 @@ public class Base64Utils {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String encryptToBase64(final @NotNull String str, Charset charset) {
+	public static String encryptToBase64(@NotNull final String str, Charset charset) {
 		return Base64.getEncoder().encodeToString(str.getBytes(charset));
 	}
 
@@ -86,7 +86,7 @@ public class Base64Utils {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String fileEncryptToBase64(final @NotNull String filePath) {
+	public static String fileEncryptToBase64(@NotNull final String filePath) {
 		byte[] bytes = null;
 		try {
 			bytes = Files.readAllBytes(Paths.get(filePath));
@@ -105,7 +105,7 @@ public class Base64Utils {
 	 *            文件路径
 	 */
 	@Contract(pure = true)
-	public static void fileEncryptByBase64(final @NotNull String base64, final @NotNull String filePath) {
+	public static void fileEncryptByBase64(@NotNull final String base64, @NotNull final String filePath) {
 		try {
 			Files.write(Paths.get(filePath), Base64.getDecoder().decode(base64), StandardOpenOption.CREATE);
 		} catch (final IOException e) {
@@ -122,7 +122,7 @@ public class Base64Utils {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String encryptByBase64(final @NotNull String base64) {
+	public static String encryptByBase64(@NotNull final String base64) {
 		return encryptByBase64(base64, StandardCharsets.UTF_8);
 	}
 
@@ -137,7 +137,7 @@ public class Base64Utils {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String encryptByBase64(final @NotNull String base64, final @NotNull String charsetName) {
+	public static String encryptByBase64(@NotNull final String base64, @NotNull final String charsetName) {
 		return encryptByBase64(base64, Charset.forName(charsetName));
 	}
 
@@ -152,7 +152,7 @@ public class Base64Utils {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String encryptByBase64(final @NotNull String base64, Charset charset) {
+	public static String encryptByBase64(@NotNull final String base64, Charset charset) {
 		return new String(Base64.getDecoder().decode(base64), charset);
 	}
 
@@ -164,7 +164,7 @@ public class Base64Utils {
 	 * @return 判断结果
 	 */
 	@Contract(pure = true)
-	public static boolean isBase64(final @NotNull String str) {
+	public static boolean isBase64(@NotNull final String str) {
 		return Pattern.matches("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$", str);
 	}
 

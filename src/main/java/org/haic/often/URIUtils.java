@@ -24,7 +24,7 @@ public class URIUtils {
 	 * @param url URL
 	 * @return URI对象
 	 */
-	@NotNull @Contract(pure = true) public static URI getURI(final @NotNull String url) {
+	@NotNull @Contract(pure = true) public static URI getURI(@NotNull final String url) {
 		URI uri = null;
 		try {
 			uri = new URI(url);
@@ -40,7 +40,7 @@ public class URIUtils {
 	 * @param url URL
 	 * @return URL对象
 	 */
-	@NotNull @Contract(pure = true) public static URL getURL(final @NotNull String url) {
+	@NotNull @Contract(pure = true) public static URL getURL(@NotNull final String url) {
 		URL uri = null;
 		try {
 			uri = new URL(url);
@@ -56,7 +56,7 @@ public class URIUtils {
 	 * @param url URL
 	 * @return 字符串
 	 */
-	@NotNull @Contract(pure = true) public static String getDomain(final @NotNull String url) {
+	@NotNull @Contract(pure = true) public static String getDomain(@NotNull final String url) {
 		return getURI(url).getHost();
 	}
 
@@ -117,7 +117,7 @@ public class URIUtils {
 	 * @param str 字符串
 	 * @return 判断后结果
 	 */
-	@Contract(pure = true) public static boolean isJson(final @NotNull String str) {
+	@Contract(pure = true) public static boolean isJson(@NotNull final String str) {
 		boolean result;
 		try {
 			JSONObject.parseObject(str);
@@ -134,7 +134,7 @@ public class URIUtils {
 	 * @param host 域名或IP
 	 * @return 连接状态
 	 */
-	@Contract(pure = true) public static boolean pingIp(final @NotNull String host) {
+	@Contract(pure = true) public static boolean pingIp(@NotNull final String host) {
 		return RunCmd.dos("ping", host, "-n", "1", "-w", "5000").execute();
 	}
 
@@ -144,7 +144,7 @@ public class URIUtils {
 	 * @param host 域名或IP
 	 * @return 连接状态
 	 */
-	@Contract(pure = true) public static boolean pingHost(final @NotNull String host) {
+	@Contract(pure = true) public static boolean pingHost(@NotNull final String host) {
 		return pingHost(host, 80);
 	}
 
@@ -155,7 +155,7 @@ public class URIUtils {
 	 * @param port 端口
 	 * @return 连接状态
 	 */
-	@Contract(pure = true) public static boolean pingHost(final @NotNull String host, final int port) {
+	@Contract(pure = true) public static boolean pingHost(@NotNull final String host, final int port) {
 		boolean isReachable;
 		try (Socket socket = new Socket()) {
 			InetSocketAddress endpointSocketAddr = new InetSocketAddress(host, port);
@@ -173,7 +173,7 @@ public class URIUtils {
 	 * @param disposition ontent-Disposition
 	 * @return 文件名
 	 */
-	@Contract(pure = true) public static String getFileNameForDisposition(final @NotNull String disposition) {
+	@Contract(pure = true) public static String getFileNameForDisposition(@NotNull final String disposition) {
 		String filename = disposition.substring(disposition.lastIndexOf("filename"));
 		filename = filename.substring(filename.indexOf("=") + 1).replaceAll("\"", "");
 		filename = filename.contains("'") ? filename.substring(filename.lastIndexOf("'") + 1) : filename;

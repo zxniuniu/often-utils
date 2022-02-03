@@ -47,7 +47,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param replacement 替换的字符串
 	 * @return 替换后的字符串
 	 */
-	@Contract(pure = true) public static String replaceLast(final @NotNull String str, final @NotNull @NonNls String regex, final String replacement) {
+	@Contract(pure = true) public static String replaceLast(@NotNull final String str, @NotNull final @NonNls String regex, final String replacement) {
 		return str.replaceFirst("(?s)(.*)" + regex, "$1" + replacement);
 	}
 
@@ -97,7 +97,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param regex 正则表达式
 	 * @return 匹配的字符串
 	 */
-	@Contract(pure = true) public static String extractRegex(final @NotNull String str, final @NotNull @NonNls String regex) {
+	@Contract(pure = true) public static String extractRegex(@NotNull final String str, @NotNull final @NonNls String regex) {
 		String result = null;
 		Matcher matcher = Pattern.compile(regex).matcher(str);
 		if (matcher.find()) {
@@ -113,7 +113,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param regex 正则表达式
 	 * @return 匹配的字符串列表
 	 */
-	@Contract(pure = true) public static List<String> extractRegexList(final @NotNull String str, final @NotNull @NonNls String regex) {
+	@Contract(pure = true) public static List<String> extractRegexList(@NotNull final String str, @NotNull final @NonNls String regex) {
 		List<String> result = new ArrayList<>();
 		Matcher matcher = Pattern.compile(regex).matcher(str);
 		while (matcher.find()) {
@@ -129,7 +129,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param regex 正则表达式
 	 * @return 匹配的字符串
 	 */
-	@Contract(pure = true) public static String extractLastRegex(final @NotNull String str, final @NotNull @NonNls String regex) {
+	@Contract(pure = true) public static String extractLastRegex(@NotNull final String str, @NotNull final @NonNls String regex) {
 		String result = null;
 		Matcher matcher = Pattern.compile(regex).matcher(str);
 		while (matcher.find()) {
@@ -145,7 +145,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param term 条件字符串
 	 * @return 处理后的字符串
 	 */
-	public static String deletePefixAndSuffix(@NotNull String str, final @NotNull String term) {
+	public static String deletePefixAndSuffix(@NotNull String str, @NotNull final String term) {
 		return deleteSuffix(deletePefix(str, term), term);
 	}
 
@@ -167,7 +167,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param term 条件字符串
 	 * @return 处理后的字符串
 	 */
-	public static String deletePefix(@NotNull String str, final @NotNull String term) {
+	public static String deletePefix(@NotNull String str, @NotNull final String term) {
 		while (!Judge.isEmpty(term) && str.startsWith(term)) {
 			str = str.substring(term.length());
 		}
@@ -192,7 +192,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param term 条件字符串
 	 * @return 处理后的字符串
 	 */
-	public static String deleteSuffix(@NotNull String str, final @NotNull String term) {
+	public static String deleteSuffix(@NotNull String str, @NotNull final String term) {
 		while (!Judge.isEmpty(term) && str.endsWith(term)) {
 			str = str.substring(0, str.length() - term.length());
 		}

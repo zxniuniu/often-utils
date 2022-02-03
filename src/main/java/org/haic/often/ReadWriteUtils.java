@@ -140,7 +140,7 @@ public final class ReadWriteUtils {
 	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public boolean listToText(final @NotNull List<String> lists) {
+	public boolean listToText(@NotNull final List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(StringUtils.join(lists, StringUtils.SPACE) + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
@@ -159,7 +159,7 @@ public final class ReadWriteUtils {
 	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public boolean text(final @NotNull String str) {
+	public boolean text(@NotNull final String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(str + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
@@ -178,7 +178,7 @@ public final class ReadWriteUtils {
 	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public boolean list(final @NotNull List<String> lists) {
+	public boolean list(@NotNull final List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(lists.parallelStream().collect(Collectors.joining(StringUtils.LINE_SEPARATOR)) + StringUtils.LINE_SEPARATOR);
@@ -197,7 +197,7 @@ public final class ReadWriteUtils {
 	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public boolean binary(final @NotNull String str) {
+	public boolean binary(@NotNull final String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (DataOutputStream outStream = new DataOutputStream(new FileOutputStream(source, append))) {
 			for (byte b : (str + StringUtils.LF).getBytes()) {
@@ -218,7 +218,7 @@ public final class ReadWriteUtils {
 	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public boolean randomAccessText(final @NotNull String str) {
+	public boolean randomAccessText(@NotNull final String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (RandomAccessFile randomAccess = new RandomAccessFile(source, RandomAccessFileMode.WRITE.getValue())) {
 			if (append) {
@@ -239,7 +239,7 @@ public final class ReadWriteUtils {
 	 * @return 写入是否成功
 	 */
 	@Contract(pure = true)
-	public boolean channelText(final @NotNull String str) {
+	public boolean channelText(@NotNull final String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (FileChannel channel = new FileOutputStream(source, append).getChannel()) {
 			channel.write(ByteBuffer.wrap((str + StringUtils.LINE_SEPARATOR).getBytes(charset)));
@@ -356,7 +356,7 @@ public final class ReadWriteUtils {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	private List<String> list(final @NotNull File file) {
+	private List<String> list(@NotNull final File file) {
 		List<String> result = new ArrayList<>();
 		if (file.isFile()) {
 			try (InputStreamReader inputStream = new InputStreamReader(new FileInputStream(file), charset)) {
@@ -399,7 +399,7 @@ public final class ReadWriteUtils {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	private String text(final @NotNull File file) {
+	private String text(@NotNull final File file) {
 		String result = "";
 		if (!file.isFile()) { // 判断文件是否存在
 			return result;
@@ -453,7 +453,7 @@ public final class ReadWriteUtils {
 	 * @return bytes
 	 */
 	@Contract(pure = true)
-	private byte[] array(final @NotNull File file) {
+	private byte[] array(@NotNull final File file) {
 		byte[] result = new byte[0];
 		if (!file.isFile()) { // 判断文件是否存在
 			return result;

@@ -65,7 +65,7 @@ public final class NetworkFileUtils {
 	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true) public static NetworkFileUtils connect(final @NotNull String url) {
+	@Contract(pure = true) public static NetworkFileUtils connect(@NotNull final String url) {
 		return config().url(url);
 	}
 
@@ -76,7 +76,7 @@ public final class NetworkFileUtils {
 	 * @param conf down文件
 	 * @return new NetworkFileUtils
 	 */
-	@Contract(pure = true) public static NetworkFileUtils file(final String conf) {
+	@Contract(pure = true) public static NetworkFileUtils file(@NotNull final String conf) {
 		return file(new File(conf));
 	}
 
@@ -87,7 +87,7 @@ public final class NetworkFileUtils {
 	 * @param conf down文件
 	 * @return new NetworkFileUtils
 	 */
-	@Contract(pure = true) public static NetworkFileUtils file(final File conf) {
+	@Contract(pure = true) public static NetworkFileUtils file(@NotNull final File conf) {
 		return config().setConf(conf);
 	}
 
@@ -106,7 +106,7 @@ public final class NetworkFileUtils {
 	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true) private NetworkFileUtils url(final @NotNull String url) {
+	@Contract(pure = true) private NetworkFileUtils url(@NotNull final String url) {
 		this.url = url;
 		return this;
 	}
@@ -117,7 +117,7 @@ public final class NetworkFileUtils {
 	 * @param conf 配置文件
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils setConf(final File conf) {
+	@Contract(pure = true) public NetworkFileUtils setConf(@NotNull final File conf) {
 		this.method = Method.FILE;
 		this.conf = conf;
 		return this;
@@ -140,7 +140,7 @@ public final class NetworkFileUtils {
 	 * @param method 下载模式
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils method(final @NotNull NetworkFileUtils.Method method) {
+	@Contract(pure = true) public NetworkFileUtils method(@NotNull final NetworkFileUtils.Method method) {
 		this.method = method;
 		return this;
 	}
@@ -151,7 +151,7 @@ public final class NetworkFileUtils {
 	 * @param filename 文件名
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils filename(final @NotNull String filename) {
+	@Contract(pure = true) public NetworkFileUtils filename(@NotNull final String filename) {
 		this.fileName = filename;
 		return this;
 	}
@@ -173,7 +173,7 @@ public final class NetworkFileUtils {
 	 * @param referrer 上一页
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils referrer(final @NotNull String referrer) {
+	@Contract(pure = true) public NetworkFileUtils referrer(@NotNull final String referrer) {
 		this.referrer = referrer;
 		return this;
 	}
@@ -185,7 +185,7 @@ public final class NetworkFileUtils {
 	 * @param value cookie-值
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils cookies(final @NotNull String name, final @NotNull String value) {
+	@Contract(pure = true) public NetworkFileUtils cookies(@NotNull final String name, @NotNull final String value) {
 		cookies.put(name, value);
 		return this;
 	}
@@ -196,7 +196,7 @@ public final class NetworkFileUtils {
 	 * @param cookies cookie集合
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils cookies(final @NotNull Map<String, String> cookies) {
+	@Contract(pure = true) public NetworkFileUtils cookies(@NotNull final Map<String, String> cookies) {
 		this.cookies = cookies;
 		return this;
 	}
@@ -208,7 +208,7 @@ public final class NetworkFileUtils {
 	 * @param value 请求头-值
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils header(final @NotNull String name, final @NotNull String value) {
+	@Contract(pure = true) public NetworkFileUtils header(@NotNull final String name, @NotNull final String value) {
 		headers.put(name, value);
 		return this;
 	}
@@ -219,7 +219,7 @@ public final class NetworkFileUtils {
 	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils headers(final @NotNull Map<String, String> headers) {
+	@Contract(pure = true) public NetworkFileUtils headers(@NotNull final Map<String, String> headers) {
 		this.headers = headers;
 		return this;
 	}
@@ -231,7 +231,7 @@ public final class NetworkFileUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils proxy(final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public NetworkFileUtils proxy(@NotNull final String proxyHost, final int proxyPort) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		return this;
@@ -291,7 +291,7 @@ public final class NetworkFileUtils {
 	 * @param auth 授权码
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils authorization(String auth) {
+	@Contract(pure = true) public NetworkFileUtils authorization(@NotNull final String auth) {
 		this.authorization = auth;
 		return this;
 	}
@@ -338,7 +338,7 @@ public final class NetworkFileUtils {
 	 * @param hash 文件md5值
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils hash(final @NotNull String hash) {
+	@Contract(pure = true) public NetworkFileUtils hash(@NotNull final String hash) {
 		this.hash = hash;
 		return this;
 	}
@@ -360,7 +360,7 @@ public final class NetworkFileUtils {
 	 * @param filePath 待上传的文件路径
 	 * @return 上传状态码
 	 */
-	@Contract(pure = true) public int Upload(final @NotNull String filePath) {
+	@Contract(pure = true) public int Upload(@NotNull final String filePath) {
 		return Upload(new File(filePath));
 	}
 
@@ -370,7 +370,7 @@ public final class NetworkFileUtils {
 	 * @param file 待上传的文件对象
 	 * @return 上传状态码
 	 */
-	@Contract(pure = true) public int Upload(final @NotNull File file) {
+	@Contract(pure = true) public int Upload(@NotNull final File file) {
 		if (!Judge.isEmpty(authorization)) {
 			headers.put("Authorization", authorization);
 		}
@@ -385,7 +385,7 @@ public final class NetworkFileUtils {
 	 * @param folderPath 文件存放目录路径
 	 * @return 下载状态码
 	 */
-	@Contract(pure = true) public int download(final @NotNull String folderPath) {
+	@Contract(pure = true) public int download(@NotNull final String folderPath) {
 		return download(new File(folderPath));
 	}
 
@@ -406,9 +406,10 @@ public final class NetworkFileUtils {
 	 * @param folder 文件存放目录对象
 	 * @return 下载状态码
 	 */
-	@Contract(pure = true) public int download(final @NotNull File folder) {
+	@Contract(pure = true) public int download(@NotNull final File folder) {
 		Response response = null;
 		JSONObject fileInfo = new JSONObject();
+
 		switch (method) { // 配置信息
 		case FILE -> {
 			if (conf.isFile()) { // 如果设置配置文件下载，并且配置文件存在，获取信息
@@ -423,10 +424,15 @@ public final class NetworkFileUtils {
 					throw new RuntimeException("Info is error -> " + conf);
 				}
 				MAX_THREADS = fileInfo.getInteger("threads");
+				method = Method.valueOf(fileInfo.getString("method"));
 				storage = new File(folder.getPath(), fileName); // 获取其file对象
 				infos.remove(0); // 删除信息行
 			} else { // 配置文件不存在，抛出异常
-				throw new RuntimeException("Not found or not is file " + conf);
+				if (errorExit) {
+					throw new RuntimeException("Not found or not is file " + conf);
+				} else {
+					return 0;
+				}
 			}
 		}
 		case FULL, PIECE, MULTITHREAD -> {
@@ -476,6 +482,7 @@ public final class NetworkFileUtils {
 				fileInfo.put("X-COS-META-MD5", hash);
 				fileInfo.put("referrer", referrer);
 				fileInfo.put("threads", MAX_THREADS);
+				fileInfo.put("method", method.getValue());
 				if (!ReadWriteUtils.orgin(conf).text(fileInfo.toJSONString())) {
 					throw new RuntimeException("Configuration file creation failed");
 				}
@@ -486,69 +493,26 @@ public final class NetworkFileUtils {
 		method = Judge.isEmpty(fileSize) ? Method.FULL : method;// 如果文件大小获取失败或线程为1，使用全量下载模式
 		FilesUtils.createFolder(folder); // 创建文件夹
 
+		int statusCode = 0;
 		switch (method) {  // 开始下载
-		case FULL -> {
-			int statusCode = Judge.isNull(response) ? writeFull() : Judge.isEmpty(fileSize) ? writeFull(response) : writePiece(0, fileSize - 1);
-			if (!URIUtils.statusIsOK(statusCode)) {
-				if (errorExit) {
-					throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
-				}
-				return statusCode;
-			}
-		}
+		case FULL -> statusCode = Judge.isNull(response) ? writeFull() : writeFull(response);
 		case PIECE -> {
-			final List<Integer> statusCodes = new CopyOnWriteArrayList<>();
-			int MAX_PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
-			executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
-			for (int i = 0; i < MAX_PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
-				executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-					int start = index * PIECE_MAX_SIZE;
-					int end = ((index + 1) == MAX_PIECE_COUNT ? fileSize : (index + 1) * PIECE_MAX_SIZE) - 1;
-					int statusCode = addPiece(start, end);
-					statusCodes.add(statusCode);
-					if (!URIUtils.statusIsOK(statusCode)) {
-						executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
-					}
-				}));
-			}
-			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
-			// 判断下载状态
-			for (int statusCode : statusCodes) {
-				if (!URIUtils.statusIsOK(statusCode)) {
-					if (errorExit) {
-						throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
-					}
-					return statusCode;
-				}
-			}
+			int PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
+			statusCode = MULTITHREAD(PIECE_COUNT, PIECE_MAX_SIZE);
 		}
 		case MULTITHREAD -> {
-			final List<Integer> statusCodes = new CopyOnWriteArrayList<>();
-			int threads = Math.min((int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE), MAX_THREADS);
-			executorService = Executors.newFixedThreadPool(threads); // 限制多线程;
-			for (int i = 0; i < threads; i++, MultiThreadUtils.WaitForThread(interval)) {
-				executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
-					int start = index * fileSize / threads;
-					int end = (index + 1) * fileSize / threads - 1;
-					int statusCode = addPiece(start, end);
-					statusCodes.add(statusCode);
-					if (!URIUtils.statusIsOK(statusCode)) {
-						executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
-					}
-				}));
-			}
-			MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
-			// 判断下载状态
-			for (int statusCode : statusCodes) {
-				if (!URIUtils.statusIsOK(statusCode)) {
-					if (errorExit) {
-						throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
-					}
-					return statusCode;
-				}
-			}
+			int PIECE_COUNT = Math.min((int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE), MAX_THREADS);
+			int PIECE_SIZE = (int) Math.ceil((double) fileSize / (double) PIECE_COUNT);
+			statusCode = MULTITHREAD(PIECE_COUNT, PIECE_SIZE);
 		}
 		}
+		if (!URIUtils.statusIsOK(statusCode)) { // 验证下载状态
+			if (errorExit) {
+				throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
+			}
+			return statusCode;
+		}
+
 		// 效验文件完整性
 		String md5;
 		if (!Judge.isEmpty(hash) && !(md5 = FilesUtils.getMD5(storage)).equals(hash)) {
@@ -567,7 +531,35 @@ public final class NetworkFileUtils {
 			}
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
+
 		conf.delete(); // 删除信息文件
+		return HttpStatus.SC_OK;
+	}
+
+	@Contract(pure = true) private int MULTITHREAD(int PIECE_COUNT, int PIECE_SIZE) {
+		final List<Integer> statusCodes = new CopyOnWriteArrayList<>();
+		executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
+		for (int i = 0; i < PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
+			executorService.execute(new ParameterizedThread<>(i, (index) -> { // 执行多线程程
+				int start = index * PIECE_SIZE;
+				int end = (index + 1 == PIECE_COUNT ? fileSize : (index + 1) * PIECE_SIZE) - 1;
+				int statusCode = addPiece(start, end);
+				statusCodes.add(statusCode);
+				if (!URIUtils.statusIsOK(statusCode)) {
+					executorService.shutdownNow(); // 结束未开始的线程，并关闭线程池
+				}
+			}));
+		}
+		MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
+		// 判断下载状态
+		for (int statusCode : statusCodes) {
+			if (!URIUtils.statusIsOK(statusCode)) {
+				if (errorExit) {
+					throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
+				}
+				return statusCode;
+			}
+		}
 		return HttpStatus.SC_OK;
 	}
 

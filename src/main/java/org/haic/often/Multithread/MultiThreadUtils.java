@@ -21,7 +21,7 @@ public class MultiThreadUtils {
 	 *
 	 * @param executorService 线程池对象
 	 */
-	@Contract(pure = true) public static void WaitForEnd(final @NotNull ExecutorService executorService) {
+	@Contract(pure = true) public static void WaitForEnd(@NotNull final ExecutorService executorService) {
 		executorService.shutdown(); // 关闭线程
 		try { // 等待线程结束
 			executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
@@ -50,7 +50,7 @@ public class MultiThreadUtils {
 	 * @param <E>    泛型
 	 * @return 返回值
 	 */
-	@Contract(pure = true) public static <E> E getFuture(final @NotNull Future<E> future) {
+	@Contract(pure = true) public static <E> E getFuture(@NotNull final Future<E> future) {
 		E result = null;
 		try {
 			result = future.get(); // 获得返回值

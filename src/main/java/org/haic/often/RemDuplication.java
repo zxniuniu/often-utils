@@ -29,7 +29,7 @@ public class RemDuplication {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static <E> List<E> LinkedHashSet(final @NotNull List<E> lists) {
+	public static <E> List<E> LinkedHashSet(@NotNull final List<E> lists) {
 		return new ArrayList<>(new LinkedHashSet<>(lists));
 	}
 
@@ -44,7 +44,7 @@ public class RemDuplication {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static <E> List<E> TreeSet(final @NotNull List<E> lists) {
+	public static <E> List<E> TreeSet(@NotNull final List<E> lists) {
 		return new ArrayList<>(new TreeSet<>(lists));
 	}
 
@@ -59,7 +59,7 @@ public class RemDuplication {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static <E> List<E> HashSet(final @NotNull List<E> lists) {
+	public static <E> List<E> HashSet(@NotNull final List<E> lists) {
 		return new ArrayList<>(new HashSet<>(lists));
 	}
 
@@ -74,7 +74,7 @@ public class RemDuplication {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static <E> List<E> ListSet(final @NotNull List<E> lists) {
+	public static <E> List<E> ListSet(@NotNull final List<E> lists) {
 		List<E> result = new CopyOnWriteArrayList<>();
 		ExecutorService executorService = Executors.newCachedThreadPool(); // 线程池
 		for (E list : lists) {
@@ -99,7 +99,7 @@ public class RemDuplication {
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static <E> List<E> StreamSet(final @NotNull List<E> lists) {
+	public static <E> List<E> StreamSet(@NotNull final List<E> lists) {
 		return IOUtils.streamSet(lists);
 	}
 

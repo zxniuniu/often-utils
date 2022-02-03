@@ -1,5 +1,7 @@
 package org.haic.often;
 
+import org.haic.often.Network.NetworkFileUtils;
+
 /**
  * Unit test for simple App.
  */
@@ -16,6 +18,7 @@ public class AppTest {
 		//  .interval(50).multithread(10).retry(true).download("F:\\Downloads");
 		//for (int i = 0; i < 100; i++) {
 		//System.out.println(UserAgentUtils.randomPE());
-
+		NetworkFileUtils.Method method = NetworkFileUtils.Method.FILE;
+		System.out.println(method.getValue());
 	}
 }

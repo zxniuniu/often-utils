@@ -61,7 +61,7 @@ public class FilesUtils {
 	 * @param folderPath 文件夹路径
 	 * @return 操作是否成功
 	 */
-	@Contract(pure = true) public static boolean openDesktop(final @NotNull String folderPath) {
+	@Contract(pure = true) public static boolean openDesktop(@NotNull final String folderPath) {
 		File folder = new File(folderPath);
 		if (folder.isDirectory()) {
 			try {
@@ -80,7 +80,7 @@ public class FilesUtils {
 	 * @param filesPath 文件夹路径
 	 * @return 删除的空文件夹路径列表
 	 */
-	@NotNull @Contract(pure = true) public static List<String> deleteBlankDirectory(final @NotNull String filesPath) {
+	@NotNull @Contract(pure = true) public static List<String> deleteBlankDirectory(@NotNull final String filesPath) {
 		return deleteBlankDirectory(new File(filesPath));
 	}
 
@@ -90,7 +90,7 @@ public class FilesUtils {
 	 * @param files 文件夹
 	 * @return 删除的空文件夹路径列表
 	 */
-	@NotNull @Contract(pure = true) public static List<String> deleteBlankDirectory(final @NotNull File files) {
+	@NotNull @Contract(pure = true) public static List<String> deleteBlankDirectory(@NotNull final File files) {
 		return files.exists() && !files.isFile() ?
 				Arrays.stream(Objects.requireNonNull(files.listFiles())).parallel()
 						.flatMap(file -> isBlankDirectory(file) && file.delete() ? Stream.of(file.getPath()) : deleteBlankDirectory(file).parallelStream())
@@ -104,7 +104,7 @@ public class FilesUtils {
 	 * @param folderPath 需要判断的文件夹路径
 	 * @return 判断结果
 	 */
-	@Contract(pure = true) public static boolean isBlankDirectory(final @NotNull String folderPath) {
+	@Contract(pure = true) public static boolean isBlankDirectory(@NotNull final String folderPath) {
 		return isBlankDirectory(new File(folderPath));
 	}
 
@@ -114,7 +114,7 @@ public class FilesUtils {
 	 * @param folder 需要判断的文件夹
 	 * @return 判断结果
 	 */
-	@Contract(pure = true) public static boolean isBlankDirectory(final @NotNull File folder) {
+	@Contract(pure = true) public static boolean isBlankDirectory(@NotNull final File folder) {
 		return folder.isDirectory() && Judge.isEmpty(folder.list());
 	}
 
@@ -124,7 +124,7 @@ public class FilesUtils {
 	 * @param folderPath 文件夹路径
 	 * @return 删除文件夹是否成功
 	 */
-	@Contract(pure = true) public static boolean deleteDirectory(final @NotNull String folderPath) {
+	@Contract(pure = true) public static boolean deleteDirectory(@NotNull final String folderPath) {
 		return deleteDirectory(new File(folderPath));
 	}
 
@@ -134,7 +134,7 @@ public class FilesUtils {
 	 * @param folder 文件夹对象
 	 * @return 删除文件夹是否成功
 	 */
-	@Contract(pure = true) public static boolean deleteDirectory(final @NotNull File folder) {
+	@Contract(pure = true) public static boolean deleteDirectory(@NotNull final File folder) {
 		return folder.exists() && !Arrays.stream(Objects.requireNonNull(folder.listFiles())).parallel()
 				.map(file -> file.isDirectory() ? deleteDirectory(file) : file.delete()).toList().contains(false) && folder.delete();
 	}
@@ -146,7 +146,7 @@ public class FilesUtils {
 	 * @param suffix     后缀
 	 * @return 删除的文件路径列表
 	 */
-	@NotNull @Contract(pure = true) public static List<String> deleteSuffixFiles(final @NotNull String folderPath, final @NotNull String suffix) {
+	@NotNull @Contract(pure = true) public static List<String> deleteSuffixFiles(@NotNull final String folderPath, @NotNull final String suffix) {
 		return deleteSuffixFiles(new File(folderPath), suffix);
 	}
 
@@ -157,7 +157,7 @@ public class FilesUtils {
 	 * @param suffix 后缀
 	 * @return 删除的文件路径列表
 	 */
-	@NotNull @Contract(pure = true) public static List<String> deleteSuffixFiles(final @NotNull File files, final @NotNull String suffix) {
+	@NotNull @Contract(pure = true) public static List<String> deleteSuffixFiles(@NotNull final File files, @NotNull final String suffix) {
 		return iterateSuffixFiles(files, suffix).parallelStream().filter(File::delete).map(File::getPath).collect(Collectors.toList());
 	}
 
@@ -168,7 +168,7 @@ public class FilesUtils {
 	 * @param suffix   后缀
 	 * @return boolean
 	 */
-	@Contract(pure = true) public static boolean isSuffixFile(final @NotNull String filePath, final @NotNull String suffix) {
+	@Contract(pure = true) public static boolean isSuffixFile(@NotNull final String filePath, @NotNull final String suffix) {
 		return filePath.endsWith((char) 46 + suffix);
 	}
 
@@ -179,7 +179,7 @@ public class FilesUtils {
 	 * @param suffix 后缀
 	 * @return boolean
 	 */
-	@Contract(pure = true) public static boolean isSuffixFile(final @NotNull File file, final @NotNull String suffix) {
+	@Contract(pure = true) public static boolean isSuffixFile(@NotNull final File file, @NotNull final String suffix) {
 		return file.isFile() && isSuffixFile(file.getName(), suffix);
 	}
 
@@ -189,7 +189,7 @@ public class FilesUtils {
 	 * @param fileName 文件名
 	 * @return 文件后缀
 	 */
-	@Contract(pure = true) public static String getFileSuffix(final @NotNull String fileName) {
+	@Contract(pure = true) public static String getFileSuffix(@NotNull final String fileName) {
 		return fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(46) + 1) : null;
 	}
 
@@ -199,7 +199,7 @@ public class FilesUtils {
 	 * @param file 文件对象
 	 * @return 文件后缀
 	 */
-	@Contract(pure = true) public static String getFileSuffix(final @NotNull File file) {
+	@Contract(pure = true) public static String getFileSuffix(@NotNull final File file) {
 		return getFileSuffix(file.getName());
 	}
 
@@ -210,7 +210,7 @@ public class FilesUtils {
 	 * @param suffix 后缀
 	 * @return 修改后缀是否成功
 	 */
-	@Contract(pure = true) public static boolean afterFileSuffix(final @NotNull File file, final @NotNull String suffix) {
+	@Contract(pure = true) public static boolean afterFileSuffix(@NotNull final File file, @NotNull final String suffix) {
 		final String fileName = file.getName();
 		final File newfile;
 		if (fileName.contains(".")) {
@@ -228,7 +228,7 @@ public class FilesUtils {
 	 * @param suffix   后缀
 	 * @return 修改后缀是否成功
 	 */
-	@Contract(pure = true) public static boolean afterFileSuffix(final @NotNull String filePath, final @NotNull String suffix) {
+	@Contract(pure = true) public static boolean afterFileSuffix(@NotNull final String filePath, @NotNull final String suffix) {
 		return afterFileSuffix(new File(filePath), suffix);
 	}
 
@@ -239,7 +239,7 @@ public class FilesUtils {
 	 * @param fileName 文件名
 	 * @return 重命名是否成功
 	 */
-	@Contract(pure = true) public static boolean afterFileName(final @NotNull File file, final @NotNull String fileName) {
+	@Contract(pure = true) public static boolean afterFileName(@NotNull final File file, @NotNull final String fileName) {
 		final File newfile = new File(file.getParent(), fileName);
 		return !newfile.exists() && file.renameTo(newfile);
 	}
@@ -251,7 +251,7 @@ public class FilesUtils {
 	 * @param fileName 新的文件名
 	 * @return 重命名是否成功
 	 */
-	@Contract(pure = true) public static boolean afterFileName(final @NotNull String filePath, final @NotNull String fileName) {
+	@Contract(pure = true) public static boolean afterFileName(@NotNull final String filePath, @NotNull final String fileName) {
 		return afterFileName(new File(filePath), fileName);
 	}
 
@@ -261,7 +261,7 @@ public class FilesUtils {
 	 * @param filesPath 文件夹或文件路径
 	 * @return 文件对象列表
 	 */
-	@NotNull @Contract(pure = true) public static List<File> iterateFiles(final @NotNull String filesPath) {
+	@NotNull @Contract(pure = true) public static List<File> iterateFiles(@NotNull final String filesPath) {
 		return iterateFiles(new File(filesPath));
 	}
 
@@ -320,7 +320,7 @@ public class FilesUtils {
 	 * @param filesPath 文件夹或文件路径
 	 * @return 文件路径列表
 	 */
-	@NotNull @Contract(pure = true) public static List<String> iterateFilesPath(final @NotNull String filesPath) {
+	@NotNull @Contract(pure = true) public static List<String> iterateFilesPath(@NotNull final String filesPath) {
 		return iterateFilesPath(new File(filesPath));
 	}
 
@@ -330,7 +330,7 @@ public class FilesUtils {
 	 * @param files 文件夹或文件对象
 	 * @return 文件路径列表
 	 */
-	@NotNull @Contract(pure = true) public static List<String> iterateFilesPath(final @NotNull File files) {
+	@NotNull @Contract(pure = true) public static List<String> iterateFilesPath(@NotNull final File files) {
 		return iterateFiles(files).parallelStream().map(File::getPath).collect(Collectors.toList());
 	}
 
@@ -341,7 +341,7 @@ public class FilesUtils {
 	 * @param suffix    文件后缀
 	 * @return 文件路径列表
 	 */
-	@NotNull public static List<File> iterateSuffixFiles(final @NotNull String filesPath, final @NotNull String suffix) {
+	@NotNull public static List<File> iterateSuffixFiles(@NotNull final String filesPath, @NotNull final String suffix) {
 		return iterateSuffixFiles(new File(filesPath), suffix);
 	}
 
@@ -352,7 +352,7 @@ public class FilesUtils {
 	 * @param suffix 文件后缀
 	 * @return 文件路径列表
 	 */
-	@NotNull @Contract(pure = true) public static List<File> iterateSuffixFiles(final @NotNull File files, final @NotNull String suffix) {
+	@NotNull @Contract(pure = true) public static List<File> iterateSuffixFiles(@NotNull final File files, @NotNull final String suffix) {
 		return files.isDirectory() ?
 				Arrays.stream(Objects.requireNonNull(files.listFiles())).parallel().flatMap(file -> iterateSuffixFiles(file, suffix).parallelStream())
 						.collect(Collectors.toList()) :
@@ -366,7 +366,7 @@ public class FilesUtils {
 	 * @param suffix    文件后缀
 	 * @return 文件列表
 	 */
-	public static List<String> iterateSuffixFilesPath(final @NotNull String filesPath, final @NotNull String suffix) {
+	public static List<String> iterateSuffixFilesPath(@NotNull final String filesPath, @NotNull final String suffix) {
 		return iterateSuffixFilesPath(new File(filesPath), suffix);
 	}
 
@@ -377,7 +377,7 @@ public class FilesUtils {
 	 * @param suffix 文件后缀
 	 * @return 文件列表
 	 */
-	public static List<String> iterateSuffixFilesPath(final @NotNull File files, final @NotNull String suffix) {
+	public static List<String> iterateSuffixFilesPath(@NotNull final File files, @NotNull final String suffix) {
 		return iterateSuffixFiles(files, suffix).parallelStream().map(File::getPath).collect(Collectors.toList());
 	}
 
@@ -404,7 +404,7 @@ public class FilesUtils {
 	 *
 	 * @param filePath 文件路径
 	 */
-	@Contract(pure = true) public static void createFile(final @NotNull String filePath) {
+	@Contract(pure = true) public static void createFile(@NotNull final String filePath) {
 		final File file = new File(filePath);
 		if (!file.exists()) { // 文件不存在则创建文件，先创建目录
 			createFolder(file.getParent());
@@ -421,7 +421,7 @@ public class FilesUtils {
 	 *
 	 * @param folderPath 文件夹路径
 	 */
-	@Contract(pure = true) public static void createFolder(final @NotNull String folderPath) {
+	@Contract(pure = true) public static void createFolder(@NotNull final String folderPath) {
 		createFolder(new File(folderPath));
 	}
 
@@ -431,7 +431,7 @@ public class FilesUtils {
 	 * @param folder 文件夹对象
 	 * @return 创建文件是否成功
 	 */
-	@Contract(pure = true) public static boolean createFolder(final @NotNull File folder) {
+	@Contract(pure = true) public static boolean createFolder(@NotNull final File folder) {
 		return !folder.exists() && folder.mkdirs();
 	}
 
@@ -441,7 +441,7 @@ public class FilesUtils {
 	 * @param fileName 文件名
 	 * @return 正常的Windows文件名
 	 */
-	@NotNull @Contract(pure = true) public static String illegalFileName(final @NotNull String fileName) {
+	@NotNull @Contract(pure = true) public static String illegalFileName(@NotNull final String fileName) {
 		return fileName.replaceAll("[\\\\/:*?\"<>|]", "_").replaceAll("[_]{2,}", "_");
 	}
 
@@ -451,7 +451,7 @@ public class FilesUtils {
 	 * @param path 路径
 	 * @return 判断结果
 	 */
-	@Contract(pure = true) public static boolean isAbsolutePath(final @NotNull String path) {
+	@Contract(pure = true) public static boolean isAbsolutePath(@NotNull final String path) {
 		return path.startsWith("/") || path.charAt(1) == 58;
 	}
 
@@ -461,7 +461,7 @@ public class FilesUtils {
 	 * @param path 路径
 	 * @return 绝对路径
 	 */
-	@NotNull @Contract(pure = true) public static String getAbsolutePath(final @NotNull String path) {
+	@NotNull @Contract(pure = true) public static String getAbsolutePath(@NotNull final String path) {
 		return new File(path).getAbsolutePath();
 	}
 
@@ -471,24 +471,118 @@ public class FilesUtils {
 	 * @param filePath 文件路径
 	 * @return MD5值
 	 */
-	@NotNull @Contract(pure = true) public static String getMD5(final @NotNull String filePath) {
+	@NotNull @Contract(pure = true) public static String getMD5(@NotNull final String filePath) {
 		return getMD5(new File(filePath));
 	}
 
 	/**
-	 * 获取文件MD5值
+	 * 获取文件 MD5 值
 	 *
 	 * @param file 文件
-	 * @return MD5值
+	 * @return MD5 值
 	 */
-	@NotNull @Contract(pure = true) public static String getMD5(final @NotNull File file) {
-		String md5 = "";
+	@NotNull @Contract(pure = true) public static String getMD5(@NotNull final File file) {
 		try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
-			md5 = DigestUtils.md5Hex(inputStream);
+			return DigestUtils.md5Hex(inputStream);
 		} catch (IOException e) {
-			e.printStackTrace();
+			return "";
 		}
-		return md5;
+	}
+
+	/**
+	 * 获取文件 SHA1 值
+	 *
+	 * @param filePath 文件路径
+	 * @return SHA1 值
+	 */
+	@NotNull @Contract(pure = true) public static String getSHA1(@NotNull final String filePath) {
+		return getSHA1(new File(filePath));
+	}
+
+	/**
+	 * 获取文件 SHA1 值
+	 *
+	 * @param file 文件
+	 * @return SHA1 值
+	 */
+	@NotNull @Contract(pure = true) public static String getSHA1(@NotNull final File file) {
+		try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
+			return DigestUtils.sha1Hex(inputStream);
+		} catch (IOException e) {
+			return "";
+		}
+	}
+
+	/**
+	 * 获取文件 SHA256 值
+	 *
+	 * @param filePath 文件路径
+	 * @return SHA256 值
+	 */
+	@NotNull @Contract(pure = true) public static String getSHA256(@NotNull final String filePath) {
+		return getSHA256(new File(filePath));
+	}
+
+	/**
+	 * 获取文件 SHA256 值
+	 *
+	 * @param file 文件
+	 * @return SHA256 值
+	 */
+	@NotNull @Contract(pure = true) public static String getSHA256(@NotNull final File file) {
+		try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
+			return DigestUtils.sha256Hex(inputStream);
+		} catch (IOException e) {
+			return "";
+		}
+	}
+
+	/**
+	 * 获取文件 SHA384 值
+	 *
+	 * @param filePath 文件路径
+	 * @return SHA384 值
+	 */
+	@NotNull @Contract(pure = true) public static String getSHA384(@NotNull final String filePath) {
+		return getSHA384(new File(filePath));
+	}
+
+	/**
+	 * 获取文件 SHA384 值
+	 *
+	 * @param file 文件
+	 * @return SHA384 值
+	 */
+	@NotNull @Contract(pure = true) public static String getSHA384(@NotNull final File file) {
+		try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
+			return DigestUtils.sha384Hex(inputStream);
+		} catch (IOException e) {
+			return "";
+		}
+	}
+
+	/**
+	 * 获取文件 SHA512 值
+	 *
+	 * @param filePath 文件路径
+	 * @return SHA512 值
+	 */
+	@NotNull @Contract(pure = true) public static String getSHA512(@NotNull final String filePath) {
+		return getSHA512(new File(filePath));
+	}
+
+	/**
+	 * 获取文件 SHA512 值
+	 *
+	 * @param file 文件
+	 * @return SHA512 值
+	 */
+	@NotNull @Contract(pure = true) public static String getSHA512(@NotNull final File file) {
+		try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
+			return DigestUtils.sha512Hex(inputStream);
+		} catch (IOException e) {
+			return "";
+		}
 	}
 
 	/**
@@ -498,13 +592,13 @@ public class FilesUtils {
 	 * @param output 输出路径对象
 	 * @return 复制是否成功
 	 */
-	@Contract(pure = true) public static boolean copyFile(final @NotNull File input, final @NotNull File output) {
+	@Contract(pure = true) public static boolean copyFile(@NotNull final File input, @NotNull final File output) {
 		try {
 			FileUtils.copyFile(input, output);
+			return true;
 		} catch (IOException e) {
 			return false;
 		}
-		return true;
 	}
 
 	/**
@@ -514,13 +608,13 @@ public class FilesUtils {
 	 * @param output 输出路径对象
 	 * @return 复制是否成功
 	 */
-	@Contract(pure = true) public static boolean copyDirectory(final @NotNull File input, final @NotNull File output) {
+	@Contract(pure = true) public static boolean copyDirectory(@NotNull final File input, @NotNull final File output) {
 		try {
 			FileUtils.copyDirectory(input, output);
+			return true;
 		} catch (IOException e) {
 			return false;
 		}
-		return true;
 	}
 
 }
