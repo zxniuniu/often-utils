@@ -29,6 +29,8 @@ import java.util.logging.Level;
  */
 public final class HtmlUnitUtils {
 
+	private final List<NameValuePair> params = new ArrayList<>(); // params
+	private final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 	private String url; // 请求URL
 	private String proxyHost; // 代理服务器地址
 	private int proxyPort; // 代理服务器端口
@@ -40,6 +42,7 @@ public final class HtmlUnitUtils {
 	private boolean errorExit; // 错误退出
 	private boolean unlimitedRetry;// 请求异常无限重试
 	private boolean followRedirects; // 重定向
+	private boolean isSocksProxy; // 是否Socks代理
 	private int waitJSTime; // 等待JS加载时间
 	private int retry; // 请求异常重试次数
 	private int MILLISECONDS_SLEEP; // 重试等待时间
@@ -47,15 +50,32 @@ public final class HtmlUnitUtils {
 	private int statusCode; // 状态码
 	private Map<String, String> headers = new HashMap<>(); // 请求头参数
 	private Map<String, String> cookies = new HashMap<>(); // cookies
-	private final List<NameValuePair> params = new ArrayList<>(); // params
 	private WebRequest request; // 会话
-	private final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 
 	private HtmlUnitUtils() {
 		followRedirects = true;
 		headers.put("User-Agent", UserAgentUtils.random()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
+	}
+
+	/**
+	 * 获取新的 HtmlUnitUtils 对象
+	 *
+	 * @return new HtmlUnitUtils
+	 */
+	@Contract(pure = true) private static HtmlUnitUtils config() {
+		return new HtmlUnitUtils();
+	}
+
+	/**
+	 * 连接 URL
+	 *
+	 * @param url URL
+	 * @return this
+	 */
+	@Contract(pure = true) public static HtmlUnitUtils connect(@NotNull final String url) {
+		return HtmlUnitUtils.config().url(url);
 	}
 
 	/**
@@ -143,25 +163,6 @@ public final class HtmlUnitUtils {
 	}
 
 	/**
-	 * 获取新的 HtmlUnitUtils 对象
-	 *
-	 * @return new HtmlUnitUtils
-	 */
-	@Contract(pure = true) private static HtmlUnitUtils config() {
-		return new HtmlUnitUtils();
-	}
-
-	/**
-	 * 连接 URL
-	 *
-	 * @param url URL
-	 * @return this
-	 */
-	@Contract(pure = true) public static HtmlUnitUtils connect(@NotNull final String url) {
-		return HtmlUnitUtils.config().url(url);
-	}
-
-	/**
 	 * 设置 URL
 	 *
 	 * @param url URL
@@ -236,6 +237,33 @@ public final class HtmlUnitUtils {
 	@Contract(pure = true) public HtmlUnitUtils retry(final boolean unlimitedRetry) {
 		this.unlimitedRetry = unlimitedRetry;
 		return this;
+	}
+
+	/**
+	 * 不需要验证的代理服务器
+	 *
+	 * @param proxyHost 代理URL
+	 * @param proxyPort 代理端口
+	 * @return this
+	 */
+	@Contract(pure = true) public HtmlUnitUtils socks(@NotNull final String proxyHost, final int proxyPort) {
+		this.isSocksProxy = true;
+		return proxy(proxyHost, proxyPort);
+	}
+
+	/**
+	 * 需要验证的代理服务器
+	 *
+	 * @param proxyHost 代理URL
+	 * @param proxyPort 代理端口
+	 * @param username  代理用户名
+	 * @param password  代理用户密码
+	 * @return this
+	 */
+	@Contract(pure = true) public HtmlUnitUtils socks(@NotNull final String proxyHost, final int proxyPort, @NotNull final String username,
+			@NotNull final String password) {
+		this.isSocksProxy = true;
+		return proxy(proxyHost, proxyPort, username, password);
 	}
 
 	/**
@@ -584,14 +612,7 @@ public final class HtmlUnitUtils {
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 		java.util.logging.Logger.getLogger("org.apache.http.client").setLevel(Level.OFF);
 
-		// 设置代理
-		WebClient webClient = Judge.isEmpty(proxyHost) || Judge.isEmpty(proxyPort) ?
-				new WebClient(BrowserVersion.CHROME) :
-				new WebClient(BrowserVersion.CHROME, proxyHost, proxyPort);
-		// 需要验证的代理服务器
-		if (!Judge.isEmpty(username)) {
-			((DefaultCredentialsProvider) webClient.getCredentialsProvider()).addCredentials(username, password);
-		}
+		WebClient webClient = new WebClient(BrowserVersion.CHROME);
 		// HtmlUnit 模拟浏览器,浏览器基本设置
 		webClient.getCookieManager().setCookiesEnabled(true); // 启动cookie
 		webClient.getOptions().setThrowExceptionOnScriptError(false);// 当JS执行出错的时候是否抛出异常
@@ -601,6 +622,20 @@ public final class HtmlUnitUtils {
 		webClient.getOptions().setJavaScriptEnabled(enableJS()); // 是否启用JS
 		webClient.setAjaxController(new NicelyResynchronizingAjaxController());// 设置支持AJAX
 		webClient.getOptions().setTimeout(timeout); // 设置连接超时时间
+
+		if (!Judge.isEmpty(proxyHost) && !Judge.isEmpty(proxyPort)) { // 设置代理
+			ProxyConfig proxyConfig = new ProxyConfig();
+			proxyConfig.setProxyHost(proxyHost);
+			proxyConfig.setProxyPort(proxyPort);
+			if (isSocksProxy) { // 设置socks
+				proxyConfig.setSocksProxy(true);
+			}
+			webClient.getOptions().setProxyConfig(proxyConfig);
+			// 需要验证的代理服务器
+			if (!Judge.isEmpty(username)) {
+				((DefaultCredentialsProvider) webClient.getCredentialsProvider()).addCredentials(username, password);
+			}
+		}
 
 		if (!Judge.isEmpty(referrer)) { // 设置请求报文头里的 Referer 字段
 			webClient.addRequestHeader("Referer", referrer);

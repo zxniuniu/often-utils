@@ -17,6 +17,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.*;
 
 /**
@@ -32,8 +34,6 @@ public final class JsoupUtils {
 	private String url; // 请求URL
 	private String referrer; // 上一页
 	private String requestBody; // 请求数据(JSON)
-	private String proxyHost; // 代理服务器地址
-	private int proxyPort; // 代理服务器端口
 	private int retry; // 请求异常重试次数
 	private int MILLISECONDS_SLEEP; // 重试等待时间
 	private int timeout; // 超时
@@ -41,6 +41,7 @@ public final class JsoupUtils {
 	private boolean unlimitedRetry;// 请求异常无限重试
 	private boolean errorExit; // 错误退出
 	private boolean followRedirects; // 重定向
+	private Proxy proxy; // 代理
 	private Map<String, String> headers = new HashMap<>(); // 请求头参数
 	private Map<String, String> cookies = new HashMap<>(); // cookies
 	private Map<String, String> params = new HashMap<>(); // params
@@ -51,6 +52,7 @@ public final class JsoupUtils {
 		followRedirects = true;
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
+		proxy(Proxy.NO_PROXY);
 	}
 
 	/**
@@ -178,6 +180,18 @@ public final class JsoupUtils {
 	}
 
 	/**
+	 * 设置 Socks代理
+	 *
+	 * @param proxyHost 代理地址
+	 * @param proxyPort 代理端口
+	 * @return this
+	 */
+	@Contract(pure = true) public JsoupUtils socks(@NotNull final String proxyHost, final int proxyPort) {
+		proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(proxyHost, proxyPort)));
+		return this;
+	}
+
+	/**
 	 * 设置 代理
 	 *
 	 * @param proxyHost 代理地址
@@ -185,8 +199,18 @@ public final class JsoupUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public JsoupUtils proxy(@NotNull final String proxyHost, final int proxyPort) {
-		this.proxyHost = proxyHost;
-		this.proxyPort = proxyPort;
+		proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
+		return this;
+	}
+
+	/**
+	 * 设置 代理
+	 *
+	 * @param proxy 要使用的代理
+	 * @return this
+	 */
+	@Contract(pure = true) public JsoupUtils proxy(@NotNull final Proxy proxy) {
+		this.proxy = proxy;
 		return this;
 	}
 
@@ -384,12 +408,12 @@ public final class JsoupUtils {
 	}
 
 	/**
-	 * 获取 proxyHost
+	 * 获取 Proxy
 	 *
-	 * @return String
+	 * @return Proxy
 	 */
-	@Contract(pure = true) public String proxyHost() {
-		return proxyHost;
+	@Contract(pure = true) public Proxy proxy() {
+		return proxy;
 	}
 
 	/**
@@ -399,15 +423,6 @@ public final class JsoupUtils {
 	 */
 	@Contract(pure = true) public String requestBody() {
 		return requestBody;
-	}
-
-	/**
-	 * 获取 proxyPort
-	 *
-	 * @return int
-	 */
-	@Contract(pure = true) public int proxyPort() {
-		return proxyPort;
 	}
 
 	/**
@@ -556,9 +571,8 @@ public final class JsoupUtils {
 		conn = params.isEmpty() ? conn : conn.data(params);
 		conn = Judge.isNull(stream) ? conn : conn.data(stream.first, stream.second, stream.third);
 		conn = Judge.isEmpty(referrer) ? conn : conn.referrer(referrer);
-		conn = Judge.isEmpty(proxyHost) || Judge.isEmpty(proxyPort) ? conn : conn.proxy(proxyHost, proxyPort);
 		conn = Judge.isEmpty(requestBody) ? conn : conn.requestBody(requestBody);
-		conn = conn.timeout(timeout).method(method).maxBodySize(maxBodySize).followRedirects(followRedirects);
+		conn = conn.proxy(proxy).timeout(timeout).method(method).maxBodySize(maxBodySize).followRedirects(followRedirects);
 		Response response;
 		try {
 			response = conn.ignoreContentType(true).ignoreHttpErrors(true).execute();

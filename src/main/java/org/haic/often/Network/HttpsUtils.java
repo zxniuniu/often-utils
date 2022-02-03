@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
  * @since 2020/3/9 14:26
  */
 public final class HttpsUtils {
+	private final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 	private String url; // URL
 	private String params; // 参数
 	private String requestBody; // JSON请求参数
@@ -39,37 +40,19 @@ public final class HttpsUtils {
 	private int retry; // 请求异常重试次数
 	private int MILLISECONDS_SLEEP; // 重试等待时间
 	private int timeout; // 连接超时时间
-	private String proxyHost; // 代理地址
-	private int proxyPort; // 代理端口
 	private boolean unlimitedRetry;// 请求异常无限重试
 	private boolean errorExit; // 错误退出
 	private boolean followRedirects; // 重定向
+	private Proxy proxy; // 代理
 	private HttpURLConnection conn; // HttpURLConnection对象
 	private Map<String, String> headers = new HashMap<>(); // 请求头
-	private final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
-
-	/**
-	 * 方法名常量
-	 */
-	public enum HttpMethod {
-		GET("GET"), POST("POST");
-
-		private final String hasBody;
-
-		HttpMethod(final String hasBody) {
-			this.hasBody = hasBody;
-		}
-
-		public final String hasBody() {
-			return hasBody;
-		}
-	}
 
 	private HttpsUtils() {
 		followRedirects = true;
 		headers.put("user-agent", UserAgentUtils.random()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
+		proxy(Proxy.NO_PROXY);
 	}
 
 	/**
@@ -264,13 +247,35 @@ public final class HttpsUtils {
 	}
 
 	/**
+	 * 设置 Socks代理
+	 *
+	 * @param proxyHost 代理地址
+	 * @param proxyPort 代理端口
+	 * @return this
+	 */
+	@Contract(pure = true) public HttpsUtils socks(@NotNull final String proxyHost, final int proxyPort) {
+		proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(proxyHost, proxyPort)));
+		return this;
+	}
+
+	/**
 	 * @param proxyHost 代理地址
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
 	@Contract(pure = true) public HttpsUtils proxy(@NotNull final String proxyHost, final int proxyPort) {
-		this.proxyHost = proxyHost;
-		this.proxyPort = proxyPort;
+		proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
+		return this;
+	}
+
+	/**
+	 * 设置 代理
+	 *
+	 * @param proxy 要使用的代理
+	 * @return this
+	 */
+	@Contract(pure = true) public HttpsUtils proxy(@NotNull final Proxy proxy) {
+		this.proxy = proxy;
 		return this;
 	}
 
@@ -461,12 +466,7 @@ public final class HttpsUtils {
 			}
 
 			// 打开和URL之间的连接
-			if (Judge.isEmpty(proxyHost) || Judge.isEmpty(proxyPort)) {
-				conn = (HttpURLConnection) URIUtils.getURL(url).openConnection();
-			} else { // 使用代理模式
-				@SuppressWarnings("static-access") Proxy proxy = new Proxy(Proxy.Type.DIRECT.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-				conn = (HttpURLConnection) URIUtils.getURL(url).openConnection(proxy);
-			}
+			conn = (HttpURLConnection) URIUtils.getURL(url).openConnection(proxy);
 
 			// https 忽略证书验证
 			if (url.startsWith("https")) {
@@ -528,6 +528,35 @@ public final class HttpsUtils {
 		return this;
 	}
 
+	private SSLContext MyX509TrustManagerUtils() {
+		TrustManager[] tm = { new MyX509TrustManager() };
+		SSLContext ctx = null;
+		try {
+			ctx = SSLContext.getInstance("TLS");
+			ctx.init(null, tm, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ctx;
+	}
+
+	/**
+	 * 方法名常量
+	 */
+	public enum HttpMethod {
+		GET("GET"), POST("POST");
+
+		private final String hasBody;
+
+		HttpMethod(final String hasBody) {
+			this.hasBody = hasBody;
+		}
+
+		public final String hasBody() {
+			return hasBody;
+		}
+	}
+
 	/*
 	 * HTTPS忽略证书验证,防止高版本jdk因证书算法不符合约束条件,使用继承X509ExtendedTrustManager的方式
 	 */
@@ -561,18 +590,6 @@ public final class HttpsUtils {
 
 		}
 
-	}
-
-	private SSLContext MyX509TrustManagerUtils() {
-		TrustManager[] tm = { new MyX509TrustManager() };
-		SSLContext ctx = null;
-		try {
-			ctx = SSLContext.getInstance("TLS");
-			ctx.init(null, tm, null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return ctx;
 	}
 
 }

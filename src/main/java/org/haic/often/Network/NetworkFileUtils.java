@@ -11,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jsoup.Connection.Response;
 
 import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -28,10 +30,8 @@ public final class NetworkFileUtils {
 	private String url; // 请求URL
 	private String fileName; // 文件名
 	private String referrer; // 上一页
-	private String proxyHost; // 代理服务器地址
 	private String hash; // hash值,md5算法
 	private String authorization; // 授权码
-	private int proxyPort; // 代理服务器端口
 	private int MILLISECONDS_SLEEP; // 重试等待时间
 	private int retry; // 请求异常重试次数
 	private int MAX_THREADS; // 多线程下载
@@ -41,6 +41,7 @@ public final class NetworkFileUtils {
 	private int interval; // 异步访问间隔
 	private boolean unlimitedRetry;// 请求异常无限重试
 	private boolean errorExit; // 错误退出
+	private Proxy proxy; // 代理
 	private File storage; // 本地存储文件
 	private File conf; // 配置信息文件
 	private List<String> infos = new ArrayList<>(); // 文件信息
@@ -225,6 +226,18 @@ public final class NetworkFileUtils {
 	}
 
 	/**
+	 * 设置 Socks代理
+	 *
+	 * @param proxyHost 代理地址
+	 * @param proxyPort 代理端口
+	 * @return this
+	 */
+	@Contract(pure = true) public NetworkFileUtils socks(@NotNull final String proxyHost, final int proxyPort) {
+		proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(proxyHost, proxyPort)));
+		return this;
+	}
+
+	/**
 	 * 设置 代理
 	 *
 	 * @param proxyHost 代理地址
@@ -232,8 +245,18 @@ public final class NetworkFileUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public NetworkFileUtils proxy(@NotNull final String proxyHost, final int proxyPort) {
-		this.proxyHost = proxyHost;
-		this.proxyPort = proxyPort;
+		proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
+		return this;
+	}
+
+	/**
+	 * 设置 代理
+	 *
+	 * @param proxy 要使用的代理
+	 * @return this
+	 */
+	@Contract(pure = true) public NetworkFileUtils proxy(@NotNull final Proxy proxy) {
+		this.proxy = proxy;
 		return this;
 	}
 
@@ -374,8 +397,8 @@ public final class NetworkFileUtils {
 		if (!Judge.isEmpty(authorization)) {
 			headers.put("Authorization", authorization);
 		}
-		Response response = JsoupUtils.connect(url).headers(headers).header("Content-Type", "multipart/form-data").file(file).proxy(proxyHost, proxyPort)
-				.cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).execute();
+		Response response = JsoupUtils.connect(url).headers(headers).header("Content-Type", "multipart/form-data").file(file).proxy(proxy).cookies(cookies)
+				.referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).execute();
 		return Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
 	}
 
@@ -437,7 +460,7 @@ public final class NetworkFileUtils {
 		}
 		case FULL, PIECE, MULTITHREAD -> {
 			// 获取文件信息
-			response = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
+			response = JsoupUtils.connect(url).proxy(proxy).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
 					.retry(unlimitedRetry).errorExit(errorExit).execute();
 			// 获取URL连接状态
 			int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
@@ -589,8 +612,8 @@ public final class NetworkFileUtils {
 	 */
 	@Contract(pure = true) private int writeFull() {
 		return writeFull(
-				JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
-						.retry(unlimitedRetry).errorExit(errorExit).execute());
+				JsoupUtils.connect(url).proxy(proxy).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
+						.errorExit(errorExit).execute());
 	}
 
 	/**
@@ -617,8 +640,8 @@ public final class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	@Contract(pure = true) private int writePiece(final int start, final int end) {
-		Response piece = JsoupUtils.connect(url).proxy(proxyHost, proxyPort).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies)
-				.referrer(referrer).execute();
+		Response piece = JsoupUtils.connect(url).proxy(proxy).headers(headers).header("Range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer)
+				.execute();
 		return Judge.isNull(piece) ?
 				HttpStatus.SC_REQUEST_TIMEOUT :
 				URIUtils.statusIsOK(piece.statusCode()) ? writePiece(start, end, piece) : piece.statusCode();
