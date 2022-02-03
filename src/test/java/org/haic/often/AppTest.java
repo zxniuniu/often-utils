@@ -1,5 +1,8 @@
 package org.haic.often;
 
+import org.haic.often.Network.HtmlUnitUtils;
+import org.jsoup.nodes.Document;
+
 /**
  * Unit test for simple App.
  */
@@ -16,5 +19,7 @@ public class AppTest {
 		//  .interval(50).multithread(10).retry(true).download("F:\\Downloads");
 		//for (int i = 0; i < 100; i++) {
 		//System.out.println(UserAgentUtils.randomPE());
+		Document res = HtmlUnitUtils.connect("https://www.baidu.com").waitJSTime(2000).get();
+		System.out.println(res);
 	}
 }

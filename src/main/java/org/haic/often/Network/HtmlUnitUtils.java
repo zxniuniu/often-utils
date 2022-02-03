@@ -43,6 +43,7 @@ public final class HtmlUnitUtils {
 	private boolean unlimitedRetry;// 请求异常无限重试
 	private boolean followRedirects; // 重定向
 	private boolean isSocksProxy; // 是否Socks代理
+	private boolean isCloseWebClient; // 是否关闭WebClient
 	private int waitJSTime; // 等待JS加载时间
 	private int retry; // 请求异常重试次数
 	private int MILLISECONDS_SLEEP; // 重试等待时间
@@ -51,9 +52,11 @@ public final class HtmlUnitUtils {
 	private Map<String, String> headers = new HashMap<>(); // 请求头参数
 	private Map<String, String> cookies = new HashMap<>(); // cookies
 	private WebRequest request; // 会话
+	private WebClient webClient; // HtmlUnit
 
 	private HtmlUnitUtils() {
 		followRedirects = true;
+		isCloseWebClient = true;
 		headers.put("User-Agent", UserAgentUtils.random()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
@@ -403,6 +406,24 @@ public final class HtmlUnitUtils {
 	}
 
 	/**
+	 * 设置 在会话结束后是否关闭WebClient
+	 *
+	 * @param isCloseWebClient 状态
+	 * @return this
+	 */
+	@Contract(pure = true) public HtmlUnitUtils closeWebClient(final boolean isCloseWebClient) {
+		this.isCloseWebClient = isCloseWebClient;
+		return this;
+	}
+
+	/**
+	 * 关闭 WebClient
+	 */
+	@Contract(pure = true) public void closeWebClient() {
+		webClient.close();
+	}
+
+	/**
 	 * 获取 url
 	 *
 	 * @return 链接
@@ -529,7 +550,7 @@ public final class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return Document
 	 */
-	@Contract(pure = true) public Document get(final HttpMethod method) {
+	@Contract(pure = true) public Document get(@NotNull final HttpMethod method) {
 		Page page = getPage(method);
 		return Judge.isNull(page) ? null : page.isHtmlPage() ? Jsoup.parse(((HtmlPage) page).asXml()) : Jsoup.parse(page.getWebResponse().getContentAsString());
 	}
@@ -567,7 +588,7 @@ public final class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return HtmlPage
 	 */
-	@Contract(pure = true) public HtmlPage getHtmlPage(final HttpMethod method) {
+	@Contract(pure = true) public HtmlPage getHtmlPage(@NotNull final HttpMethod method) {
 		Page page = getPage(method);
 		return Judge.isNull(page) ? null : (HtmlPage) page;
 	}
@@ -587,13 +608,13 @@ public final class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return Page
 	 */
-	@Contract(pure = true) public Page getPage(final HttpMethod method) {
-		Page page = executeProgram(method);
+	@Contract(pure = true) public Page getPage(@NotNull final HttpMethod method) {
+		Page page = startWebRequest(method);
 		for (int i = 0;
 			 !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && !excludeErrorStatusCodes.contains(statusCode) && (i < retry
 					 || unlimitedRetry); i++) {
 			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
-			page = executeProgram(method);
+			page = startWebRequest(method);
 		}
 		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
 			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
@@ -601,18 +622,47 @@ public final class HtmlUnitUtils {
 		return page;
 	}
 
+	@Contract(pure = true) private Page startWebRequest(@NotNull final HttpMethod method) {
+		if (Judge.isNull(webClient)) {
+			setWebClient(); // 创建HtmlUnit
+		}
+		Page page;
+		try { // 获取网页信息
+			page = webClient.getPage(Judge.isNull(request) ? getWebRequest(method) : request);
+		} catch (final IOException e) {
+			statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
+			return null;
+		}
+
+		if (!Judge.isEmpty(waitJSTime)) { // 设置JS运行时间
+			webClient.waitForBackgroundJavaScript(waitJSTime);
+		}
+
+		// 获取headers和cookies
+		statusCode = page.getWebResponse().getStatusCode();
+		cookies(webClient.getCookieManager().getCookies());
+		headers(page.getWebResponse().getResponseHeaders());
+
+		// 关闭webClient
+		if (isCloseWebClient) {
+			webClient.close();
+		}
+
+		return page;
+	}
+
 	/**
-	 * 主程序
+	 * 创建 HtmlUnit WebClient
 	 *
-	 * @param method HttpMethod类型
+	 * @return this
 	 */
-	@Contract(pure = true) private Page executeProgram(final HttpMethod method) {
+	@Contract(pure = true) public HtmlUnitUtils setWebClient() {
 		// 屏蔽HtmlUnit等系统 log
 		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 		java.util.logging.Logger.getLogger("org.apache.http.client").setLevel(Level.OFF);
 
-		WebClient webClient = new WebClient(BrowserVersion.CHROME);
+		webClient = new WebClient(BrowserVersion.CHROME);
 		// HtmlUnit 模拟浏览器,浏览器基本设置
 		webClient.getCookieManager().setCookiesEnabled(true); // 启动cookie
 		webClient.getOptions().setThrowExceptionOnScriptError(false);// 当JS执行出错的时候是否抛出异常
@@ -637,42 +687,7 @@ public final class HtmlUnitUtils {
 			}
 		}
 
-		if (!Judge.isEmpty(referrer)) { // 设置请求报文头里的 Referer 字段
-			webClient.addRequestHeader("Referer", referrer);
-		}
-
-		if (!cookies.isEmpty()) { // 设置cookies
-			webClient.getCookieManager().setCookiesEnabled(true);
-			for (Entry<String, String> cookie : cookies.entrySet()) {
-				webClient.getCookieManager().addCookie(new Cookie(URIUtils.getDomain(url), cookie.getKey(), cookie.getValue()));
-			}
-		}
-
-		if (!headers.isEmpty()) { // 设置headers
-			for (Map.Entry<String, String> header : headers.entrySet()) {
-				webClient.addRequestHeader(header.getKey(), header.getValue());
-			}
-		}
-
-		Page page;
-		try { // 获取网页信息
-			page = webClient.getPage(getWebRequest(method));
-		} catch (final IOException e) {
-			statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
-			return null;
-		}
-
-		if (!Judge.isEmpty(waitJSTime)) { // 设置JS运行时间
-			webClient.waitForBackgroundJavaScript(waitJSTime);
-		}
-
-		// 获取headers和cookies
-		statusCode = page.getWebResponse().getStatusCode();
-		cookies(webClient.getCookieManager().getCookies());
-		headers(page.getWebResponse().getResponseHeaders());
-
-		webClient.close(); // 关闭webClient
-		return page;
+		return this;
 	}
 
 	/**
@@ -681,17 +696,26 @@ public final class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return WebRequest
 	 */
-	@Contract(pure = true) private WebRequest getWebRequest(final HttpMethod method) {
+	@Contract(pure = true) private WebRequest getWebRequest(@NotNull final HttpMethod method) {
 		WebRequest webRequest = new WebRequest(URIUtils.getURL(url), method);
-		if (!Judge.isNull(request)) {
-			webRequest.setAdditionalHeader("Set-Cookie", request.getAdditionalHeader("Set-Cookie"));
-		}
 		if (!params.isEmpty()) {
 			webRequest.setRequestParameters(params);
 		}
 		if (!Judge.isEmpty(requestBody)) {
 			webRequest.setRequestBody(requestBody);
 		}
+		if (!Judge.isEmpty(referrer)) { // 设置请求报文头里的 Referer 字段
+			webRequest.setAdditionalHeader("referer", referrer);
+		}
+
+		if (!headers.isEmpty()) { // 设置headers
+			webRequest.setAdditionalHeaders(headers);
+		}
+
+		if (!cookies.isEmpty()) { // 设置cookies
+			webRequest.setAdditionalHeader("cookie", cookies.toString().replaceAll(",", ";").replace("{", "").replace("}", ""));
+		}
+
 		return webRequest;
 	}
 
