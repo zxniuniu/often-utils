@@ -487,7 +487,7 @@ public final class HttpsUtils {
 			conn.setReadTimeout(timeout); // 设置超时
 
 			// 设置上一页
-			if (!referrer.isEmpty()) {
+			if (!Judge.isEmpty(referrer)) {
 				headers.put("referer", referrer);
 			}
 

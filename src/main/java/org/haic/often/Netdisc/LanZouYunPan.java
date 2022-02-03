@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.haic.often.Judge;
 import org.haic.often.Network.HtmlUnitUtils;
+import org.haic.often.Network.HttpsUtils;
 import org.haic.often.Network.JsoupUtils;
 import org.haic.often.StringUtils;
 import org.jetbrains.annotations.Contract;
@@ -25,6 +26,7 @@ import java.util.Objects;
 public class LanZouYunPan {
 
 	private static final String domain = "https://wws.lanzoux.com/";
+	private static final String downApi = "https://wws.lanzoux.com/";
 
 	/**
 	 * 获取分享页面页面文件直链集合
@@ -85,9 +87,16 @@ public class LanZouYunPan {
 	 * @return 蓝奏云URL直链
 	 */
 	@Contract(pure = true) public static String getStraight(@NotNull final String lanzouUrl) {
-		return JsoupUtils.connect(Objects.requireNonNull(
+		return Objects.requireNonNull(
 				HtmlUnitUtils.connect(domain + Objects.requireNonNull(JsoupUtils.connect(lanzouUrl).get().selectFirst("iframe[class='ifr2']")).attr("src"))
-						.waitJSTime(1000).get().selectFirst("div[id='go'] a")).attr("href")).followRedirects(false).execute().header("Location");
+						.waitJSTime(1000).get().selectFirst("div[id='go'] a")).attr("href");
+	}
+
+	@Contract(pure = true) public static String getStraight(@NotNull final String lanzouUrl, String password) {
+		return JSONObject.parseObject(
+				HttpsUtils.connect(downApi).params(StringUtils.extractRegex(JsoupUtils.connect(lanzouUrl).get().toString(), "action=.*&p=") + password).post()
+						.text()).getString("url");
+
 	}
 
 	/**
