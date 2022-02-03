@@ -29,7 +29,7 @@ public class LanZouYunPan {
 	private static final String downApi = "https://wws.lanzoux.com/";
 
 	/**
-	 * 获取分享页面页面文件直链集合
+	 * 获取分享页面文件直链集合
 	 *
 	 * @param lanzouUrl 蓝奏URL
 	 * @param passwd    访问密码
@@ -89,9 +89,15 @@ public class LanZouYunPan {
 	@Contract(pure = true) public static String getStraight(@NotNull final String lanzouUrl) {
 		return Objects.requireNonNull(
 				HtmlUnitUtils.connect(domain + Objects.requireNonNull(JsoupUtils.connect(lanzouUrl).get().selectFirst("iframe[class='ifr2']")).attr("src"))
-						.waitJSTime(1000).get().selectFirst("div[id='go'] a")).attr("href");
+						.get().selectFirst("div[id='go'] a")).attr("href");
 	}
 
+	/**
+	 * 获取蓝奏云URL直链
+	 *
+	 * @param lanzouUrl 蓝奏云文件链接
+	 * @return 蓝奏云URL直链
+	 */
 	@Contract(pure = true) public static String getStraight(@NotNull final String lanzouUrl, String password) {
 		return JSONObject.parseObject(
 				HttpsUtils.connect(downApi).params(StringUtils.extractRegex(JsoupUtils.connect(lanzouUrl).get().toString(), "action=.*&p=") + password).post()

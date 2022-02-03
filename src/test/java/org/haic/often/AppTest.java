@@ -1,5 +1,7 @@
 package org.haic.often;
 
+import org.haic.often.Netdisc.LanZouYunPan;
+
 /**
  * Unit test for simple App.
  */
@@ -18,5 +20,6 @@ public class AppTest {
 		//System.out.println(UserAgentUtils.randomPE());
 		//Connection.Response res = JsoupUtils.connect("https://www.baidu.com").socks(proxyHost, proxyPort).execute();
 		//System.out.println(res.headers());
+		System.out.println(LanZouYunPan.getStraight("https://www.lanzouq.com/iDxiQultxha"));
 	}
 }

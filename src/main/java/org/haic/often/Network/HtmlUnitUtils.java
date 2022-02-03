@@ -44,7 +44,7 @@ public final class HtmlUnitUtils {
 	private boolean followRedirects; // 重定向
 	private boolean isSocksProxy; // 是否Socks代理
 	private boolean isCloseWebClient; // 是否关闭WebClient
-	private int waitJSTime; // 等待JS加载时间
+	private int waitJSTime; // JS最大运行时间
 	private int retry; // 请求异常重试次数
 	private int MILLISECONDS_SLEEP; // 重试等待时间
 	private int timeout; // 连接超时时间
@@ -57,6 +57,7 @@ public final class HtmlUnitUtils {
 	private HtmlUnitUtils() {
 		followRedirects = true;
 		isCloseWebClient = true;
+		waitJSTime = 1000;
 		headers.put("user-agent", UserAgentUtils.random()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
@@ -395,9 +396,9 @@ public final class HtmlUnitUtils {
 	}
 
 	/**
-	 * 设置 JavaScript 运行时间
+	 * 设置 JavaScript 最大运行时间,默认1000毫秒.值为0则不加载JS
 	 *
-	 * @param waitJSTime JS运行时间(毫秒)
+	 * @param waitJSTime JS超时时间(毫秒)
 	 * @return this
 	 */
 	@Contract(pure = true) public HtmlUnitUtils waitJSTime(final int waitJSTime) {
@@ -634,8 +635,8 @@ public final class HtmlUnitUtils {
 			return null;
 		}
 
-		if (!Judge.isEmpty(waitJSTime)) { // 设置JS运行时间
-			webClient.waitForBackgroundJavaScript(waitJSTime);
+		if (!Judge.isEmpty(waitJSTime)) { // 设置JS超时时间
+			webClient.waitForBackgroundJavaScriptStartingBefore(waitJSTime);
 		}
 
 		// 获取headers和cookies
