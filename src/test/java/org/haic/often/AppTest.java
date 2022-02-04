@@ -20,6 +20,6 @@ public class AppTest {
 		//System.out.println(UserAgentUtils.randomPE());
 		//Connection.Response res = JsoupUtils.connect("https://www.baidu.com").socks(proxyHost, proxyPort).execute();
 		//System.out.println(res.headers());
-		System.out.println(LanZouYunPan.getStraight("https://www.lanzouq.com/iDxiQultxha"));
+		System.out.println(LanZouYunPan.getPageStraights("https://www.lanzoui.com/b0cpu28tc"));
 	}
 }
