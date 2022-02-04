@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
  * @since 2021/12/24 23:15
  */
 public class LocalCookies {
-	private File userHome;
+	protected File userHome;
 	private File cookieStore;
 
 	private LocalCookies() {
@@ -81,7 +81,10 @@ public class LocalCookies {
 
 	@Contract(pure = true) private void userHome(@NotNull final File userHome) {
 		this.userHome = userHome;
-		this.cookieStore = new File(new File(userHome, "Default"), "Cookies");
+		File defaultDirectory = new File(userHome, "Default");
+		this.cookieStore = new File(defaultDirectory, "Cookies");
+		this.cookieStore = this.cookieStore.exists() ? this.cookieStore : new File(new File(defaultDirectory, "Network"), "Cookies");
+
 	}
 
 	public static abstract class Cookie {
