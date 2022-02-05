@@ -543,7 +543,26 @@ public final class HtmlUnitUtils {
 			setWebClient(); // 创建HtmlUnit
 		}
 
-		try {
+		webClient.getOptions().setRedirectEnabled(followRedirects); // 是否启用重定向
+		webClient.getOptions().setCssEnabled(enableCSS);// 是否启用CSS
+		webClient.getOptions().setJavaScriptEnabled(enableJS()); // 是否启用JS
+		webClient.getOptions().setTimeout(timeout); // 设置连接超时时间
+
+		if (!Judge.isEmpty(proxyHost) && !Judge.isEmpty(proxyPort)) { // 设置代理
+			ProxyConfig proxyConfig = new ProxyConfig();
+			proxyConfig.setProxyHost(proxyHost);
+			proxyConfig.setProxyPort(proxyPort);
+			if (isSocksProxy) { // 设置socks
+				proxyConfig.setSocksProxy(true);
+			}
+			webClient.getOptions().setProxyConfig(proxyConfig);
+			// 需要验证的代理服务器
+			if (!Judge.isEmpty(username)) {
+				((DefaultCredentialsProvider) webClient.getCredentialsProvider()).addCredentials(username, password);
+			}
+		}
+
+		try { // 获得页面
 			page = webClient.getPage(Judge.isNull(request) ? getWebRequest(method) : request);
 		} catch (final IOException e) {
 			return page;
@@ -562,7 +581,7 @@ public final class HtmlUnitUtils {
 	}
 
 	/**
-	 * 创建 HtmlUnit WebClient
+	 * 创建 基本参数的 HtmlUnit WebClient
 	 *
 	 * @return this
 	 */
@@ -577,25 +596,7 @@ public final class HtmlUnitUtils {
 		webClient.getCookieManager().setCookiesEnabled(true); // 启动cookie
 		webClient.getOptions().setThrowExceptionOnScriptError(false);// 当JS执行出错的时候是否抛出异常
 		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);// 当HTTP的状态非200时是否抛出异常
-		webClient.getOptions().setRedirectEnabled(followRedirects); // 是否启用重定向
-		webClient.getOptions().setCssEnabled(enableCSS);// 是否启用CSS
-		webClient.getOptions().setJavaScriptEnabled(enableJS()); // 是否启用JS
 		webClient.setAjaxController(new NicelyResynchronizingAjaxController());// 设置支持AJAX
-		webClient.getOptions().setTimeout(timeout); // 设置连接超时时间
-
-		if (!Judge.isEmpty(proxyHost) && !Judge.isEmpty(proxyPort)) { // 设置代理
-			ProxyConfig proxyConfig = new ProxyConfig();
-			proxyConfig.setProxyHost(proxyHost);
-			proxyConfig.setProxyPort(proxyPort);
-			if (isSocksProxy) { // 设置socks
-				proxyConfig.setSocksProxy(true);
-			}
-			webClient.getOptions().setProxyConfig(proxyConfig);
-			// 需要验证的代理服务器
-			if (!Judge.isEmpty(username)) {
-				((DefaultCredentialsProvider) webClient.getCredentialsProvider()).addCredentials(username, password);
-			}
-		}
 
 		return this;
 	}
