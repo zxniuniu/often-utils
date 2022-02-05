@@ -19,9 +19,6 @@ import java.util.stream.Stream;
  */
 public class StreamUtils {
 
-	protected static final int bufferSize = 8192;
-	protected static final Charset charset = StandardCharsets.UTF_8;
-
 	/**
 	 * 两个数组去除重复项
 	 *
@@ -140,7 +137,7 @@ public class StreamUtils {
 	 * @param inputStream InputStreamReader
 	 * @return new InputStreamReaderUtil
 	 */
-	@NotNull @Contract(pure = true) protected static InputStreamReaderUtil stream(@NotNull final InputStreamReader inputStream) {
+	@NotNull @Contract(pure = true) public static InputStreamReaderUtil stream(@NotNull final InputStreamReader inputStream) {
 		return new InputStreamReaderUtil(inputStream);
 	}
 
@@ -150,14 +147,14 @@ public class StreamUtils {
 	 * @param inputStream BufferedInputStream
 	 * @return new InputStreamReaderUtil
 	 */
-	@NotNull @Contract(pure = true) protected static BufferedInputStreamUtil stream(@NotNull final BufferedInputStream inputStream) {
+	@NotNull @Contract(pure = true) public static BufferedInputStreamUtil stream(@NotNull final BufferedInputStream inputStream) {
 		return new BufferedInputStreamUtil(inputStream);
 	}
 
 	/**
 	 * 流工具类
 	 */
-	public static abstract class StreamUtil {
+	public abstract static class StreamUtil {
 		protected int bufferSize;
 		protected Charset charset;
 

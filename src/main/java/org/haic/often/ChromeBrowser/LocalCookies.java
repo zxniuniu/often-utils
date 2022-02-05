@@ -31,11 +31,8 @@ import static org.junit.Assert.assertTrue;
  * @since 2021/12/24 23:15
  */
 public class LocalCookies {
-	protected File userHome;
-	private File cookieStore;
 
-	private LocalCookies() {
-		userHome = new File(System.getProperty("user.home"), "AppData\\Local\\Microsoft\\Edge\\User Data");
+	protected LocalCookies() {
 	}
 
 	/**
@@ -44,7 +41,7 @@ public class LocalCookies {
 	 * @return new ChromeBrowser
 	 */
 	@Contract(pure = true) public static ChromeBrowser home() {
-		return config().chromeBrowser();
+		return home(new File(System.getProperty("user.home"), "AppData\\Local\\Microsoft\\Edge\\User Data"));
 	}
 
 	/**
@@ -71,20 +68,8 @@ public class LocalCookies {
 		return new LocalCookies();
 	}
 
-	@NotNull @Contract(pure = true) private ChromeBrowser chromeBrowser() {
-		return chromeBrowser(userHome);
-	}
-
-	@NotNull @Contract(pure = true) private ChromeBrowser chromeBrowser(@NotNull final File userHome) {
+	@NotNull @Contract(pure = true) public ChromeBrowser chromeBrowser(@NotNull final File userHome) {
 		return new ChromeBrowser(userHome);
-	}
-
-	@Contract(pure = true) private void userHome(@NotNull final File userHome) {
-		this.userHome = userHome;
-		File defaultDirectory = new File(userHome, "Default");
-		this.cookieStore = new File(defaultDirectory, "Cookies");
-		this.cookieStore = this.cookieStore.exists() ? this.cookieStore : new File(new File(defaultDirectory, "Network"), "Cookies");
-
 	}
 
 	public static abstract class Cookie {
@@ -187,7 +172,10 @@ public class LocalCookies {
 
 	}
 
-	public abstract class Browser {
+	public abstract static class Browser {
+		protected File userHome;
+		protected File cookieStore;
+
 		/**
 		 * A file that should be used to make a temporary copy of the browser's cookie store
 		 */
@@ -228,9 +216,13 @@ public class LocalCookies {
 
 	}
 
-	public class ChromeBrowser extends Browser {
+	public static class ChromeBrowser extends Browser {
+
 		public ChromeBrowser(File userHome) {
-			userHome(userHome);
+			this.userHome = userHome;
+			File defaultDirectory = new File(userHome, "Default");
+			this.cookieStore = new File(defaultDirectory, "Cookies");
+			this.cookieStore = this.cookieStore.exists() ? this.cookieStore : new File(new File(defaultDirectory, "Network"), "Cookies");
 		}
 
 		protected static byte[] encryptedValueDecrypt(byte[] encryptedValue, String encryptedKey) {
