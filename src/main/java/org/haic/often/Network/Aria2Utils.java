@@ -26,55 +26,20 @@ import java.util.Map.Entry;
  * @version 1.0
  * @since 2020/2/18 18:43
  */
-public final class Aria2Utils {
-
-	/**
-	 * 方法名常量
-	 */
-	public enum Aria2Method {
-		ADD_URI("aria2.addUri"), ADD_TORRENT("aria2.addTorrent"), ADD_METALINK("aria2.addMetalink");
-
-		private final String hasBody;
-
-		Aria2Method(final String hasBody) {
-			this.hasBody = hasBody;
-		}
-
-		@Contract(pure = true) public final String hasBody() {
-			return hasBody;
-		}
-	}
-
-	/**
-	 * URI协议常量
-	 */
-	public enum URIMethod {
-		HTTP("http"), HTTPS("https"), WS("ws"), WWS("wws");
-
-		private final String hasBody;
-
-		URIMethod(String hasBody) {
-			this.hasBody = hasBody;
-		}
-
-		@Contract(pure = true) public final String hasBody() {
-			return hasBody;
-		}
-	}
+public class Aria2Utils {
 
 	private final String jsonrpc;
+	Map<String, Map<String, String>> urlsMap = new HashMap<>();
+	Map<String, String> mixinparams = new HashMap<>();
 	private String aria2RpcUrl;
 	private String token; // 密钥
 	private String proxyHost;
 	private int proxyPort;
-
-	Map<String, Map<String, String>> urlsMap = new HashMap<>();
-	Map<String, String> mixinparams = new HashMap<>();
-
+	private String result;
 	/**
 	 * 默认设置
 	 */
-	private Aria2Utils() {
+	protected Aria2Utils() {
 		this.jsonrpc = "2.0";
 		this.token = "";
 		this.mixinparams.put("all-proxy", "");
@@ -296,8 +261,6 @@ public final class Aria2Utils {
 		return this;
 	}
 
-	private String result;
-
 	/**
 	 * Socket推送 JSON数据
 	 *
@@ -406,6 +369,40 @@ public final class Aria2Utils {
 		jsonObject.put("method", method.hasBody());
 		jsonObject.fluentPut("params", jsonArray);
 		return jsonObject;
+	}
+
+	/**
+	 * 方法名常量
+	 */
+	public enum Aria2Method {
+		ADD_URI("aria2.addUri"), ADD_TORRENT("aria2.addTorrent"), ADD_METALINK("aria2.addMetalink");
+
+		private final String hasBody;
+
+		Aria2Method(final String hasBody) {
+			this.hasBody = hasBody;
+		}
+
+		@Contract(pure = true) public final String hasBody() {
+			return hasBody;
+		}
+	}
+
+	/**
+	 * URI协议常量
+	 */
+	public enum URIMethod {
+		HTTP("http"), HTTPS("https"), WS("ws"), WWS("wws");
+
+		private final String hasBody;
+
+		URIMethod(String hasBody) {
+			this.hasBody = hasBody;
+		}
+
+		@Contract(pure = true) public final String hasBody() {
+			return hasBody;
+		}
 	}
 
 }

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @since 2020/2/25 21:05
  */
-public final class HtmlUnitUtils {
+public class HtmlUnitUtils {
 
 	private final List<NameValuePair> params = new ArrayList<>(); // params
 	private final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
@@ -56,7 +56,7 @@ public final class HtmlUnitUtils {
 	private WebClient webClient; // HtmlUnit
 	private Page page; // Page
 
-	private HtmlUnitUtils() {
+	protected HtmlUnitUtils() {
 		followRedirects = true;
 		isCloseWebClient = true;
 		waitJSTime = 1000;

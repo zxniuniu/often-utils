@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 public class IOUtils extends org.apache.commons.io.IOUtils {
 
 	private static final int defaultCharBufferSize = 8192;
+	private static final Charset defaultCharset = StandardCharsets.UTF_8;
 
 	/**
 	 * 两个数组去除重复项
@@ -150,7 +151,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 	 * @return 字符串
 	 */
 	@NotNull @Contract(pure = true) public static String streamToString(@NotNull final InputStream inputStream) {
-		return streamToString(inputStream, StandardCharsets.UTF_8, defaultCharBufferSize);
+		return streamToString(inputStream, defaultCharset, defaultCharBufferSize);
 	}
 
 	/**
@@ -168,17 +169,6 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 	 * 流转字符串
 	 *
 	 * @param inputStream 流
-	 * @param buffersize  缓冲区大小
-	 * @return 字符串
-	 */
-	@NotNull @Contract(pure = true) public static String streamToString(@NotNull final InputStream inputStream, final int buffersize) {
-		return streamToString(inputStream, StandardCharsets.UTF_8, buffersize);
-	}
-
-	/**
-	 * 流转字符串
-	 *
-	 * @param inputStream 流
 	 * @param charset     字符集编码
 	 * @return 字符串
 	 */
@@ -190,11 +180,23 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 	 * 流转字符串
 	 *
 	 * @param inputStream 流
+	 * @param buffersize  缓冲区大小
+	 * @return 字符串
+	 */
+	@NotNull @Contract(pure = true) public static String streamToString(@NotNull final InputStream inputStream, final int buffersize) {
+		return streamToString(inputStream, defaultCharset, buffersize);
+	}
+
+	/**
+	 * 流转字符串
+	 *
+	 * @param inputStream 流
 	 * @param charsetName 字符集编码
 	 * @param buffersize  缓冲区大小
 	 * @return 字符串
 	 */
-	public static String streamToString(@NotNull final InputStream inputStream, @NotNull final String charsetName, final int buffersize) {
+	@NotNull @Contract(pure = true) public static String streamToString(@NotNull final InputStream inputStream, @NotNull final String charsetName,
+			final int buffersize) {
 		return streamToString(inputStream, Charset.forName(charsetName), buffersize);
 	}
 
@@ -218,60 +220,25 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 	}
 
 	/**
-	 * 流转字符串数组
+	 * 流转动态字符串数组,按行分割
+	 *
+	 * @param inputStream 流
+	 * @return 字符串数组
+	 */
+	@NotNull @Contract(pure = true) public static List<String> streamToStringAsLine(@NotNull final InputStreamReader inputStream) {
+		return streamToStringAsLine(inputStream, defaultCharBufferSize);
+	}
+
+	/**
+	 * 流转字符串
 	 *
 	 * @param inputStream 流
 	 * @param buffersize  缓冲区大小
-	 * @return 字符串数组
+	 * @return 字符串
 	 */
-	@NotNull @Contract(pure = true) public static List<String> streamToArray(@NotNull final InputStream inputStream, final int buffersize) {
-		return streamToArray(inputStream, StandardCharsets.UTF_8, buffersize);
-	}
-
-	/**
-	 * 流转字符串数组
-	 *
-	 * @param inputStream 流
-	 * @param charsetName 缓冲区大小
-	 * @return 字符串数组
-	 */
-	@NotNull @Contract(pure = true) public static List<String> streamToArray(@NotNull final InputStream inputStream, @NotNull final String charsetName) {
-		return streamToArray(inputStream, Charset.forName(charsetName), defaultCharBufferSize);
-	}
-
-	/**
-	 * 流转字符串数组
-	 *
-	 * @param inputStream 流
-	 * @param charset     字符集编码
-	 * @return 字符串数组
-	 */
-	@NotNull @Contract(pure = true) public static List<String> streamToArray(@NotNull final InputStream inputStream, @NotNull final Charset charset) {
-		return streamToArray(inputStream, charset, defaultCharBufferSize);
-	}
-
-	/**
-	 * 流转字符串数组
-	 *
-	 * @param inputStream 流
-	 * @param charset     字符集编码
-	 * @param buffersize  缓冲区大小
-	 * @return 字符串数组
-	 */
-	@NotNull @Contract(pure = true) public static List<String> streamToArray(@NotNull final InputStream inputStream, @NotNull final Charset charset,
-			final int buffersize) {
-		return Arrays.stream(IOUtils.streamToString(inputStream).split(StringUtils.LINE_SEPARATOR)).parallel().collect(Collectors.toList());
-	}
-
-	/**
-	 * 流转字符串数组
-	 *
-	 * @param inputStream 流
-	 * @return 字符串数组
-	 */
-	@NotNull @Contract(pure = true) public static List<String> streamToArray(@NotNull final InputStreamReader inputStream) {
+	@NotNull @Contract(pure = true) public static List<String> streamToStringAsLine(@NotNull final InputStreamReader inputStream, final int buffersize) {
 		List<String> result = new ArrayList<>();
-		try (BufferedReader bufferedReader = new BufferedReader(inputStream)) {
+		try (BufferedReader bufferedReader = new BufferedReader(inputStream, buffersize)) {
 			String line;
 			while (!Judge.isNull(line = bufferedReader.readLine())) {
 				result.add(line);
@@ -283,19 +250,82 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 	}
 
 	/**
+	 * 流转动态字符串数组,按行分割
+	 *
+	 * @param inputStream 流
+	 * @return 字符串数组
+	 */
+	@NotNull @Contract(pure = true) public static List<String> streamToStringAsLine(@NotNull final InputStream inputStream) {
+		return streamToStringAsLine(inputStream, defaultCharset, defaultCharBufferSize);
+	}
+
+	/**
+	 * 流转字符串
+	 *
+	 * @param inputStream 流
+	 * @param buffersize  缓冲区大小
+	 * @return 字符串
+	 */
+	@NotNull @Contract(pure = true) public static List<String> streamToStringAsLine(@NotNull final InputStream inputStream, final int buffersize) {
+		return streamToStringAsLine(inputStream, defaultCharset, buffersize);
+	}
+
+	/**
+	 * 流转字符串
+	 *
+	 * @param inputStream 流
+	 * @param charsetName 字符集编码名称
+	 * @return 字符串
+	 */
+	@NotNull @Contract(pure = true) public static List<String> streamToStringAsLine(@NotNull final InputStream inputStream, @NotNull final String charsetName) {
+		return streamToStringAsLine(inputStream, Charset.forName(charsetName), defaultCharBufferSize);
+	}
+
+	/**
+	 * 流转字符串
+	 *
+	 * @param inputStream 流
+	 * @param charset     字符集编码
+	 * @return 字符串
+	 */
+	@NotNull @Contract(pure = true) public static List<String> streamToStringAsLine(@NotNull final InputStream inputStream, @NotNull final Charset charset) {
+		return streamToStringAsLine(inputStream, charset, defaultCharBufferSize);
+	}
+
+	/**
+	 * 流转字符串
+	 *
+	 * @param inputStream 流
+	 * @param charsetName 字符集编码名称
+	 * @param buffersize  缓冲区大小
+	 * @return 字符串
+	 */
+	@NotNull @Contract(pure = true) public static List<String> streamToStringAsLine(@NotNull final InputStream inputStream, @NotNull final String charsetName,
+			final int buffersize) {
+		return streamToStringAsLine(inputStream, Charset.forName(charsetName), buffersize);
+	}
+
+	/**
+	 * 流转字符串
+	 *
+	 * @param inputStream 流
+	 * @param charset     字符集编码
+	 * @param buffersize  缓冲区大小
+	 * @return 字符串
+	 */
+	@NotNull @Contract(pure = true) public static List<String> streamToStringAsLine(@NotNull final InputStream inputStream, @NotNull final Charset charset,
+			final int buffersize) {
+		return streamToStringAsLine(new InputStreamReader(inputStream, charset), buffersize);
+	}
+
+	/**
 	 * 流转Bytes
 	 *
 	 * @param inputStream 流
 	 * @return bytes
 	 */
 	@Contract(pure = true) public static byte[] streamToByteArray(@NotNull final InputStream inputStream) {
-		byte[] result = null;
-		try (ByteArrayOutputStream outputStream = inputStreamToByteArrayOutputStream(inputStream)) {
-			result = outputStream.toByteArray();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return result;
+		return streamToByteArray(inputStream, defaultCharBufferSize);
 	}
 
 	/**
@@ -307,7 +337,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 	 */
 	@Contract(pure = true) public static byte[] streamToByteArray(@NotNull final InputStream inputStream, final int buffersize) {
 		byte[] result = null;
-		try (ByteArrayOutputStream outputStream = inputStreamToByteArrayOutputStream(inputStream)) {
+		try (ByteArrayOutputStream outputStream = inputStreamToByteArrayOutputStream(inputStream, buffersize)) {
 			result = outputStream.toByteArray();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -377,7 +407,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 	 * @return InputStreamReader
 	 */
 	@NotNull @Contract(pure = true) public static InputStreamReader inputStreamToInputStreamReader(@NotNull final InputStream inputStream) {
-		return new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+		return new InputStreamReader(inputStream, defaultCharset);
 	}
 
 	/**

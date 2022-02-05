@@ -13,7 +13,7 @@ import org.jsoup.nodes.Document;
 
 import javax.net.ssl.*;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -21,7 +21,10 @@ import java.net.Proxy;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +34,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @since 2020/3/9 14:26
  */
-public final class HttpsUtils {
+public class HttpsUtils {
 	private final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 	private String url; // URL
 	private String params; // 参数
@@ -325,49 +328,6 @@ public final class HttpsUtils {
 	}
 
 	/**
-	 * 获取 请求头
-	 *
-	 * @return 请求头
-	 */
-	@Contract(pure = true) public Map<String, String> headers() {
-		return conn.getHeaderFields().entrySet().stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, stringListEntry -> stringListEntry.getValue().toString()));
-	}
-
-	/**
-	 * 获取 cookies
-	 *
-	 * @return cookies
-	 */
-	@Contract(pure = true) public Map<String, String> cookies() {
-		Map<String, String> cookies = new HashMap<>();
-		Map<String, List<String>> headers = conn.getHeaderFields();
-		List<String> list = headers.get("Set-Cookie");
-		if (!list.isEmpty()) {
-			for (String str : list) {
-				String[] cookie = str.split("=");
-				cookies.put(cookie[0], Judge.isEmpty(cookie[1]) ? "" : cookie[1]);
-			}
-		}
-		return cookies;
-	}
-
-	/**
-	 * 获取 连接状态
-	 *
-	 * @return 状态码
-	 */
-	@Contract(pure = true) public int statusCode() {
-		int statusCode;
-		try {
-			statusCode = conn.getResponseCode();
-		} catch (final IOException e) {
-			statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
-		}
-		return statusCode;
-	}
-
-	/**
 	 * 运行程序，获取 Document 结果
 	 *
 	 * @return 响应结果
@@ -392,15 +352,8 @@ public final class HttpsUtils {
 	 * @return 响应结果
 	 */
 	@Contract(pure = true) public Document get(@NotNull final HttpMethod method) {
-		String result;
-		try (InputStreamReader inputStream = URIUtils.statusIsOK(execute(method).getResponseCode()) ?
-				new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8) :
-				new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8)) {
-			result = IOUtils.streamToString(inputStream);
-		} catch (final IOException e) {
-			return null;
-		}
-		return Judge.isEmpty(result) ? null : Jsoup.parse(Objects.requireNonNull(result));
+		String result = execute(method).body();
+		return Judge.isEmpty(result) ? null : Jsoup.parse(result);
 	}
 
 	/**
@@ -408,7 +361,7 @@ public final class HttpsUtils {
 	 *
 	 * @return HttpURLConnection
 	 */
-	@Contract(pure = true) public HttpURLConnection execute() {
+	@Contract(pure = true) public HttpsResult execute() {
 		return execute(HttpMethod.GET);
 	}
 
@@ -418,7 +371,8 @@ public final class HttpsUtils {
 	 * @param method 请求方法 HttpMethod
 	 * @return HttpURLConnection
 	 */
-	@Contract(pure = true) public HttpURLConnection execute(@NotNull final HttpMethod method) {
+	@Contract(pure = true) public HttpsResult execute(@NotNull final HttpMethod method) {
+		executeProgram(method);
 		int statusCode = executeProgram(method).statusCode();
 		for (int i = 0;
 			 !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && !excludeErrorStatusCodes.contains(statusCode) && (i < retry
@@ -429,7 +383,8 @@ public final class HttpsUtils {
 		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
 			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
 		}
-		return conn;
+		//	new HttpsResult(conn.getURL(), conn);
+		return new HttpsResult(conn);
 	}
 
 	/**
@@ -438,7 +393,7 @@ public final class HttpsUtils {
 	 * @param method http响应类型 HttpMethod
 	 * @return this
 	 */
-	@Contract(pure = true) private HttpsUtils executeProgram(@NotNull final HttpMethod method) {
+	@Contract(pure = true) private HttpsResult executeProgram(@NotNull final HttpMethod method) {
 		return executeProgram(url, method);
 	}
 
@@ -449,7 +404,7 @@ public final class HttpsUtils {
 	 * @param method http响应类型 HttpMethod
 	 * @return this
 	 */
-	@Contract(pure = true) private HttpsUtils executeProgram(@NotNull String url, @NotNull final HttpMethod method) {
+	@Contract(pure = true) private HttpsResult executeProgram(@NotNull String url, @NotNull final HttpMethod method) {
 		try {
 			if (method == HttpMethod.GET && !Judge.isEmpty(params)) {
 				url = url + "?" + params;
@@ -500,7 +455,7 @@ public final class HttpsUtils {
 					// flush输出流的缓冲
 					out.flush();
 				} catch (IOException e) {
-					return this;
+					return new HttpsResult(conn);
 				}
 			} else {
 				conn.connect();
@@ -512,10 +467,10 @@ public final class HttpsUtils {
 				executeProgram(redirectUrl, method);
 			}
 		} catch (IOException e) {
-			return this;
+			return new HttpsResult(conn);
 		}
 
-		return this;
+		return new HttpsResult(conn);
 	}
 
 	private SSLContext MyX509TrustManagerUtils() {
@@ -578,6 +533,107 @@ public final class HttpsUtils {
 
 		@Override public void checkServerTrusted(X509Certificate[] arg0, String arg1, SSLEngine arg2) {
 
+		}
+
+	}
+
+	public static class HttpsResult {
+		protected HttpURLConnection conn; // HttpURLConnection对象
+
+		/**
+		 * Constructor for the HttpURLConnection.
+		 *
+		 * @param conn HttpURLConnection
+		 */
+		protected HttpsResult(HttpURLConnection conn) {
+			this.conn = conn;
+		}
+
+		/**
+		 * 获取 HttpURLConnection
+		 *
+		 * @return HttpURLConnection
+		 */
+		@Contract(pure = true) public HttpURLConnection connection() {
+			return conn;
+		}
+
+		/**
+		 * 获取 请求响应代码
+		 *
+		 * @return 请求响应代码
+		 */
+		@Contract(pure = true) public int statusCode() {
+			int statusCode;
+			try {
+				statusCode = conn.getResponseCode();
+			} catch (final IOException e) {
+				statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
+			}
+			return statusCode;
+		}
+
+		/**
+		 * 获取 请求头
+		 *
+		 * @return 请求头
+		 */
+		@Contract(pure = true) public Map<String, String> headers() {
+			return conn.getHeaderFields().entrySet().stream()
+					.collect(Collectors.toMap(Map.Entry::getKey, stringListEntry -> stringListEntry.getValue().toString()));
+		}
+
+		/**
+		 * 获取 cookies
+		 *
+		 * @return cookies
+		 */
+		@Contract(pure = true) public Map<String, String> cookies() {
+			Map<String, String> cookies = new HashMap<>();
+			for (String str : conn.getHeaderFields().get("set-cookie")) {
+				String[] cookie = str.split("=");
+				cookies.put(cookie[0], Judge.isEmpty(cookie[1]) ? "" : cookie[1]);
+			}
+			return cookies;
+		}
+
+		/**
+		 * 获取 响应正文
+		 *
+		 * @return 响应正文
+		 */
+		@Contract(pure = true) public String body() {
+			String result;
+			try (InputStream inputStream = bodyStream()) {
+				result = IOUtils.streamToString(inputStream);
+			} catch (final IOException e) {
+				return null;
+			}
+			return result;
+		}
+
+		/**
+		 * 获取 响应流
+		 *
+		 * @return 响应流
+		 */
+		@Contract(pure = true) public InputStream bodyStream() throws IOException {
+			return URIUtils.statusIsOK(statusCode()) ? conn.getInputStream() : conn.getErrorStream();
+		}
+
+		/**
+		 * 获取 响应流
+		 *
+		 * @return 响应流
+		 */
+		@Contract(pure = true) public byte[] bodyAsBytes() {
+			byte[] result;
+			try (InputStream inputStream = bodyStream()) {
+				result = IOUtils.streamToByteArray(inputStream);
+			} catch (final IOException e) {
+				return null;
+			}
+			return result;
 		}
 
 	}

@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
  * @version 1.8.2
  * @since 2021/12/24 23:07
  */
-public final class NetworkFileUtils {
+public class NetworkFileUtils {
 
 	private String url; // 请求URL
 	private String fileName; // 文件名
@@ -50,7 +50,7 @@ public final class NetworkFileUtils {
 	private ExecutorService executorService; // 下载线程池
 	private Method method;// 下载模式
 
-	private NetworkFileUtils() {
+	protected NetworkFileUtils() {
 		MAX_THREADS = 16; // 默认16线程下载
 		interval = 50; // 默认异步访问间隔50毫秒
 		bufferSize = 8192; // 默认缓冲区大小

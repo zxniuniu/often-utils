@@ -1,5 +1,9 @@
 package org.haic.often;
 
+import net.lingala.zip4j.model.enums.RandomAccessFileMode;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -10,11 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-
-import net.lingala.zip4j.model.enums.RandomAccessFileMode;
 
 /**
  * @author haicdust
@@ -35,24 +34,20 @@ public final class ReadWriteUtils {
 	/**
 	 * 设置目标文件或文件夹并获取 new ReadWriteUtils
 	 *
-	 * @param source
-	 *            文件或文件夹路径
+	 * @param source 文件或文件夹路径
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public static ReadWriteUtils orgin(String source) {
+	@Contract(pure = true) public static ReadWriteUtils orgin(String source) {
 		return orgin(new File(source));
 	}
 
 	/**
 	 * 设置目标文件或文件夹并获取 new ReadWriteUtils
 	 *
-	 * @param source
-	 *            文件或文件夹
+	 * @param source 文件或文件夹
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public static ReadWriteUtils orgin(File source) {
+	@Contract(pure = true) public static ReadWriteUtils orgin(File source) {
 		return config().file(source);
 	}
 
@@ -61,20 +56,17 @@ public final class ReadWriteUtils {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true)
-	private static ReadWriteUtils config() {
+	@Contract(pure = true) private static ReadWriteUtils config() {
 		return new ReadWriteUtils();
 	}
 
 	/**
 	 * 设置 文件或文件夹
 	 *
-	 * @param source
-	 *            文件或文件夹
+	 * @param source 文件或文件夹
 	 * @return this
 	 */
-	@Contract(pure = true)
-	private ReadWriteUtils file(File source) {
+	@Contract(pure = true) private ReadWriteUtils file(File source) {
 		this.source = source;
 		return this;
 	}
@@ -82,12 +74,10 @@ public final class ReadWriteUtils {
 	/**
 	 * 设置 缓冲区大小
 	 *
-	 * @param bufferSize
-	 *            缓冲区大小
+	 * @param bufferSize 缓冲区大小
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public ReadWriteUtils bufferSize(int bufferSize) {
+	@Contract(pure = true) public ReadWriteUtils bufferSize(int bufferSize) {
 		this.bufferSize = bufferSize;
 		return this;
 	}
@@ -95,12 +85,10 @@ public final class ReadWriteUtils {
 	/**
 	 * 设置 字符集编码格式
 	 *
-	 * @param charset
-	 *            字符集编码格式
+	 * @param charset 字符集编码格式
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public ReadWriteUtils charset(Charset charset) {
+	@Contract(pure = true) public ReadWriteUtils charset(Charset charset) {
 		this.charset = charset;
 		return this;
 	}
@@ -108,24 +96,20 @@ public final class ReadWriteUtils {
 	/**
 	 * 设置 字符集格式
 	 *
-	 * @param charsetName
-	 *            字符集格式
+	 * @param charsetName 字符集格式
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public ReadWriteUtils charset(String charsetName) {
+	@Contract(pure = true) public ReadWriteUtils charset(String charsetName) {
 		return charset(Charset.forName(charsetName));
 	}
 
 	/**
 	 * 设置 追加写入
 	 *
-	 * @param append
-	 *            启用追加写入
+	 * @param append 启用追加写入
 	 * @return this
 	 */
-	@Contract(pure = true)
-	public ReadWriteUtils append(boolean append) {
+	@Contract(pure = true) public ReadWriteUtils append(boolean append) {
 		this.append = append;
 		return this;
 	}
@@ -134,13 +118,11 @@ public final class ReadWriteUtils {
 
 	/**
 	 * 将数组合为一行写入文件
-	 * 
-	 * @param lists
-	 *            字符串数组
+	 *
+	 * @param lists 字符串数组
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
-	public boolean listToText(@NotNull final List<String> lists) {
+	@Contract(pure = true) public boolean listToText(@NotNull final List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(StringUtils.join(lists, StringUtils.SPACE) + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
@@ -154,12 +136,10 @@ public final class ReadWriteUtils {
 	/**
 	 * 将字符串写入文件
 	 *
-	 * @param str
-	 *            字符串
+	 * @param str 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
-	public boolean text(@NotNull final String str) {
+	@Contract(pure = true) public boolean text(@NotNull final String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(str + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
@@ -173,12 +153,10 @@ public final class ReadWriteUtils {
 	/**
 	 * 将数组按行写入文件
 	 *
-	 * @param lists
-	 *            字符串数组
+	 * @param lists 字符串数组
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
-	public boolean list(@NotNull final List<String> lists) {
+	@Contract(pure = true) public boolean list(@NotNull final List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(lists.parallelStream().collect(Collectors.joining(StringUtils.LINE_SEPARATOR)) + StringUtils.LINE_SEPARATOR);
@@ -191,13 +169,11 @@ public final class ReadWriteUtils {
 
 	/**
 	 * 将字符串写入二进制文件
-	 * 
-	 * @param str
-	 *            字符串
+	 *
+	 * @param str 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
-	public boolean binary(@NotNull final String str) {
+	@Contract(pure = true) public boolean binary(@NotNull final String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (DataOutputStream outStream = new DataOutputStream(new FileOutputStream(source, append))) {
 			for (byte b : (str + StringUtils.LF).getBytes()) {
@@ -212,13 +188,11 @@ public final class ReadWriteUtils {
 
 	/**
 	 * RandomAccessFile 写入文本
-	 * 
-	 * @param str
-	 *            字符串
+	 *
+	 * @param str 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
-	public boolean randomAccessText(@NotNull final String str) {
+	@Contract(pure = true) public boolean randomAccessText(@NotNull final String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (RandomAccessFile randomAccess = new RandomAccessFile(source, RandomAccessFileMode.WRITE.getValue())) {
 			if (append) {
@@ -233,13 +207,11 @@ public final class ReadWriteUtils {
 
 	/**
 	 * FileChannel 写入文件文本
-	 * 
-	 * @param str
-	 *            字符串
+	 *
+	 * @param str 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
-	public boolean channelText(@NotNull final String str) {
+	@Contract(pure = true) public boolean channelText(@NotNull final String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (FileChannel channel = new FileOutputStream(source, append).getChannel()) {
 			channel.write(ByteBuffer.wrap((str + StringUtils.LINE_SEPARATOR).getBytes(charset)));
@@ -251,13 +223,11 @@ public final class ReadWriteUtils {
 
 	/**
 	 * MappedByteBuffer 内存映射方法写入文件文本
-	 * 
-	 * @param str
-	 *            字符串
+	 *
+	 * @param str 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true)
-	public boolean mappedText(String str) {
+	@Contract(pure = true) public boolean mappedText(String str) {
 		FilesUtils.createFolder(source.getParent());
 		byte[] params = (str + StringUtils.LINE_SEPARATOR).getBytes(charset);
 		MappedByteBuffer mappedByteBuffer;
@@ -269,7 +239,8 @@ public final class ReadWriteUtils {
 				return false;
 			}
 		} else {
-			try (FileChannel fileChannel = FileChannel.open(source.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			try (FileChannel fileChannel = FileChannel.open(source.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE,
+					StandardOpenOption.TRUNCATE_EXISTING)) {
 				mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, params.length);
 				mappedByteBuffer.put(params);
 			} catch (IOException e) {
@@ -281,9 +252,8 @@ public final class ReadWriteUtils {
 
 	/**
 	 * FileChannel 文件复制
-	 * 
-	 * @param out
-	 *            指定输出文件
+	 *
+	 * @param out 指定输出文件
 	 * @return 文件复制状态
 	 */
 	public boolean channelCopy(String out) {
@@ -292,9 +262,8 @@ public final class ReadWriteUtils {
 
 	/**
 	 * FileChannel 文件复制
-	 * 
-	 * @param out
-	 *            指定输出文件
+	 *
+	 * @param out 指定输出文件
 	 * @return 文件复制状态
 	 */
 	public boolean channelCopy(File out) {
@@ -310,8 +279,7 @@ public final class ReadWriteUtils {
 	/**
 	 * MappedByteBuffer 文件复制
 	 *
-	 * @param out
-	 *            指定输出文件路径
+	 * @param out 指定输出文件路径
 	 * @return 文件复制状态
 	 */
 	public boolean mappedCopy(String out) {
@@ -321,8 +289,7 @@ public final class ReadWriteUtils {
 	/**
 	 * MappedByteBuffer 文件复制
 	 *
-	 * @param out
-	 *            指定输出文件路径
+	 * @param out 指定输出文件路径
 	 * @return 文件复制状态
 	 */
 	public boolean mappedCopy(File out) {
@@ -350,17 +317,14 @@ public final class ReadWriteUtils {
 	/**
 	 * 遍历文件或文件夹,按行读取内容
 	 *
-	 * @param file
-	 *            文件或文件夹
+	 * @param file 文件或文件夹
 	 * @return 文本信息列表
 	 */
-	@NotNull
-	@Contract(pure = true)
-	private List<String> list(@NotNull final File file) {
+	@NotNull @Contract(pure = true) private List<String> list(@NotNull final File file) {
 		List<String> result = new ArrayList<>();
 		if (file.isFile()) {
 			try (InputStreamReader inputStream = new InputStreamReader(new FileInputStream(file), charset)) {
-				result = IOUtils.streamToArray(inputStream);
+				result = IOUtils.streamToStringAsLine(inputStream);
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}
@@ -375,9 +339,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 文本信息列表
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public List<String> list() {
+	@NotNull @Contract(pure = true) public List<String> list() {
 		return list(source);
 	}
 
@@ -386,9 +348,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 集合 -> 文件路径 和 文本信息列表
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public Map<String, List<String>> mapList() {
+	@NotNull @Contract(pure = true) public Map<String, List<String>> mapList() {
 		return FilesUtils.iterateFiles(source).parallelStream().collect(Collectors.toMap(File::getPath, this::list));
 	}
 
@@ -397,9 +357,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 文本信息
 	 */
-	@NotNull
-	@Contract(pure = true)
-	private String text(@NotNull final File file) {
+	@NotNull @Contract(pure = true) private String text(@NotNull final File file) {
 		String result = "";
 		if (!file.isFile()) { // 判断文件是否存在
 			return result;
@@ -417,9 +375,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 文本信息
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public String text() {
+	@NotNull @Contract(pure = true) public String text() {
 		return text(source);
 	}
 
@@ -428,9 +384,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 文本信息列表
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public List<String> texts() {
+	@NotNull @Contract(pure = true) public List<String> texts() {
 		return new ArrayList<>(mapText().values());
 	}
 
@@ -439,21 +393,17 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 集合 -> 文件路径 和 文本信息
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public Map<String, String> mapText() {
+	@NotNull @Contract(pure = true) public Map<String, String> mapText() {
 		return FilesUtils.iterateFiles(source).parallelStream().collect(Collectors.toMap(File::getPath, this::text));
 	}
 
 	/**
 	 * 读取指定文件的内容
 	 *
-	 * @param file
-	 *            文件
+	 * @param file 文件
 	 * @return bytes
 	 */
-	@Contract(pure = true)
-	private byte[] array(@NotNull final File file) {
+	@Contract(pure = true) private byte[] array(@NotNull final File file) {
 		byte[] result = new byte[0];
 		if (!file.isFile()) { // 判断文件是否存在
 			return result;
@@ -471,8 +421,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return bytes
 	 */
-	@Contract(pure = true)
-	public byte[] array() {
+	@Contract(pure = true) public byte[] array() {
 		return array(source);
 	}
 
@@ -481,9 +430,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return bytes列表
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public List<byte[]> arrays() {
+	@NotNull @Contract(pure = true) public List<byte[]> arrays() {
 		return new ArrayList<>(mapArray().values());
 	}
 
@@ -492,9 +439,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 集合 -> 文件路径 和 bytes
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public Map<String, byte[]> mapArray() {
+	@NotNull @Contract(pure = true) public Map<String, byte[]> mapArray() {
 		return FilesUtils.iterateFiles(source).parallelStream().collect(Collectors.toMap(File::getPath, this::array));
 	}
 
@@ -503,9 +448,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 文件文本信息
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public String binary() {
+	@NotNull @Contract(pure = true) public String binary() {
 		StringBuilder result = new StringBuilder();
 		if (!source.isFile()) {
 			return String.valueOf(result);
@@ -525,9 +468,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 文件文本信息
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public List<String> binaryList() {
+	@NotNull @Contract(pure = true) public List<String> binaryList() {
 		return new ArrayList<>(Arrays.asList(binary().split(StringUtils.LF)));
 	}
 
@@ -536,9 +477,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 文本
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public String randomAccessText() {
+	@NotNull @Contract(pure = true) public String randomAccessText() {
 		if (!source.isFile()) {
 			return "";
 		}
@@ -561,9 +500,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 文本字符串
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public String channelText() {
+	@NotNull @Contract(pure = true) public String channelText() {
 		if (!source.isFile()) {
 			return "";
 		}
@@ -584,9 +521,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 文本
 	 */
-	@NotNull
-	@Contract(pure = true)
-	public String mappedText() {
+	@NotNull @Contract(pure = true) public String mappedText() {
 		if (!source.isFile()) {
 			return "";
 		}
@@ -594,7 +529,8 @@ public final class ReadWriteUtils {
 		try (FileChannel channel = new RandomAccessFile(source, RandomAccessFileMode.READ.getValue()).getChannel()) {
 			long MAX_COUNT = (int) Math.ceil((double) source.length() / (double) Integer.MAX_VALUE);
 			for (long i = 0; i < MAX_COUNT; i++) {
-				result.put(charset.decode(channel.map(FileChannel.MapMode.READ_ONLY, i * Integer.MAX_VALUE, i + 1 == MAX_COUNT ? source.length() % Integer.MAX_VALUE : Integer.MAX_VALUE)));
+				result.put(charset.decode(channel.map(FileChannel.MapMode.READ_ONLY, i * Integer.MAX_VALUE,
+						i + 1 == MAX_COUNT ? source.length() % Integer.MAX_VALUE : Integer.MAX_VALUE)));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

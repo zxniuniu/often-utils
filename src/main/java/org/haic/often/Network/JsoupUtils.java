@@ -28,7 +28,7 @@ import java.util.*;
  * @version 1.0
  * @since 2020/2/25 18:40
  */
-public final class JsoupUtils {
+public class JsoupUtils {
 
 	private final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 	private String url; // 请求URL
@@ -48,7 +48,7 @@ public final class JsoupUtils {
 	private Request request; // 会话
 	private ThreeTuple<String, String, InputStream> stream; // 数据流
 
-	private JsoupUtils() {
+	protected JsoupUtils() {
 		followRedirects = true;
 		headers.put("user-agent", UserAgentUtils.random()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
