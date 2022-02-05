@@ -519,12 +519,12 @@ public final class HtmlUnitUtils {
 	 */
 	@Contract(pure = true) public Page execute(@NotNull final HttpMethod method) {
 		page = executeProgram(method);
-		int statusCode = page.getWebResponse().getStatusCode();
+		int statusCode = Judge.isNull(page) ? HttpStatus.SC_REQUEST_TIMEOUT : page.getWebResponse().getStatusCode();
 		for (int i = 0;
 			 !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && !excludeErrorStatusCodes.contains(statusCode) && (i < retry
 					 || unlimitedRetry); i++) {
 			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
-			page = executeProgram(method);
+			statusCode = Judge.isNull(page) ? HttpStatus.SC_REQUEST_TIMEOUT : page.getWebResponse().getStatusCode();
 		}
 		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
 			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
