@@ -1,6 +1,6 @@
 package org.haic.often;
 
-import org.haic.often.ChromeBrowser.LocalCookies;
+import org.haic.often.Network.HtmlUnitUtils;
 
 /**
  * Unit test for simple App.
@@ -20,6 +20,8 @@ public class AppTest {
 		//System.out.println(UserAgentUtils.randomPE());
 		//Connection.Response res = JsoupUtils.connect("https://www.baidu.com").socks(proxyHost, proxyPort).execute();
 		//System.out.println(res.headers());
-		System.out.println(LocalCookies.home().getCookiesForDomain("yande.re"));
+		//System.out.println(LocalCookies.home().getCookiesForDomain("yande.re"));
+		System.out.println(HtmlUnitUtils.connect("https://www.lanzoui.com/b0ejszleh").get());
+
 	}
 }

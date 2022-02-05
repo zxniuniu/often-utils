@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * HtmlUnit 工具类
@@ -48,11 +49,12 @@ public final class HtmlUnitUtils {
 	private int retry; // 请求异常重试次数
 	private int MILLISECONDS_SLEEP; // 重试等待时间
 	private int timeout; // 连接超时时间
-	private int statusCode; // 状态码
+
 	private Map<String, String> headers = new HashMap<>(); // 请求头参数
 	private Map<String, String> cookies = new HashMap<>(); // cookies
 	private WebRequest request; // 会话
 	private WebClient webClient; // HtmlUnit
+	private Page page; // Page
 
 	private HtmlUnitUtils() {
 		followRedirects = true;
@@ -425,96 +427,6 @@ public final class HtmlUnitUtils {
 	}
 
 	/**
-	 * 获取 url
-	 *
-	 * @return 链接
-	 */
-	@Contract(pure = true) public String url() {
-		return url;
-	}
-
-	/**
-	 * 获取 retry
-	 *
-	 * @return int
-	 */
-	@Contract(pure = true) public int retry() {
-		return retry;
-	}
-
-	/**
-	 * 获取 MILLISECONDS_SLEEP
-	 *
-	 * @return int
-	 */
-	@Contract(pure = true) public int MILLISECONDS_SLEEP() {
-		return MILLISECONDS_SLEEP;
-	}
-
-	/**
-	 * 获取 proxyHost
-	 *
-	 * @return String
-	 */
-	@Contract(pure = true) public String proxyHost() {
-		return proxyHost;
-	}
-
-	/**
-	 * 获取 proxyPort
-	 *
-	 * @return int
-	 */
-	@Contract(pure = true) public int proxyPort() {
-		return proxyPort;
-	}
-
-	/**
-	 * 获取 username
-	 *
-	 * @return String
-	 */
-	@Contract(pure = true) public String username() {
-		return username;
-	}
-
-	/**
-	 * 获取 password
-	 *
-	 * @return String
-	 */
-	@Contract(pure = true) public String password() {
-		return password;
-	}
-
-	/**
-	 * 获取 referrer
-	 *
-	 * @return String
-	 */
-	@Contract(pure = true) public String referrer() {
-		return referrer;
-	}
-
-	/**
-	 * 获取 requestBody
-	 *
-	 * @return String
-	 */
-	@Contract(pure = true) public String requestBody() {
-		return requestBody;
-	}
-
-	/**
-	 * 获取 enableCSS
-	 *
-	 * @return boolean
-	 */
-	@Contract(pure = true) public boolean enableCSS() {
-		return enableCSS;
-	}
-
-	/**
 	 * 获取 enableJS
 	 *
 	 * @return boolean
@@ -523,17 +435,13 @@ public final class HtmlUnitUtils {
 		return !Judge.isEmpty(waitJSTime);
 	}
 
-	@Contract(pure = true) public int statusCode() {
-		return statusCode;
-	}
-
 	/**
 	 * 获取 cookies
 	 *
 	 * @return Map
 	 */
 	@Contract(pure = true) public Map<String, String> cookies() {
-		return cookies;
+		return headers().entrySet().stream().filter(l -> l.getKey().equals("set-cookie")).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
 	/**
@@ -542,7 +450,7 @@ public final class HtmlUnitUtils {
 	 * @return Map
 	 */
 	@Contract(pure = true) public Map<String, String> headers() {
-		return headers;
+		return page.getWebResponse().getResponseHeaders().stream().collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
 	}
 
 	/**
@@ -552,7 +460,7 @@ public final class HtmlUnitUtils {
 	 * @return Document
 	 */
 	@Contract(pure = true) public Document get(@NotNull final HttpMethod method) {
-		Page page = getPage(method);
+		Page page = execute(method);
 		return Judge.isNull(page) ? null : page.isHtmlPage() ? Jsoup.parse(((HtmlPage) page).asXml()) : Jsoup.parse(page.getWebResponse().getContentAsString());
 	}
 
@@ -590,32 +498,33 @@ public final class HtmlUnitUtils {
 	 * @return HtmlPage
 	 */
 	@Contract(pure = true) public HtmlPage getHtmlPage(@NotNull final HttpMethod method) {
-		Page page = getPage(method);
+		Page page = execute(method);
 		return Judge.isNull(page) ? null : (HtmlPage) page;
 	}
 
 	/**
-	 * 获取 Page
+	 * 运行并获取 Page
 	 *
 	 * @return Page
 	 */
-	@Contract(pure = true) public Page getPage() {
-		return getPage(HttpMethod.GET);
+	@Contract(pure = true) public Page execute() {
+		return execute(HttpMethod.GET);
 	}
 
 	/**
-	 * 获取 Page
+	 * 运行并获取 Page
 	 *
 	 * @param method HttpMethod类型
 	 * @return Page
 	 */
-	@Contract(pure = true) public Page getPage(@NotNull final HttpMethod method) {
-		Page page = startWebRequest(method);
+	@Contract(pure = true) public Page execute(@NotNull final HttpMethod method) {
+		page = executeProgram(method);
+		int statusCode = page.getWebResponse().getStatusCode();
 		for (int i = 0;
 			 !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && !excludeErrorStatusCodes.contains(statusCode) && (i < retry
 					 || unlimitedRetry); i++) {
 			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP);
-			page = startWebRequest(method);
+			page = executeProgram(method);
 		}
 		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
 			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
@@ -623,26 +532,20 @@ public final class HtmlUnitUtils {
 		return page;
 	}
 
-	@Contract(pure = true) private Page startWebRequest(@NotNull final HttpMethod method) {
+	@Contract(pure = true) private Page executeProgram(@NotNull final HttpMethod method) {
 		if (Judge.isNull(webClient)) {
 			setWebClient(); // 创建HtmlUnit
 		}
-		Page page;
-		try { // 获取网页信息
+
+		try {
 			page = webClient.getPage(Judge.isNull(request) ? getWebRequest(method) : request);
 		} catch (final IOException e) {
-			statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
-			return null;
+			return page;
 		}
 
 		if (!Judge.isEmpty(waitJSTime)) { // 设置JS超时时间
 			webClient.waitForBackgroundJavaScriptStartingBefore(waitJSTime);
 		}
-
-		// 获取headers和cookies
-		statusCode = page.getWebResponse().getStatusCode();
-		cookies(webClient.getCookieManager().getCookies());
-		headers(page.getWebResponse().getResponseHeaders());
 
 		// 关闭webClient
 		if (isCloseWebClient) {
