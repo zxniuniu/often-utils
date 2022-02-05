@@ -68,7 +68,7 @@ public class LocalCookies {
 		return new LocalCookies();
 	}
 
-	@NotNull @Contract(pure = true) public ChromeBrowser chromeBrowser(@NotNull final File userHome) {
+	@NotNull @Contract(pure = true) private ChromeBrowser chromeBrowser(@NotNull final File userHome) {
 		return new ChromeBrowser(userHome);
 	}
 
