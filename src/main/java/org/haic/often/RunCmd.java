@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -126,9 +126,8 @@ public class RunCmd {
 	@NotNull @Contract(pure = true) public String readInfo() {
 		String result = "";
 		Process process;
-		try (InputStreamReader inputStream = new InputStreamReader(
-				(process = new ProcessBuilder(command).redirectErrorStream(true).directory(directory).start()).getInputStream(), charset)) {
-			result = IOUtils.streamToString(inputStream);
+		try (InputStream inputStream = (process = new ProcessBuilder(command).redirectErrorStream(true).directory(directory).start()).getInputStream()) {
+			result = StreamUtils.stream(inputStream).charset(charset).toString();
 			process.waitFor();
 			process.destroy();
 		} catch (Exception e) {

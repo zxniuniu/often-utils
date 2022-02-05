@@ -2,6 +2,7 @@ package org.haic.often.Network;
 
 import com.alibaba.fastjson.JSONObject;
 import net.lingala.zip4j.model.enums.RandomAccessFileMode;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.haic.often.*;
 import org.haic.often.Multithread.MultiThreadUtils;

@@ -1,9 +1,9 @@
 package org.haic.often.Network;
 
 import org.apache.http.HttpStatus;
-import org.haic.often.IOUtils;
 import org.haic.often.Judge;
 import org.haic.often.Multithread.MultiThreadUtils;
+import org.haic.often.StreamUtils;
 import org.haic.often.URIUtils;
 import org.haic.often.UserAgentUtils;
 import org.jetbrains.annotations.Contract;
@@ -605,7 +605,7 @@ public class HttpsUtils {
 		@Contract(pure = true) public String body() {
 			String result;
 			try (InputStream inputStream = bodyStream()) {
-				result = IOUtils.streamToString(inputStream);
+				result = StreamUtils.stream(inputStream).toString();
 			} catch (final IOException e) {
 				return null;
 			}
@@ -629,7 +629,7 @@ public class HttpsUtils {
 		@Contract(pure = true) public byte[] bodyAsBytes() {
 			byte[] result;
 			try (InputStream inputStream = bodyStream()) {
-				result = IOUtils.streamToByteArray(inputStream);
+				result = StreamUtils.stream(inputStream).toByteArray();
 			} catch (final IOException e) {
 				return null;
 			}

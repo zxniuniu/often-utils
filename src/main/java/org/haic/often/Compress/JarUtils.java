@@ -1,5 +1,14 @@
 package org.haic.often.Compress;
 
+import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
+import org.apache.commons.compress.archivers.jar.JarArchiveInputStream;
+import org.apache.commons.compress.archivers.jar.JarArchiveOutputStream;
+import org.apache.commons.io.IOUtils;
+import org.haic.often.FilesUtils;
+import org.haic.often.Judge;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,15 +16,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
-import org.apache.commons.compress.archivers.jar.JarArchiveInputStream;
-import org.apache.commons.compress.archivers.jar.JarArchiveOutputStream;
-import org.haic.often.FilesUtils;
-import org.haic.often.IOUtils;
-import org.haic.often.Judge;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author haicdust
@@ -27,13 +27,10 @@ public class JarUtils extends ZipUtils {
 	/**
 	 * 将列表的bytes添加进压缩包
 	 *
-	 * @param origin
-	 *            文件信息
+	 * @param origin 文件信息
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Override
-	@Contract(pure = true)
-	public List<String> compress(@NotNull final Map<String, byte[]> origin) {
+	@Override @Contract(pure = true) public List<String> compress(@NotNull final Map<String, byte[]> origin) {
 		List<String> result = new ArrayList<>();
 		try (JarArchiveOutputStream outputStream = new JarArchiveOutputStream(new FileOutputStream(archive))) {
 			result = compress(origin, outputStream);
@@ -46,14 +43,11 @@ public class JarUtils extends ZipUtils {
 	/**
 	 * 将列表的bytes添加到指定输出流
 	 *
-	 * @param outputStream
-	 *            输出流
-	 * @param origin
-	 *            文件信息
+	 * @param outputStream 输出流
+	 * @param origin       文件信息
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true)
-	private List<String> compress(@NotNull final Map<String, byte[]> origin, JarArchiveOutputStream outputStream) {
+	@Contract(pure = true) private List<String> compress(@NotNull final Map<String, byte[]> origin, JarArchiveOutputStream outputStream) {
 		try {
 			for (Map.Entry<String, byte[]> info : origin.entrySet()) {
 				JarArchiveEntry entry = new JarArchiveEntry(info.getKey());
@@ -70,13 +64,10 @@ public class JarUtils extends ZipUtils {
 	/**
 	 * 解压ZIP压缩包
 	 *
-	 * @param out
-	 *            输出文件夹
+	 * @param out 输出文件夹
 	 * @return 解压的文件列表
 	 */
-	@Override
-	@Contract(pure = true)
-	public List<String> deCompress(@NotNull final File out) {
+	@Override @Contract(pure = true) public List<String> deCompress(@NotNull final File out) {
 		if (!archive.isFile()) {
 			throw new RuntimeException("Not found or not file " + archive);
 		}
@@ -87,7 +78,8 @@ public class JarUtils extends ZipUtils {
 				if (archiveEntry.isDirectory()) {
 					continue;
 				}
-				File curfile = new File(archiveName ? new File(out, archive.getName().substring(0, archive.getName().lastIndexOf(46))) : out, archiveEntry.getName());
+				File curfile = new File(archiveName ? new File(out, archive.getName().substring(0, archive.getName().lastIndexOf(46))) : out,
+						archiveEntry.getName());
 				FilesUtils.createFolder(curfile.getParentFile());
 				IOUtils.copy(inputStream, new FileOutputStream(curfile)); // 将文件写出到解压的目录
 				result.add(archiveEntry.getName());
@@ -101,13 +93,10 @@ public class JarUtils extends ZipUtils {
 	/**
 	 * 往压缩包中添加列表中的bytes
 	 *
-	 * @param origin
-	 *            bytes列表
+	 * @param origin bytes列表
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Override
-	@Contract(pure = true)
-	public List<String> addBytes(@NotNull final Map<String, byte[]> origin) {
+	@Override @Contract(pure = true) public List<String> addBytes(@NotNull final Map<String, byte[]> origin) {
 		if (!archive.isFile()) {
 			throw new RuntimeException("Not found or not file " + archive);
 		}

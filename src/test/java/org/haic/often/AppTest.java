@@ -1,8 +1,5 @@
 package org.haic.often;
 
-import org.haic.often.Network.HttpsUtils;
-import org.jsoup.Connection;
-
 /**
  * Unit test for simple App.
  */
@@ -22,9 +19,10 @@ public class AppTest {
 		//Connection.Response res = JsoupUtils.connect("https://www.baidu.com").socks(proxyHost, proxyPort).execute();
 		//System.out.println(res.headers());
 		//System.out.println(LocalCookies.home().getCookiesForDomain("yande.re"));
-
-		Connection.Response res = null;
-		System.out.println(HttpsUtils.connect("https://www.lanzoui.com/b0ejszleh").execute().body());
+		String path = "F:\\Downloads\\1.txt";
+		System.out.println(ReadWriteUtils.orgin(path).text());
+		//Connection.Response res = null;
+		//	System.out.println(HttpsUtils.connect("https://www.lanzoui.com/b0ejszleh").execute().body());
 
 	}
 }
