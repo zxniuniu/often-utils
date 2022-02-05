@@ -406,7 +406,7 @@ public final class HttpsUtils {
 	/**
 	 * 运行程序，获取 HttpsUtils 对象
 	 *
-	 * @return 响应结果
+	 * @return HttpURLConnection
 	 */
 	@Contract(pure = true) public HttpURLConnection execute() {
 		return execute(HttpMethod.GET);
@@ -416,7 +416,7 @@ public final class HttpsUtils {
 	 * 运行程序，获取 HttpsUtils 对象
 	 *
 	 * @param method 请求方法 HttpMethod
-	 * @return 响应结果
+	 * @return HttpURLConnection
 	 */
 	@Contract(pure = true) public HttpURLConnection execute(@NotNull final HttpMethod method) {
 		int statusCode = executeProgram(method).statusCode();
@@ -436,7 +436,7 @@ public final class HttpsUtils {
 	 * 主程序
 	 *
 	 * @param method http响应类型 HttpMethod
-	 * @return 响应结果
+	 * @return this
 	 */
 	@Contract(pure = true) private HttpsUtils executeProgram(@NotNull final HttpMethod method) {
 		return executeProgram(url, method);
@@ -447,7 +447,7 @@ public final class HttpsUtils {
 	 *
 	 * @param url    请求的URL
 	 * @param method http响应类型 HttpMethod
-	 * @return 响应结果
+	 * @return this
 	 */
 	@Contract(pure = true) private HttpsUtils executeProgram(@NotNull String url, @NotNull final HttpMethod method) {
 		try {
