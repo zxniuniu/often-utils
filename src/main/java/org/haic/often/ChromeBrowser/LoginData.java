@@ -18,20 +18,13 @@ import java.util.stream.Collectors;
  */
 public class LoginData {
 
-	private File userHome;
-	private File cookieStore;
-
-	private LoginData() {
-		userHome = new File(System.getProperty("user.home"), "AppData\\Local\\Microsoft\\Edge\\User Data");
-	}
-
 	/**
 	 * 用户文件夹路径 C:\\users\\xxx\\AppData\\Local\\Microsoft\\Edge\\User Data
 	 *
 	 * @return new ChromeBrowser
 	 */
 	@Contract(pure = true) public static ChromeBrowser home() {
-		return config().chromeBrowser();
+		return home(new File(System.getProperty("user.home"), "AppData\\Local\\Microsoft\\Edge\\User Data"));
 	}
 
 	/**
@@ -51,24 +44,7 @@ public class LoginData {
 	 * @return new ChromeBrowser
 	 */
 	@NotNull @Contract(pure = true) public static ChromeBrowser home(@NotNull final File userHome) {
-		return config().chromeBrowser(userHome);
-	}
-
-	@NotNull @Contract(pure = true) protected static LoginData config() {
-		return new LoginData();
-	}
-
-	@NotNull @Contract(pure = true) protected ChromeBrowser chromeBrowser() {
-		return chromeBrowser(userHome);
-	}
-
-	@NotNull @Contract(pure = true) protected ChromeBrowser chromeBrowser(@NotNull final File userHome) {
 		return new ChromeBrowser(userHome);
-	}
-
-	@Contract(pure = true) protected void userHome(@NotNull final File userHome) {
-		this.userHome = userHome;
-		this.cookieStore = new File(new File(userHome, "Default"), "Login Data");
 	}
 
 	public static abstract class Cookie extends LocalCookies.Cookie {
@@ -129,7 +105,10 @@ public class LoginData {
 
 	}
 
-	public abstract class Browser {
+	public abstract static class Browser {
+		protected File userHome;
+		protected File cookieStore;
+
 		/**
 		 * A file that should be used to make a temporary copy of the browser's cookie store
 		 */
@@ -170,10 +149,11 @@ public class LoginData {
 
 	}
 
-	public class ChromeBrowser extends Browser {
+	public static class ChromeBrowser extends Browser {
 
 		public ChromeBrowser(File userHome) {
-			userHome(userHome);
+			this.userHome = userHome;
+			cookieStore = new File(new File(userHome, "Default"), "Login Data");
 		}
 
 		/**

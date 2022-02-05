@@ -28,21 +28,22 @@ import java.util.Map.Entry;
  */
 public class Aria2Utils {
 
-	private final String jsonrpc;
-	Map<String, Map<String, String>> urlsMap = new HashMap<>();
-	Map<String, String> mixinparams = new HashMap<>();
-	private String aria2RpcUrl;
-	private String token; // 密钥
-	private String proxyHost;
-	private int proxyPort;
-	private String result;
+	protected final String jsonrpc;
+	protected Map<String, Map<String, String>> urlsMap = new HashMap<>();
+	protected Map<String, String> mixinparams = new HashMap<>();
+	protected String aria2RpcUrl;
+	protected String token; // 密钥
+	protected String proxyHost;
+	protected int proxyPort;
+	protected String result;
+
 	/**
 	 * 默认设置
 	 */
 	protected Aria2Utils() {
-		this.jsonrpc = "2.0";
-		this.token = "";
-		this.mixinparams.put("all-proxy", "");
+		jsonrpc = "2.0";
+		token = "";
+		mixinparams.put("all-proxy", "");
 	}
 
 	/**

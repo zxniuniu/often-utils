@@ -35,23 +35,23 @@ import java.util.stream.Collectors;
  * @since 2020/3/9 14:26
  */
 public class HttpsUtils {
-	private final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
-	private String url; // URL
-	private String params; // 参数
-	private String requestBody; // JSON请求参数
-	private String referrer; // 上一页
-	private int retry; // 请求异常重试次数
-	private int MILLISECONDS_SLEEP; // 重试等待时间
-	private int timeout; // 连接超时时间
-	private boolean unlimitedRetry;// 请求异常无限重试
-	private boolean errorExit; // 错误退出
-	private boolean followRedirects; // 重定向
-	private Proxy proxy; // 代理
-	private HttpURLConnection conn; // HttpURLConnection对象
-	private Map<String, String> headers = new HashMap<>(); // 请求头
+	protected final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
+	protected String url; // URL
+	protected String params; // 参数
+	protected String requestBody; // JSON请求参数
+	protected String referrer; // 上一页
+	protected int retry; // 请求异常重试次数
+	protected int MILLISECONDS_SLEEP; // 重试等待时间
+	protected int timeout; // 连接超时时间
+	protected boolean unlimitedRetry;// 请求异常无限重试
+	protected boolean errorExit; // 错误退出
+	protected boolean followRedirects; // 重定向
+	protected Proxy proxy; // 代理
+	protected HttpURLConnection conn; // HttpURLConnection对象
+	protected Map<String, String> headers = new HashMap<>(); // 请求头
 
-	private HttpsUtils() {
-		followRedirects = true;
+	protected HttpsUtils() {
+		this.followRedirects = true;
 		headers.put("user-agent", UserAgentUtils.random()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
@@ -148,7 +148,7 @@ public class HttpsUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HttpsUtils userAgent(@NotNull final String userAgent) {
-		this.header("User-Agent", userAgent);
+		header("User-Agent", userAgent);
 		return this;
 	}
 
@@ -182,7 +182,7 @@ public class HttpsUtils {
 	 */
 	@Contract(pure = true) public HttpsUtils excludeErrorStatus(final int... statusCode) {
 		for (int code : statusCode) {
-			this.excludeErrorStatusCodes.add(code);
+			excludeErrorStatusCodes.add(code);
 		}
 		return this;
 	}

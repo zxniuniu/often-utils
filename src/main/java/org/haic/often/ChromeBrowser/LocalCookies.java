@@ -61,14 +61,6 @@ public class LocalCookies {
 	 * @return new ChromeBrowser
 	 */
 	@NotNull @Contract(pure = true) public static ChromeBrowser home(@NotNull final File userHome) {
-		return config().chromeBrowser(userHome);
-	}
-
-	@NotNull @Contract(pure = true) private static LocalCookies config() {
-		return new LocalCookies();
-	}
-
-	@NotNull @Contract(pure = true) private ChromeBrowser chromeBrowser(@NotNull final File userHome) {
 		return new ChromeBrowser(userHome);
 	}
 
@@ -221,8 +213,8 @@ public class LocalCookies {
 		public ChromeBrowser(File userHome) {
 			this.userHome = userHome;
 			File defaultDirectory = new File(userHome, "Default");
-			this.cookieStore = new File(defaultDirectory, "Cookies");
-			this.cookieStore = this.cookieStore.exists() ? this.cookieStore : new File(new File(defaultDirectory, "Network"), "Cookies");
+			cookieStore = new File(defaultDirectory, "Cookies");
+			cookieStore = cookieStore.exists() ? cookieStore : new File(new File(defaultDirectory, "Network"), "Cookies");
 		}
 
 		protected static byte[] encryptedValueDecrypt(byte[] encryptedValue, String encryptedKey) {

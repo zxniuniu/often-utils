@@ -30,31 +30,31 @@ import java.util.stream.Collectors;
  */
 public class HtmlUnitUtils {
 
-	private final List<NameValuePair> params = new ArrayList<>(); // params
-	private final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
-	private String url; // 请求URL
-	private String proxyHost; // 代理服务器地址
-	private int proxyPort; // 代理服务器端口
-	private String username; // 代理服务器账户
-	private String password; // 代理服务器密码
-	private String referrer; // 上一页
-	private String requestBody; // 请求数据(JSON)
-	private boolean enableCSS; // CSS支持
-	private boolean errorExit; // 错误退出
-	private boolean unlimitedRetry;// 请求异常无限重试
-	private boolean followRedirects; // 重定向
-	private boolean isSocksProxy; // 是否Socks代理
-	private boolean isCloseWebClient; // 是否关闭WebClient
-	private int waitJSTime; // JS最大运行时间
-	private int retry; // 请求异常重试次数
-	private int MILLISECONDS_SLEEP; // 重试等待时间
-	private int timeout; // 连接超时时间
+	protected final List<NameValuePair> params = new ArrayList<>(); // params
+	protected final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
+	protected String url; // 请求URL
+	protected String proxyHost; // 代理服务器地址
+	protected int proxyPort; // 代理服务器端口
+	protected String username; // 代理服务器账户
+	protected String password; // 代理服务器密码
+	protected String referrer; // 上一页
+	protected String requestBody; // 请求数据(JSON)
+	protected boolean enableCSS; // CSS支持
+	protected boolean errorExit; // 错误退出
+	protected boolean unlimitedRetry;// 请求异常无限重试
+	protected boolean followRedirects; // 重定向
+	protected boolean isSocksProxy; // 是否Socks代理
+	protected boolean isCloseWebClient; // 是否关闭WebClient
+	protected int waitJSTime; // JS最大运行时间
+	protected int retry; // 请求异常重试次数
+	protected int MILLISECONDS_SLEEP; // 重试等待时间
+	protected int timeout; // 连接超时时间
 
-	private Map<String, String> headers = new HashMap<>(); // 请求头参数
-	private Map<String, String> cookies = new HashMap<>(); // cookies
-	private WebRequest request; // 会话
-	private WebClient webClient; // HtmlUnit
-	private Page page; // Page
+	protected Map<String, String> headers = new HashMap<>(); // 请求头参数
+	protected Map<String, String> cookies = new HashMap<>(); // cookies
+	protected WebRequest request; // 会话
+	protected WebClient webClient; // HtmlUnit
+	protected Page page; // Page
 
 	protected HtmlUnitUtils() {
 		followRedirects = true;
@@ -164,7 +164,7 @@ public class HtmlUnitUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HtmlUnitUtils data(@NotNull final String name, @NotNull final String value) {
-		this.params.add(new NameValuePair(name, value));
+		params.add(new NameValuePair(name, value));
 		return this;
 	}
 
@@ -187,7 +187,7 @@ public class HtmlUnitUtils {
 	 */
 	@Contract(pure = true) public HtmlUnitUtils excludeErrorStatus(final int... statusCode) {
 		for (int code : statusCode) {
-			this.excludeErrorStatusCodes.add(code);
+			excludeErrorStatusCodes.add(code);
 		}
 		return this;
 	}
@@ -253,7 +253,7 @@ public class HtmlUnitUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HtmlUnitUtils socks(@NotNull final String proxyHost, final int proxyPort) {
-		this.isSocksProxy = true;
+		isSocksProxy = true;
 		return proxy(proxyHost, proxyPort);
 	}
 
@@ -268,7 +268,7 @@ public class HtmlUnitUtils {
 	 */
 	@Contract(pure = true) public HtmlUnitUtils socks(@NotNull final String proxyHost, final int proxyPort, @NotNull final String username,
 			@NotNull final String password) {
-		this.isSocksProxy = true;
+		isSocksProxy = true;
 		return proxy(proxyHost, proxyPort, username, password);
 	}
 
@@ -369,7 +369,7 @@ public class HtmlUnitUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HtmlUnitUtils header(@NotNull final String name, @NotNull final String value) {
-		this.headers.put(name, value);
+		headers.put(name, value);
 		return this;
 	}
 
