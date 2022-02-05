@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Contract;
  * @version 1.0
  * @since 2020/3/7 20:18
  */
-public class UserAgentUtils {
+public class UserAgent {
 	private static final String mozilla = "Mozilla/5.0 (";
 
 	/**

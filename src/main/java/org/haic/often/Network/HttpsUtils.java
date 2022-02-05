@@ -5,7 +5,7 @@ import org.haic.often.Judge;
 import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.StreamUtils;
 import org.haic.often.URIUtils;
-import org.haic.often.UserAgentUtils;
+import org.haic.often.UserAgent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
@@ -52,7 +52,7 @@ public class HttpsUtils {
 
 	protected HttpsUtils() {
 		this.followRedirects = true;
-		headers.put("user-agent", UserAgentUtils.random()); // 设置随机请求头
+		headers.put("user-agent", UserAgent.random()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
 		proxy(Proxy.NO_PROXY);
