@@ -1,6 +1,6 @@
 package org.haic.often;
 
-import org.haic.often.Network.HtmlUnitUtils;
+import org.haic.often.Network.HttpsUtils;
 
 /**
  * Unit test for simple App.
@@ -21,7 +21,7 @@ public class AppTest {
 		//Connection.Response res = JsoupUtils.connect("https://www.baidu.com").socks(proxyHost, proxyPort).execute();
 		//System.out.println(res.headers());
 		//System.out.println(LocalCookies.home().getCookiesForDomain("yande.re"));
-		System.out.println(HtmlUnitUtils.connect("https://www.lanzoui.com/b0ejszleh").get());
+		System.out.println(HttpsUtils.connect("https://www.lanzoui.com/b0ejszleh").get());
 
 	}
 }

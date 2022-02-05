@@ -353,15 +353,6 @@ public final class HttpsUtils {
 	}
 
 	/**
-	 * 获取 conn
-	 *
-	 * @return conn
-	 */
-	@Contract(pure = true) public HttpURLConnection conn() {
-		return conn;
-	}
-
-	/**
 	 * 获取 连接状态
 	 *
 	 * @return 状态码
@@ -369,7 +360,7 @@ public final class HttpsUtils {
 	@Contract(pure = true) public int statusCode() {
 		int statusCode;
 		try {
-			statusCode = conn().getResponseCode();
+			statusCode = conn.getResponseCode();
 		} catch (final IOException e) {
 			statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
 		}
@@ -401,14 +392,13 @@ public final class HttpsUtils {
 	 * @return 响应结果
 	 */
 	@Contract(pure = true) public Document get(@NotNull final HttpMethod method) {
-		HttpURLConnection conn = execute(method).conn();
 		String result;
-		try (InputStreamReader inputStream = URIUtils.statusIsOK(conn.getResponseCode()) ?
+		try (InputStreamReader inputStream = URIUtils.statusIsOK(execute(method).conn.getResponseCode()) ?
 				new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8) :
 				new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8)) {
 			result = IOUtils.streamToString(inputStream);
 		} catch (final IOException e) {
-			result = null;
+			return null;
 		}
 		return Judge.isEmpty(result) ? null : Jsoup.parse(Objects.requireNonNull(result));
 	}
