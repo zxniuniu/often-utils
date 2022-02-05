@@ -70,13 +70,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.33</version>
+            <version>1.7.35</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.33</version>
+            <version>1.7.35</version>
         </dependency>
+        <!-- 读取本地Chrome浏览器数据依赖 -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
@@ -87,6 +88,7 @@
             <artifactId>windpapi4j</artifactId>
             <version>1.0</version>
         </dependency>
+        <!-- JDBC 数据库 -->
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
