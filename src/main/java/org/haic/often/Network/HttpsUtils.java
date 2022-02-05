@@ -393,7 +393,7 @@ public final class HttpsUtils {
 	 */
 	@Contract(pure = true) public Document get(@NotNull final HttpMethod method) {
 		String result;
-		try (InputStreamReader inputStream = URIUtils.statusIsOK(execute(method).conn.getResponseCode()) ?
+		try (InputStreamReader inputStream = URIUtils.statusIsOK(execute(method).getResponseCode()) ?
 				new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8) :
 				new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8)) {
 			result = IOUtils.streamToString(inputStream);
@@ -408,7 +408,7 @@ public final class HttpsUtils {
 	 *
 	 * @return 响应结果
 	 */
-	@Contract(pure = true) public HttpsUtils execute() {
+	@Contract(pure = true) public HttpURLConnection execute() {
 		return execute(HttpMethod.GET);
 	}
 
@@ -418,7 +418,7 @@ public final class HttpsUtils {
 	 * @param method 请求方法 HttpMethod
 	 * @return 响应结果
 	 */
-	@Contract(pure = true) public HttpsUtils execute(@NotNull final HttpMethod method) {
+	@Contract(pure = true) public HttpURLConnection execute(@NotNull final HttpMethod method) {
 		int statusCode = executeProgram(method).statusCode();
 		for (int i = 0;
 			 !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode) && !excludeErrorStatusCodes.contains(statusCode) && (i < retry
@@ -429,7 +429,7 @@ public final class HttpsUtils {
 		if (errorExit && !URIUtils.statusIsOK(statusCode) && !URIUtils.statusIsRedirect(statusCode)) {
 			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
 		}
-		return this;
+		return conn;
 	}
 
 	/**
