@@ -1,7 +1,8 @@
-package org.haic.often;
+package org.haic.often.Network;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.haic.often.Judge;
 import org.jetbrains.annotations.Contract;
 
 /**

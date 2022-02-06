@@ -9,7 +9,6 @@ import org.apache.http.HttpStatus;
 import org.haic.often.Judge;
 import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.URIUtils;
-import org.haic.often.UserAgent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
@@ -266,8 +265,7 @@ public class HtmlUnitUtils {
 	 * @param password  代理用户密码
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils socks(@NotNull String proxyHost, final int proxyPort, @NotNull String username,
-			@NotNull String password) {
+	@Contract(pure = true) public HtmlUnitUtils socks(@NotNull String proxyHost, final int proxyPort, @NotNull String username, @NotNull String password) {
 		isSocksProxy = true;
 		return proxy(proxyHost, proxyPort, username, password);
 	}
@@ -294,8 +292,7 @@ public class HtmlUnitUtils {
 	 * @param password  代理用户密码
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils proxy(@NotNull String proxyHost, final int proxyPort, @NotNull String username,
-			@NotNull String password) {
+	@Contract(pure = true) public HtmlUnitUtils proxy(@NotNull String proxyHost, final int proxyPort, @NotNull String username, @NotNull String password) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		this.username = username;

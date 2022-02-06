@@ -6,7 +6,6 @@ import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.Tuple.ThreeTuple;
 import org.haic.often.Tuple.TupleUtil;
 import org.haic.often.URIUtils;
-import org.haic.often.UserAgent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Connection;
