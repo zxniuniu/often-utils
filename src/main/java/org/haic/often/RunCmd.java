@@ -127,7 +127,7 @@ public class RunCmd {
 		String result = "";
 		Process process;
 		try (InputStream inputStream = (process = new ProcessBuilder(command).redirectErrorStream(true).directory(directory).start()).getInputStream()) {
-			result = StreamUtils.stream(inputStream).charset(charset).toString();
+			result = StreamUtils.stream(inputStream).charset(charset).getString();
 			process.waitFor();
 			process.destroy();
 		} catch (Exception e) {

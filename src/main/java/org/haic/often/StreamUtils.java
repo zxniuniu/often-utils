@@ -215,14 +215,8 @@ public class StreamUtils {
 		 *
 		 * @return 字符串文本
 		 */
-		@NotNull @Contract(pure = true) public String toString() {
-			String result = null;
-			try (ByteArrayOutputStream outputStream = toByteArrayOutputStream()) {
-				result = outputStream.toString(charset);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return result;
+		@NotNull @Contract(pure = true) public String getString() throws IOException {
+			return toByteArrayOutputStream().toString(charset);
 		}
 
 		/**
@@ -230,8 +224,8 @@ public class StreamUtils {
 		 *
 		 * @return 字符串
 		 */
-		@NotNull @Contract(pure = true) public List<String> toStringAsLine() {
-			return new InputStreamReaderUtil(new InputStreamReader(inputStream, charset)).bufferSize(bufferSize).toStringAsLine();
+		@NotNull @Contract(pure = true) public List<String> getStringAsLine() throws IOException {
+			return new InputStreamReaderUtil(new InputStreamReader(inputStream, charset)).bufferSize(bufferSize).getStringAsLine();
 		}
 
 		/**
@@ -239,17 +233,8 @@ public class StreamUtils {
 		 *
 		 * @return bytes
 		 */
-		@Contract(pure = true) public byte[] toByteArray() {
+		@Contract(pure = true) public byte[] getByteArray() throws IOException {
 			return new BufferedInputStreamUtil(new BufferedInputStream(inputStream, bufferSize)).toByteArray();
-		}
-
-		/**
-		 * 转换为 InputStreamReader
-		 *
-		 * @return InputStreamReader
-		 */
-		@NotNull @Contract(pure = true) public InputStreamReader toInputStreamReader() {
-			return new InputStreamReader(inputStream, charset);
 		}
 
 		/**
@@ -257,7 +242,7 @@ public class StreamUtils {
 		 *
 		 * @return ByteArrayOutputStream
 		 */
-		@NotNull @Contract(pure = true) public ByteArrayOutputStream toByteArrayOutputStream() {
+		@NotNull @Contract(pure = true) public ByteArrayOutputStream toByteArrayOutputStream() throws IOException {
 			return new BufferedInputStreamUtil(new BufferedInputStream(inputStream)).bufferSize(bufferSize).toByteArrayOutputStream();
 		}
 
@@ -283,15 +268,12 @@ public class StreamUtils {
 		 *
 		 * @return 字符串文本
 		 */
-		@NotNull @Contract(pure = true) public String toString() {
+		@NotNull @Contract(pure = true) public String getString() throws IOException {
 			StringBuilder result = new StringBuilder();
-			try (BufferedReader bufferedReader = new BufferedReader(inputStream, bufferSize)) {
-				String line;
-				while (!Judge.isNull(line = bufferedReader.readLine())) {
-					result.append(line).append(StringUtils.LINE_SEPARATOR);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+			BufferedReader bufferedReader = new BufferedReader(inputStream, bufferSize);
+			String line;
+			while (!Judge.isNull(line = bufferedReader.readLine())) {
+				result.append(line).append(StringUtils.LINE_SEPARATOR);
 			}
 			return String.valueOf(result);
 		}
@@ -301,15 +283,12 @@ public class StreamUtils {
 		 *
 		 * @return 字符串列表(按行分割)
 		 */
-		@NotNull @Contract(pure = true) public List<String> toStringAsLine() {
+		@NotNull @Contract(pure = true) public List<String> getStringAsLine() throws IOException {
 			List<String> result = new ArrayList<>();
-			try (BufferedReader bufferedReader = new BufferedReader(inputStream, bufferSize)) {
-				String line;
-				while (!Judge.isNull(line = bufferedReader.readLine())) {
-					result.add(line);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+			BufferedReader bufferedReader = new BufferedReader(inputStream, bufferSize);
+			String line;
+			while (!Judge.isNull(line = bufferedReader.readLine())) {
+				result.add(line);
 			}
 			return result;
 		}
@@ -336,18 +315,14 @@ public class StreamUtils {
 		 *
 		 * @return ByteArrayOutputStream
 		 */
-		@NotNull @Contract(pure = true) public ByteArrayOutputStream toByteArrayOutputStream() {
+		@NotNull @Contract(pure = true) public ByteArrayOutputStream toByteArrayOutputStream() throws IOException {
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
 			byte[] buffer = new byte[bufferSize];
 			int length;
-			try {
-				while (!Judge.isMinusOne(length = inputStream.read(buffer))) {
-					result.write(buffer, 0, length);
-				}
-				result.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
+			while (!Judge.isMinusOne(length = inputStream.read(buffer))) {
+				result.write(buffer, 0, length);
 			}
+			result.flush();
 			return result;
 		}
 
@@ -356,14 +331,8 @@ public class StreamUtils {
 		 *
 		 * @return bytes
 		 */
-		@Contract(pure = true) public byte[] toByteArray() {
-			byte[] result = null;
-			try (ByteArrayOutputStream outputStream = toByteArrayOutputStream()) {
-				result = outputStream.toByteArray();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return result;
+		@Contract(pure = true) public byte[] toByteArray() throws IOException {
+			return toByteArrayOutputStream().toByteArray();
 		}
 
 	}

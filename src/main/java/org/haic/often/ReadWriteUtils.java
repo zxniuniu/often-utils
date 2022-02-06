@@ -174,8 +174,8 @@ public final class ReadWriteUtils {
 	 */
 	@Contract(pure = true) public boolean binary(@NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
-		try (DataOutputStream outStream = new DataOutputStream(new FileOutputStream(source, append))) {
-			for (byte b : (str + StringUtils.LF).getBytes()) {
+		try (DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(source, append), bufferSize))) {
+			for (byte b : (str + StringUtils.LF).getBytes(charset)) {
 				outStream.writeInt(b); // 文件输出流用于将数据写入文件
 			}
 			outStream.flush();
@@ -344,7 +344,7 @@ public final class ReadWriteUtils {
 		List<String> result = new ArrayList<>();
 		if (file.isFile()) {
 			try (InputStreamReader inputStream = new InputStreamReader(new FileInputStream(file), charset)) {
-				result = StreamUtils.stream(inputStream).bufferSize(bufferSize).toStringAsLine();
+				result = StreamUtils.stream(inputStream).bufferSize(bufferSize).getStringAsLine();
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}
@@ -380,7 +380,7 @@ public final class ReadWriteUtils {
 	@NotNull @Contract(pure = true) private String text(@NotNull File file) {
 		String result = "";
 		try (InputStream inputStream = new FileInputStream(file)) {
-			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).toString();
+			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).getString();
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
@@ -423,7 +423,7 @@ public final class ReadWriteUtils {
 	@Contract(pure = true) private byte[] array(@NotNull File file) {
 		byte[] result = null;
 		try (InputStream inputStream = new FileInputStream(file)) {
-			result = StreamUtils.stream(inputStream).bufferSize(bufferSize).toByteArray();
+			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).getByteArray();
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
@@ -464,7 +464,7 @@ public final class ReadWriteUtils {
 	 */
 	@NotNull @Contract(pure = true) public String binary() {
 		StringBuilder result = new StringBuilder();
-		try (DataInputStream inputStream = new DataInputStream(new FileInputStream(source))) {
+		try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(source), bufferSize))) {
 			for (int i = 0; i < source.length() / 4; i++) {
 				result.append((char) inputStream.readInt());
 			}

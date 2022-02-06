@@ -16,8 +16,9 @@ public class AppTest {
 		//  .interval(50).multithread(10).retry(true).download("F:\\Downloads");
 		//for (int i = 0; i < 100; i++) {
 		String path = "F:\\Downloads\\leveldb\\003857.ldb";
-		String text = ReadWriteUtils.orgin(path).binary();
-		System.out.println(text);
+		ReadWriteUtils.orgin("F:\\Downloads\\leveldb\\003859.bin").binary(path);
+		//System.out.println(Arrays.toString(path.getBytes()));
+		//System.out.println(ReadWriteUtils.orgin(path).binary());
 		//System.out.println(text.length());
 
 	}

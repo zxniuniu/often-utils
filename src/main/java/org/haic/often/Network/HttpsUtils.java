@@ -383,7 +383,7 @@ public class HttpsUtils {
 			throw new RuntimeException("连接URL失败，状态码: " + statusCode + " URL: " + url);
 		}
 		//	new HttpsResult(conn.getURL(), conn);
-		return new HttpsResult(conn);
+		return new HttpsResult(url, conn);
 	}
 
 	/**
@@ -454,7 +454,7 @@ public class HttpsUtils {
 					// flush输出流的缓冲
 					out.flush();
 				} catch (IOException e) {
-					return new HttpsResult(conn);
+					return new HttpsResult(url, conn);
 				}
 			} else {
 				conn.connect();
@@ -466,10 +466,10 @@ public class HttpsUtils {
 				executeProgram(redirectUrl, method);
 			}
 		} catch (IOException e) {
-			return new HttpsResult(conn);
+			return new HttpsResult(url, conn);
 		}
 
-		return new HttpsResult(conn);
+		return new HttpsResult(url, conn);
 	}
 
 	private SSLContext MyX509TrustManagerUtils() {
@@ -537,6 +537,7 @@ public class HttpsUtils {
 	}
 
 	public static class HttpsResult {
+		protected String url; // URL
 		protected HttpURLConnection conn; // HttpURLConnection对象
 
 		/**
@@ -544,8 +545,16 @@ public class HttpsUtils {
 		 *
 		 * @param conn HttpURLConnection
 		 */
-		protected HttpsResult(HttpURLConnection conn) {
+		protected HttpsResult(String url, HttpURLConnection conn) {
+			this.url = url;
 			this.conn = conn;
+		}
+
+		/**
+		 *
+		 */
+		@Contract(pure = true) public String url() {
+			return url;
 		}
 
 		/**
@@ -570,6 +579,15 @@ public class HttpsUtils {
 				statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
 			}
 			return statusCode;
+		}
+
+		/**
+		 * 获取 请求头的值
+		 *
+		 * @return 请求头的值
+		 */
+		@Contract(pure = true) public String header(String name) {
+			return conn.getHeaderField(name);
 		}
 
 		/**
@@ -604,7 +622,7 @@ public class HttpsUtils {
 		@Contract(pure = true) public String body() {
 			String result;
 			try (InputStream inputStream = bodyStream()) {
-				result = StreamUtils.stream(inputStream).toString();
+				result = StreamUtils.stream(inputStream).getString();
 			} catch (final IOException e) {
 				return null;
 			}
@@ -628,7 +646,7 @@ public class HttpsUtils {
 		@Contract(pure = true) public byte[] bodyAsBytes() {
 			byte[] result;
 			try (InputStream inputStream = bodyStream()) {
-				result = StreamUtils.stream(inputStream).toByteArray();
+				result = StreamUtils.stream(inputStream).getByteArray();
 			} catch (final IOException e) {
 				return null;
 			}
