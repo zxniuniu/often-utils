@@ -1,7 +1,5 @@
 package org.haic.often;
 
-import org.haic.often.ChromeBrowser.LocalCookies;
-
 /**
  * Unit test for simple App.
  */
@@ -17,15 +15,11 @@ public class AppTest {
 		// .proxy(proxyHost, proxyPort)//
 		//  .interval(50).multithread(10).retry(true).download("F:\\Downloads");
 		//for (int i = 0; i < 100; i++) {
-		//System.out.println(UserAgentUtils.randomPE());
-		//Connection.Response res = JsoupUtils.connect("https://www.baidu.com").socks(proxyHost, proxyPort).execute();
-		//System.out.println(res.headers());
-		//System.out.println(LocalCookies.home().getCookiesForDomain("yande.re"));
-		String path = "F:\\Downloads\\1.txt";
-		//System.out.println(ReadWriteUtils.orgin(path).text());
-		System.out.println(LocalCookies.home().getCookiesForDomain("pixiv.net"));
-		//Connection.Response res = null;
-		//	System.out.println(HttpsUtils.connect("https://www.lanzoui.com/b0ejszleh").execute().body());
+		String path = "F:\\Downloads\\leveldb\\003857.ldb";
+		//String text =
+		ReadWriteUtils.orgin(path).randomAccessCopy("F:\\Downloads\\leveldb\\003858.ldb");
+		//System.out.println(text);
+		//System.out.println(text.length());
 
 	}
 }

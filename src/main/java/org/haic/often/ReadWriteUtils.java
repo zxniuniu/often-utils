@@ -1,6 +1,5 @@
 package org.haic.often;
 
-import net.lingala.zip4j.model.enums.RandomAccessFileMode;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -187,25 +186,6 @@ public final class ReadWriteUtils {
 	}
 
 	/**
-	 * RandomAccessFile 写入文本
-	 *
-	 * @param str 字符串
-	 * @return 写入是否成功
-	 */
-	@Contract(pure = true) public boolean randomAccessText(@NotNull String str) {
-		FilesUtils.createFolder(source.getParent());
-		try (RandomAccessFile randomAccess = new RandomAccessFile(source, RandomAccessFileMode.WRITE.getValue())) {
-			if (append) {
-				randomAccess.seek(source.length());
-			}
-			randomAccess.write((str + StringUtils.LINE_SEPARATOR).getBytes(charset));
-		} catch (IOException e) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
 	 * FileChannel 写入文件文本
 	 *
 	 * @param str 字符串
@@ -215,6 +195,25 @@ public final class ReadWriteUtils {
 		FilesUtils.createFolder(source.getParent());
 		try (FileChannel channel = new FileOutputStream(source, append).getChannel()) {
 			channel.write(ByteBuffer.wrap((str + StringUtils.LINE_SEPARATOR).getBytes(charset)));
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * RandomAccessFile 写入文本
+	 *
+	 * @param str 字符串
+	 * @return 写入是否成功
+	 */
+	@Contract(pure = true) public boolean randomAccessText(@NotNull String str) {
+		FilesUtils.createFolder(source.getParent());
+		try (RandomAccessFile randomAccess = new RandomAccessFile(source, "rw")) {
+			if (append) {
+				randomAccess.seek(source.length());
+			}
+			randomAccess.write((str + StringUtils.LINE_SEPARATOR).getBytes(charset));
 		} catch (IOException e) {
 			return false;
 		}
@@ -277,6 +276,36 @@ public final class ReadWriteUtils {
 	}
 
 	/**
+	 * RandomAccessFile 文件复制
+	 *
+	 * @param out 指定输出文件
+	 * @return 文件复制
+	 */
+	@Contract(pure = true) public boolean randomAccessCopy(@NotNull String out) {
+		return randomAccessCopy(new File(out));
+	}
+
+	/**
+	 * RandomAccessFile 文件复制
+	 *
+	 * @param out 指定输出文件
+	 * @return 文件复制
+	 */
+	@Contract(pure = true) public boolean randomAccessCopy(@NotNull File out) {
+		FilesUtils.createFolder(source.getParent());
+		try (RandomAccessFile inputRandomAccess = new RandomAccessFile(source, "r"); RandomAccessFile outputRandomAccess = new RandomAccessFile(out, "rw")) {
+			byte[] buffer = new byte[bufferSize];
+			int length;
+			while (!Judge.isMinusOne(length = inputRandomAccess.read(buffer))) {
+				outputRandomAccess.write(buffer, 0, length);
+			}
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * MappedByteBuffer 文件复制
 	 *
 	 * @param out 指定输出文件路径
@@ -294,18 +323,9 @@ public final class ReadWriteUtils {
 	 */
 	public boolean mappedCopy(File out) {
 		FilesUtils.createFolder(out.getParent());
-		try (FileChannel inputChannel = new RandomAccessFile(source, RandomAccessFileMode.READ.getValue()).getChannel();
-				FileChannel outChannel = new RandomAccessFile(out, RandomAccessFileMode.WRITE.getValue()).getChannel()) {
-			long MAX_COUNT = (long) Math.ceil((double) source.length() / (double) Integer.MAX_VALUE);
-			for (long count = 0; count < MAX_COUNT; count++) {
-				long start = append ? count * Integer.MAX_VALUE + out.length() : count * Integer.MAX_VALUE;
-				long size = count + 1 == MAX_COUNT ? source.length() % Integer.MAX_VALUE : Integer.MAX_VALUE;
-				MappedByteBuffer intputMappedByteBuffer = inputChannel.map(FileChannel.MapMode.READ_ONLY, start, size);
-				MappedByteBuffer outMappedByteBuffer = outChannel.map(FileChannel.MapMode.READ_WRITE, start, size);
-				for (long i = 0; i < size; i++) {
-					outMappedByteBuffer.put(intputMappedByteBuffer.get());
-				}
-			}
+		try (FileChannel inputChannel = new FileInputStream(source).getChannel(); FileChannel outputChannel = new RandomAccessFile(out, "rw").getChannel()) {
+			long size = inputChannel.size();
+			outputChannel.map(FileChannel.MapMode.READ_WRITE, 0, size).put(inputChannel.map(FileChannel.MapMode.READ_ONLY, 0, size).get(new byte[(int) size]));
 		} catch (IOException e) {
 			return false;
 		}
@@ -359,9 +379,6 @@ public final class ReadWriteUtils {
 	 */
 	@NotNull @Contract(pure = true) private String text(@NotNull File file) {
 		String result = "";
-		if (!file.isFile()) { // 判断文件是否存在
-			return result;
-		}
 		try (InputStream inputStream = new FileInputStream(file)) {
 			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).toString();
 		} catch (final IOException e) {
@@ -404,10 +421,7 @@ public final class ReadWriteUtils {
 	 * @return bytes
 	 */
 	@Contract(pure = true) private byte[] array(@NotNull File file) {
-		byte[] result = new byte[0];
-		if (!file.isFile()) { // 判断文件是否存在
-			return result;
-		}
+		byte[] result = null;
 		try (InputStream inputStream = new FileInputStream(file)) {
 			result = StreamUtils.stream(inputStream).bufferSize(bufferSize).toByteArray();
 		} catch (final IOException e) {
@@ -450,9 +464,6 @@ public final class ReadWriteUtils {
 	 */
 	@NotNull @Contract(pure = true) public String binary() {
 		StringBuilder result = new StringBuilder();
-		if (!source.isFile()) {
-			return String.valueOf(result);
-		}
 		try (DataInputStream inputStream = new DataInputStream(new FileInputStream(source))) {
 			for (int i = 0; i < source.length() / 4; i++) {
 				result.append((char) inputStream.readInt());
@@ -473,16 +484,31 @@ public final class ReadWriteUtils {
 	}
 
 	/**
+	 * FileChannel 读取文件文本
+	 *
+	 * @return 文本字符串
+	 */
+	@NotNull @Contract(pure = true) public String channelText() {
+		CharBuffer result = null;
+		try (FileChannel channel = new FileInputStream(source).getChannel()) {
+			ByteBuffer buffer = ByteBuffer.allocate(Math.toIntExact(source.length()));
+			channel.read(buffer);
+			buffer.flip();
+			result = charset.decode(buffer);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return String.valueOf(result);
+	}
+
+	/**
 	 * RandomAccessFile 随机存储读取
 	 *
 	 * @return 文本
 	 */
 	@NotNull @Contract(pure = true) public String randomAccessText() {
-		if (!source.isFile()) {
-			return "";
-		}
 		ByteArrayOutputStream result = new ByteArrayOutputStream();
-		try (RandomAccessFile randomAccess = new RandomAccessFile(source, RandomAccessFileMode.READ.getValue())) {
+		try (RandomAccessFile randomAccess = new RandomAccessFile(source, "r")) {
 			byte[] buffer = new byte[bufferSize];
 			int length;
 			while (!Judge.isMinusOne(length = randomAccess.read(buffer))) {
@@ -496,46 +522,19 @@ public final class ReadWriteUtils {
 	}
 
 	/**
-	 * FileChannel 读取文件文本
-	 *
-	 * @return 文本字符串
-	 */
-	@NotNull @Contract(pure = true) public String channelText() {
-		if (!source.isFile()) {
-			return "";
-		}
-		CharBuffer result = null;
-		try (FileChannel channel = new RandomAccessFile(source, RandomAccessFileMode.READ.getValue()).getChannel()) {
-			ByteBuffer buffer = ByteBuffer.allocate(Math.toIntExact(source.length()));
-			channel.read(buffer);
-			buffer.flip();
-			result = charset.decode(buffer);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return String.valueOf(result);
-	}
-
-	/**
 	 * MappedByteBuffer 内存映射方法读取文件文本
 	 *
 	 * @return 文本
 	 */
 	@NotNull @Contract(pure = true) public String mappedText() {
-		if (!source.isFile()) {
-			return "";
-		}
-		CharBuffer result = CharBuffer.allocate(Math.toIntExact(source.length()));
-		try (FileChannel channel = new RandomAccessFile(source, RandomAccessFileMode.READ.getValue()).getChannel()) {
-			long MAX_COUNT = (int) Math.ceil((double) source.length() / (double) Integer.MAX_VALUE);
-			for (long i = 0; i < MAX_COUNT; i++) {
-				result.put(charset.decode(channel.map(FileChannel.MapMode.READ_ONLY, i * Integer.MAX_VALUE,
-						i + 1 == MAX_COUNT ? source.length() % Integer.MAX_VALUE : Integer.MAX_VALUE)));
-			}
+		CharBuffer result = null;
+		try (FileChannel channel = new FileInputStream(source).getChannel()) {
+			MappedByteBuffer mappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+			result = charset.decode(mappedByteBuffer.asReadOnlyBuffer());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return String.valueOf(result.array());
+		return String.valueOf(result);
 	}
 
 }
