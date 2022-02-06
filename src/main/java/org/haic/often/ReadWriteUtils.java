@@ -194,7 +194,7 @@ public final class ReadWriteUtils {
 	@Contract(pure = true) public boolean channelText(@NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (FileChannel channel = new FileOutputStream(source, append).getChannel()) {
-			channel.write(ByteBuffer.wrap((str + StringUtils.LINE_SEPARATOR).getBytes(charset)));
+			channel.write(charset.encode(str + StringUtils.LINE_SEPARATOR));
 		} catch (IOException e) {
 			return false;
 		}
