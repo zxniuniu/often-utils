@@ -62,7 +62,7 @@ public class JsoupUtils {
 	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true) public static JsoupUtils connect(@NotNull final String url) {
+	@Contract(pure = true) public static JsoupUtils connect(@NotNull String url) {
 		return JsoupUtils.config().url(url);
 	}
 
@@ -81,7 +81,7 @@ public class JsoupUtils {
 	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true) private JsoupUtils url(@NotNull final String url) {
+	@Contract(pure = true) private JsoupUtils url(@NotNull String url) {
 		this.url = url;
 		return this;
 	}
@@ -92,7 +92,7 @@ public class JsoupUtils {
 	 * @param file 文件对象
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils file(@NotNull final File file) {
+	@Contract(pure = true) public JsoupUtils file(@NotNull File file) {
 		try {
 			return data("file", file.getName(), new BufferedInputStream(new FileInputStream(file)));
 		} catch (FileNotFoundException e) {
@@ -107,7 +107,7 @@ public class JsoupUtils {
 	 * @param filePath 文件路径
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils file(@NotNull final String filePath) {
+	@Contract(pure = true) public JsoupUtils file(@NotNull String filePath) {
 		return file(new File(filePath));
 	}
 
@@ -117,7 +117,7 @@ public class JsoupUtils {
 	 * @param request 会话
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils request(@NotNull final Request request) {
+	@Contract(pure = true) public JsoupUtils request(@NotNull Request request) {
 		this.request = request;
 		return this;
 	}
@@ -128,7 +128,7 @@ public class JsoupUtils {
 	 * @param requestBody 数据
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils requestBody(@NotNull final String requestBody) {
+	@Contract(pure = true) public JsoupUtils requestBody(@NotNull String requestBody) {
 		if (URIUtils.isJson(requestBody)) {
 			headers.put("content-type", "application/json;charset=UTF-8");
 		}
@@ -142,7 +142,7 @@ public class JsoupUtils {
 	 * @param userAgent userAgent
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils userAgent(@NotNull final String userAgent) {
+	@Contract(pure = true) public JsoupUtils userAgent(@NotNull String userAgent) {
 		header("User-Agent", userAgent);
 		return this;
 	}
@@ -187,7 +187,7 @@ public class JsoupUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils socks(@NotNull final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public JsoupUtils socks(@NotNull String proxyHost, final int proxyPort) {
 		proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(proxyHost, proxyPort)));
 		return this;
 	}
@@ -199,7 +199,7 @@ public class JsoupUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils proxy(@NotNull final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public JsoupUtils proxy(@NotNull String proxyHost, final int proxyPort) {
 		proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
 		return this;
 	}
@@ -210,7 +210,7 @@ public class JsoupUtils {
 	 * @param proxy 要使用的代理
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils proxy(@NotNull final Proxy proxy) {
+	@Contract(pure = true) public JsoupUtils proxy(@NotNull Proxy proxy) {
 		this.proxy = proxy;
 		return this;
 	}
@@ -291,7 +291,7 @@ public class JsoupUtils {
 	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils headers(@NotNull final Map<String, String> headers) {
+	@Contract(pure = true) public JsoupUtils headers(@NotNull Map<String, String> headers) {
 		this.headers = headers;
 		return this;
 	}
@@ -302,7 +302,7 @@ public class JsoupUtils {
 	 * @param cookies cookie集合
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils cookies(@NotNull final Map<String, String> cookies) {
+	@Contract(pure = true) public JsoupUtils cookies(@NotNull Map<String, String> cookies) {
 		this.cookies = cookies;
 		return this;
 	}
@@ -314,7 +314,7 @@ public class JsoupUtils {
 	 * @param value 值
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils header(@NotNull final String name, @NotNull String value) {
+	@Contract(pure = true) public JsoupUtils header(@NotNull String name, @NotNull String value) {
 		this.headers.put(name, value);
 		return this;
 	}
@@ -326,7 +326,7 @@ public class JsoupUtils {
 	 * @param value 值
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils cookie(@NotNull final String name, @NotNull String value) {
+	@Contract(pure = true) public JsoupUtils cookie(@NotNull String name, @NotNull String value) {
 		this.cookies.put(name, value);
 		return this;
 	}
@@ -337,7 +337,7 @@ public class JsoupUtils {
 	 * @param params 参数集合
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils data(@NotNull final Map<String, String> params) {
+	@Contract(pure = true) public JsoupUtils data(@NotNull Map<String, String> params) {
 		this.params = params;
 		return this;
 	}
@@ -349,7 +349,7 @@ public class JsoupUtils {
 	 * @param value 值
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils data(@NotNull final String name, @NotNull final String value) {
+	@Contract(pure = true) public JsoupUtils data(@NotNull String name, @NotNull String value) {
 		this.params.put(name, value);
 		return this;
 	}
@@ -367,7 +367,7 @@ public class JsoupUtils {
 		return this;
 	}
 
-	@Contract(pure = true) public JsoupUtils data(@NotNull final String key, @NotNull final String filename, @NotNull final InputStream inputStream) {
+	@Contract(pure = true) public JsoupUtils data(@NotNull String key, @NotNull String filename, @NotNull InputStream inputStream) {
 		stream = TupleUtil.tuple(key, filename, inputStream);
 		return this;
 	}
@@ -396,7 +396,7 @@ public class JsoupUtils {
 	 * @param method Method类型
 	 * @return Document
 	 */
-	@Contract(pure = true) public Document get(@NotNull final Method method) {
+	@Contract(pure = true) public Document get(@NotNull Method method) {
 		Response response = execute(method);
 		return Judge.isNull(response) ? null : Jsoup.parse(response.body());
 	}
@@ -438,7 +438,7 @@ public class JsoupUtils {
 	 * @param method Method类型
 	 * @return Response
 	 */
-	@Contract(pure = true) private Response executeProgram(@NotNull final Method method) {
+	@Contract(pure = true) private Response executeProgram(@NotNull Method method) {
 		Connection conn = Jsoup.connect(url).headers(headers).proxy(proxy).timeout(timeout).method(method).maxBodySize(maxBodySize)
 				.followRedirects(followRedirects);
 		conn = Judge.isNull(request) ? conn : conn.request(request);

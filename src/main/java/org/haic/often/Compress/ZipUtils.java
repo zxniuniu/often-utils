@@ -139,7 +139,7 @@ public class ZipUtils {
 	 * @param out 输出文件夹路径
 	 * @return 解压的文件列表
 	 */
-	public List<String> deCompress(@NotNull final String out) {
+	public List<String> deCompress(@NotNull String out) {
 		return deCompress(new File(out));
 	}
 
@@ -149,7 +149,7 @@ public class ZipUtils {
 	 * @param out 输出文件夹
 	 * @return 解压的文件列表
 	 */
-	@Contract(pure = true) public List<String> deCompress(@NotNull final File out) {
+	@Contract(pure = true) public List<String> deCompress(@NotNull File out) {
 		if (!archive.isFile()) {
 			throw new RuntimeException("Not found or not file " + archive);
 		}
@@ -178,7 +178,7 @@ public class ZipUtils {
 	 * @param origin 文件或文件夹路径
 	 * @return 添加压缩包中的文件列表
 	 */
-	public List<String> compress(@NotNull final String origin) {
+	public List<String> compress(@NotNull String origin) {
 		return compress(new File(origin));
 	}
 
@@ -188,7 +188,7 @@ public class ZipUtils {
 	 * @param origin 文件或文件夹
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true) public List<String> compress(@NotNull final File origin) {
+	@Contract(pure = true) public List<String> compress(@NotNull File origin) {
 		if (!origin.exists()) {
 			throw new RuntimeException("Not found " + origin);
 		}
@@ -201,7 +201,7 @@ public class ZipUtils {
 	 * @param origin 文件信息
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true) public List<String> compress(@NotNull final Map<String, byte[]> origin) {
+	@Contract(pure = true) public List<String> compress(@NotNull Map<String, byte[]> origin) {
 		List<String> result = new ArrayList<>();
 		try (ZipArchiveOutputStream archiveOutputStream = new ZipArchiveOutputStream(archive)) {
 			result = compress(origin, archiveOutputStream);
@@ -218,7 +218,7 @@ public class ZipUtils {
 	 * @param origin       文件信息
 	 * @return 添加压缩包中的文件列表
 	 */
-	private List<String> compress(@NotNull final Map<String, byte[]> origin, ZipArchiveOutputStream outputStream) {
+	private List<String> compress(@NotNull Map<String, byte[]> origin, ZipArchiveOutputStream outputStream) {
 		try {
 			for (Map.Entry<String, byte[]> info : origin.entrySet()) {
 				ZipArchiveEntry entry = new ZipArchiveEntry(info.getKey());
@@ -239,7 +239,7 @@ public class ZipUtils {
 	 * @param entryName 在压缩包中显示的路径、名称
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true) public List<String> compress(final byte[] bytes, @NotNull final String entryName) {
+	@Contract(pure = true) public List<String> compress(final byte[] bytes, @NotNull String entryName) {
 		return compress(Map.of(entryName, bytes));
 	}
 
@@ -249,7 +249,7 @@ public class ZipUtils {
 	 * @param origin 文件或文件夹路径
 	 * @return 添加压缩包中的文件列表
 	 */
-	public List<String> addFiles(@NotNull final String origin) {
+	public List<String> addFiles(@NotNull String origin) {
 		return addFiles(new File(origin));
 	}
 
@@ -259,7 +259,7 @@ public class ZipUtils {
 	 * @param origin 文件或文件夹
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true) public List<String> addFiles(@NotNull final File origin) {
+	@Contract(pure = true) public List<String> addFiles(@NotNull File origin) {
 		return addBytes(getFilesInfo(origin));
 	}
 
@@ -272,7 +272,7 @@ public class ZipUtils {
 	 */
 	@Contract(pure = true)
 
-	public List<String> addStr(@NotNull final String str, @NotNull final String entryName) {
+	public List<String> addStr(@NotNull String str, @NotNull String entryName) {
 		return addByte(str.getBytes(StandardCharsets.UTF_8), entryName);
 	}
 
@@ -283,7 +283,7 @@ public class ZipUtils {
 	 * @param entryName 在压缩包中显示的路径、名称
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true) public List<String> addByte(final byte[] bytes, @NotNull final String entryName) {
+	@Contract(pure = true) public List<String> addByte(final byte[] bytes, @NotNull String entryName) {
 		return addBytes(Map.of(entryName, bytes));
 	}
 
@@ -293,7 +293,7 @@ public class ZipUtils {
 	 * @param origin bytes列表
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true) public List<String> addBytes(@NotNull final Map<String, byte[]> origin) {
+	@Contract(pure = true) public List<String> addBytes(@NotNull Map<String, byte[]> origin) {
 		if (!archive.isFile()) {
 			throw new RuntimeException("Not found or not file " + archive);
 		}
@@ -332,7 +332,7 @@ public class ZipUtils {
 	 * @param origin 来源文件或文件夹
 	 * @return 文件列表信息集合
 	 */
-	@NotNull @Contract(pure = true) private Map<String, byte[]> getFilesInfo(@NotNull final File origin) {
+	@NotNull @Contract(pure = true) private Map<String, byte[]> getFilesInfo(@NotNull File origin) {
 		if (!origin.exists()) {
 			throw new RuntimeException("Not found " + origin);
 		}

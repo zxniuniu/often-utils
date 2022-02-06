@@ -36,7 +36,7 @@ public class RunCmd {
 	 * @param dos cmd命令
 	 * @return new RunCmd
 	 */
-	public static RunCmd dos(@NotNull final String... dos) {
+	public static RunCmd dos(@NotNull String... dos) {
 		return dos(Arrays.stream(dos).toList());
 	}
 
@@ -46,7 +46,7 @@ public class RunCmd {
 	 * @param dos cmd命令
 	 * @return new RunCmd
 	 */
-	public static RunCmd dos(@NotNull final List<String> dos) {
+	public static RunCmd dos(@NotNull List<String> dos) {
 		return config().command(dos);
 	}
 
@@ -65,7 +65,7 @@ public class RunCmd {
 	 * @param command cmd命令
 	 * @return this
 	 */
-	private RunCmd command(@NotNull final List<String> command) {
+	private RunCmd command(@NotNull List<String> command) {
 		this.command = new ArrayList<>();
 		if (OS.contains("windows")) {
 			this.command.add("cmd");
@@ -81,7 +81,7 @@ public class RunCmd {
 	 * @param CharsetName 字符集编码名
 	 * @return this
 	 */
-	public RunCmd charset(@NotNull final String CharsetName) {
+	public RunCmd charset(@NotNull String CharsetName) {
 		charset(Charset.forName(CharsetName));
 		return this;
 	}
@@ -92,7 +92,7 @@ public class RunCmd {
 	 * @param charset 字符集编码
 	 * @return this
 	 */
-	public RunCmd charset(@NotNull final Charset charset) {
+	public RunCmd charset(@NotNull Charset charset) {
 		this.charset = charset;
 		return this;
 	}
@@ -103,7 +103,7 @@ public class RunCmd {
 	 * @param directory 工作目录路径
 	 * @return this
 	 */
-	public RunCmd directory(@NotNull final String directory) {
+	public RunCmd directory(@NotNull String directory) {
 		return directory(new File(directory));
 	}
 

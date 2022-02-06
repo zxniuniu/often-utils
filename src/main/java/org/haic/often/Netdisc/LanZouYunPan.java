@@ -33,7 +33,7 @@ public class LanZouYunPan {
 	 * @param passwd    访问密码
 	 * @return Map - 文件名, 文件ID链接
 	 */
-	public static Map<String, String> getPageInfos(@NotNull final String lanzouUrl, @NotNull final String passwd) {
+	public static Map<String, String> getPageInfos(@NotNull String lanzouUrl, @NotNull String passwd) {
 		String infos = Objects.requireNonNull(JsoupUtils.connect(lanzouUrl).get().selectFirst("body script")).toString();
 		infos = infos.substring(32, infos.indexOf("json") - 20).replaceAll("\t*　* *'*;*", "");
 
@@ -75,7 +75,7 @@ public class LanZouYunPan {
 	 * @param passwd    访问密码
 	 * @return 文件直链集合
 	 */
-	@NotNull @Contract(pure = true) public static Map<String, String> getPageStraights(@NotNull final String lanzouUrl, @NotNull final String passwd) {
+	@NotNull @Contract(pure = true) public static Map<String, String> getPageStraights(@NotNull String lanzouUrl, @NotNull String passwd) {
 		return getPageInfos(lanzouUrl, passwd).entrySet().parallelStream().collect(Collectors.toMap(Map.Entry::getKey, f -> getStraight(f.getValue())));
 	}
 
@@ -85,7 +85,7 @@ public class LanZouYunPan {
 	 * @param lanzouUrl 蓝奏URL
 	 * @return 文件直链集合
 	 */
-	@NotNull @Contract(pure = true) public static Map<String, String> getPageInfos(@NotNull final String lanzouUrl) {
+	@NotNull @Contract(pure = true) public static Map<String, String> getPageInfos(@NotNull String lanzouUrl) {
 		Map<String, String> result = new HashMap<>();
 		HtmlUnitUtils.connect(lanzouUrl).waitJSTime(1000).get().select("div[id='name']")
 				.forEach(name -> result.put(name.text(), domain + name.select("a").attr("href")));
@@ -98,7 +98,7 @@ public class LanZouYunPan {
 	 * @param lanzouUrl 蓝奏URL
 	 * @return 文件直链集合
 	 */
-	@NotNull @Contract(pure = true) public static Map<String, String> getPageStraights(@NotNull final String lanzouUrl) {
+	@NotNull @Contract(pure = true) public static Map<String, String> getPageStraights(@NotNull String lanzouUrl) {
 		return getPageInfos(lanzouUrl).entrySet().parallelStream().collect(Collectors.toMap(Map.Entry::getKey, f -> getStraight(f.getValue())));
 	}
 
@@ -108,7 +108,7 @@ public class LanZouYunPan {
 	 * @param lanzouUrl 蓝奏云文件链接
 	 * @return 蓝奏云URL直链
 	 */
-	@Contract(pure = true) public static String getStraight(@NotNull final String lanzouUrl) {
+	@Contract(pure = true) public static String getStraight(@NotNull String lanzouUrl) {
 		String downUrl = domain + Objects.requireNonNull(JsoupUtils.connect(lanzouUrl).get().selectFirst("iframe[class='ifr2']")).attr("src");
 		String infos = Objects.requireNonNull(JsoupUtils.connect(downUrl).get().selectFirst("body script")).toString();
 		infos = infos.substring(32, infos.indexOf("json") - 17).replaceAll("\t*　* *'*;*", "");
@@ -148,7 +148,7 @@ public class LanZouYunPan {
 	 * @param password  提取码
 	 * @return 蓝奏云URL直链
 	 */
-	@Contract(pure = true) public static String getStraight(@NotNull final String lanzouUrl, String password) {
+	@Contract(pure = true) public static String getStraight(@NotNull String lanzouUrl, String password) {
 		return JSONObject.parseObject(
 				HttpsUtils.connect(downApi).params(StringUtils.extractRegex(JsoupUtils.connect(lanzouUrl).get().toString(), "action=.*&p=") + password).post()
 						.text()).getString("url");

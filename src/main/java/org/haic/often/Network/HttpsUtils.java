@@ -64,7 +64,7 @@ public class HttpsUtils {
 	 * @param url 请求的URL
 	 * @return this
 	 */
-	@Contract(pure = true) public static HttpsUtils connect(@NotNull final String url) {
+	@Contract(pure = true) public static HttpsUtils connect(@NotNull String url) {
 		return config().url(url);
 	}
 
@@ -83,12 +83,12 @@ public class HttpsUtils {
 	 * @param url 请求的URL
 	 * @return this
 	 */
-	@Contract(pure = true) private HttpsUtils url(@NotNull final String url) {
+	@Contract(pure = true) private HttpsUtils url(@NotNull String url) {
 		this.url = url;
 		return this;
 	}
 
-	@Contract(pure = true) public HttpsUtils referrer(@NotNull final String referrer) {
+	@Contract(pure = true) public HttpsUtils referrer(@NotNull String referrer) {
 		this.referrer = referrer;
 		return this;
 	}
@@ -147,7 +147,7 @@ public class HttpsUtils {
 	 * @param userAgent userAgent
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils userAgent(@NotNull final String userAgent) {
+	@Contract(pure = true) public HttpsUtils userAgent(@NotNull String userAgent) {
 		header("User-Agent", userAgent);
 		return this;
 	}
@@ -205,7 +205,7 @@ public class HttpsUtils {
 	 * @param value header值
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils header(@NotNull final String name, @NotNull final String value) {
+	@Contract(pure = true) public HttpsUtils header(@NotNull String name, @NotNull String value) {
 		headers.put(name, value);
 		return this;
 	}
@@ -216,7 +216,7 @@ public class HttpsUtils {
 	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils headers(@NotNull final Map<String, String> headers) {
+	@Contract(pure = true) public HttpsUtils headers(@NotNull Map<String, String> headers) {
 		this.headers = headers;
 		return this;
 	}
@@ -227,7 +227,7 @@ public class HttpsUtils {
 	 * @param cookies cookies
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils cookies(@NotNull final Map<String, String> cookies) {
+	@Contract(pure = true) public HttpsUtils cookies(@NotNull Map<String, String> cookies) {
 		headers.put("cookie", "");
 		for (Map.Entry<String, String> cookie : cookies.entrySet()) {
 			cookie(cookie.getKey(), cookie.getValue());
@@ -242,7 +242,7 @@ public class HttpsUtils {
 	 * @param value cookie值
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils cookie(@NotNull final String name, @NotNull final String value) {
+	@Contract(pure = true) public HttpsUtils cookie(@NotNull String name, @NotNull String value) {
 		String cookies = headers.get("Cookie");
 		cookies = Judge.isEmpty(cookies) ? name + "=" + value : cookies + "&" + name + "=" + value;
 		headers.put("Cookie", cookies);
@@ -256,7 +256,7 @@ public class HttpsUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils socks(@NotNull final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public HttpsUtils socks(@NotNull String proxyHost, final int proxyPort) {
 		proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(proxyHost, proxyPort)));
 		return this;
 	}
@@ -266,7 +266,7 @@ public class HttpsUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils proxy(@NotNull final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public HttpsUtils proxy(@NotNull String proxyHost, final int proxyPort) {
 		proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
 		return this;
 	}
@@ -277,7 +277,7 @@ public class HttpsUtils {
 	 * @param proxy 要使用的代理
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils proxy(@NotNull final Proxy proxy) {
+	@Contract(pure = true) public HttpsUtils proxy(@NotNull Proxy proxy) {
 		this.proxy = proxy;
 		return this;
 	}
@@ -288,7 +288,7 @@ public class HttpsUtils {
 	 * @param params 请求参数，Map集合 的形式
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils data(@NotNull final Map<String, String> params) {
+	@Contract(pure = true) public HttpsUtils data(@NotNull Map<String, String> params) {
 		this.params = null;
 		for (Map.Entry<String, String> param : params.entrySet()) {
 			data(param.getKey(), param.getValue());
@@ -303,7 +303,7 @@ public class HttpsUtils {
 	 * @param value 请求参数 value
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils data(@NotNull final String name, @NotNull final String value) {
+	@Contract(pure = true) public HttpsUtils data(@NotNull String name, @NotNull String value) {
 		params = Judge.isEmpty(params) ? name + "=" + value : params + "&" + name + "=" + value;
 		return this;
 	}
@@ -314,12 +314,12 @@ public class HttpsUtils {
 	 * @param params 请求参数，name1=value1 的形式
 	 * @return this
 	 */
-	@Contract(pure = true) public HttpsUtils params(@NotNull final String params) {
+	@Contract(pure = true) public HttpsUtils params(@NotNull String params) {
 		this.params = params;
 		return this;
 	}
 
-	@Contract(pure = true) public HttpsUtils requestBody(@NotNull final String requestBody) {
+	@Contract(pure = true) public HttpsUtils requestBody(@NotNull String requestBody) {
 		if (URIUtils.isJson(requestBody)) {
 			headers.put("content-type", "application/json;charset=UTF-8");
 		}
@@ -351,7 +351,7 @@ public class HttpsUtils {
 	 * @param method 请求方法 HttpMethod
 	 * @return 响应结果
 	 */
-	@Contract(pure = true) public Document get(@NotNull final HttpMethod method) {
+	@Contract(pure = true) public Document get(@NotNull HttpMethod method) {
 		String result = execute(method).body();
 		return Judge.isEmpty(result) ? null : Jsoup.parse(result);
 	}
@@ -371,7 +371,7 @@ public class HttpsUtils {
 	 * @param method 请求方法 HttpMethod
 	 * @return HttpURLConnection
 	 */
-	@Contract(pure = true) public HttpsResult execute(@NotNull final HttpMethod method) {
+	@Contract(pure = true) public HttpsResult execute(@NotNull HttpMethod method) {
 		executeProgram(method);
 		int statusCode = executeProgram(method).statusCode();
 		for (int i = 0;
@@ -393,7 +393,7 @@ public class HttpsUtils {
 	 * @param method http响应类型 HttpMethod
 	 * @return this
 	 */
-	@Contract(pure = true) private HttpsResult executeProgram(@NotNull final HttpMethod method) {
+	@Contract(pure = true) private HttpsResult executeProgram(@NotNull HttpMethod method) {
 		return executeProgram(url, method);
 	}
 
@@ -404,7 +404,7 @@ public class HttpsUtils {
 	 * @param method http响应类型 HttpMethod
 	 * @return this
 	 */
-	@Contract(pure = true) private HttpsResult executeProgram(@NotNull String url, @NotNull final HttpMethod method) {
+	@Contract(pure = true) private HttpsResult executeProgram(@NotNull String url, @NotNull HttpMethod method) {
 		try {
 			if (method == HttpMethod.GET && !Judge.isEmpty(params)) {
 				url = url + "?" + params;

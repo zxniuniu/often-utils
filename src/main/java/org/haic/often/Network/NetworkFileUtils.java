@@ -67,7 +67,7 @@ public class NetworkFileUtils {
 	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true) public static NetworkFileUtils connect(@NotNull final String url) {
+	@Contract(pure = true) public static NetworkFileUtils connect(@NotNull String url) {
 		return config().url(url);
 	}
 
@@ -78,7 +78,7 @@ public class NetworkFileUtils {
 	 * @param conf down文件
 	 * @return new NetworkFileUtils
 	 */
-	@Contract(pure = true) public static NetworkFileUtils file(@NotNull final String conf) {
+	@Contract(pure = true) public static NetworkFileUtils file(@NotNull String conf) {
 		return file(new File(conf));
 	}
 
@@ -89,7 +89,7 @@ public class NetworkFileUtils {
 	 * @param conf down文件
 	 * @return new NetworkFileUtils
 	 */
-	@Contract(pure = true) public static NetworkFileUtils file(@NotNull final File conf) {
+	@Contract(pure = true) public static NetworkFileUtils file(@NotNull File conf) {
 		return config().setConf(conf);
 	}
 
@@ -108,7 +108,7 @@ public class NetworkFileUtils {
 	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true) private NetworkFileUtils url(@NotNull final String url) {
+	@Contract(pure = true) private NetworkFileUtils url(@NotNull String url) {
 		this.url = url;
 		return this;
 	}
@@ -119,7 +119,7 @@ public class NetworkFileUtils {
 	 * @param conf 配置文件
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils setConf(@NotNull final File conf) {
+	@Contract(pure = true) public NetworkFileUtils setConf(@NotNull File conf) {
 		this.method = Method.FILE;
 		this.conf = conf;
 		return this;
@@ -131,7 +131,7 @@ public class NetworkFileUtils {
 	 * @param userAgent userAgent
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils userAgent(@NotNull final String userAgent) {
+	@Contract(pure = true) public NetworkFileUtils userAgent(@NotNull String userAgent) {
 		this.header("User-Agent", userAgent);
 		return this;
 	}
@@ -142,7 +142,7 @@ public class NetworkFileUtils {
 	 * @param method 下载模式
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils method(@NotNull final NetworkFileUtils.Method method) {
+	@Contract(pure = true) public NetworkFileUtils method(@NotNull NetworkFileUtils.Method method) {
 		this.method = method;
 		return this;
 	}
@@ -153,7 +153,7 @@ public class NetworkFileUtils {
 	 * @param filename 文件名
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils filename(@NotNull final String filename) {
+	@Contract(pure = true) public NetworkFileUtils filename(@NotNull String filename) {
 		this.fileName = filename;
 		return this;
 	}
@@ -175,7 +175,7 @@ public class NetworkFileUtils {
 	 * @param referrer 上一页
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils referrer(@NotNull final String referrer) {
+	@Contract(pure = true) public NetworkFileUtils referrer(@NotNull String referrer) {
 		this.referrer = referrer;
 		return this;
 	}
@@ -187,7 +187,7 @@ public class NetworkFileUtils {
 	 * @param value cookie-值
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils cookies(@NotNull final String name, @NotNull final String value) {
+	@Contract(pure = true) public NetworkFileUtils cookies(@NotNull String name, @NotNull String value) {
 		cookies.put(name, value);
 		return this;
 	}
@@ -198,7 +198,7 @@ public class NetworkFileUtils {
 	 * @param cookies cookie集合
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils cookies(@NotNull final Map<String, String> cookies) {
+	@Contract(pure = true) public NetworkFileUtils cookies(@NotNull Map<String, String> cookies) {
 		this.cookies = cookies;
 		return this;
 	}
@@ -210,7 +210,7 @@ public class NetworkFileUtils {
 	 * @param value 请求头-值
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils header(@NotNull final String name, @NotNull final String value) {
+	@Contract(pure = true) public NetworkFileUtils header(@NotNull String name, @NotNull String value) {
 		headers.put(name, value);
 		return this;
 	}
@@ -221,7 +221,7 @@ public class NetworkFileUtils {
 	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils headers(@NotNull final Map<String, String> headers) {
+	@Contract(pure = true) public NetworkFileUtils headers(@NotNull Map<String, String> headers) {
 		this.headers = headers;
 		return this;
 	}
@@ -233,7 +233,7 @@ public class NetworkFileUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils socks(@NotNull final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public NetworkFileUtils socks(@NotNull String proxyHost, final int proxyPort) {
 		proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(proxyHost, proxyPort)));
 		return this;
 	}
@@ -245,7 +245,7 @@ public class NetworkFileUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils proxy(@NotNull final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public NetworkFileUtils proxy(@NotNull String proxyHost, final int proxyPort) {
 		proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
 		return this;
 	}
@@ -256,7 +256,7 @@ public class NetworkFileUtils {
 	 * @param proxy 要使用的代理
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils proxy(@NotNull final Proxy proxy) {
+	@Contract(pure = true) public NetworkFileUtils proxy(@NotNull Proxy proxy) {
 		this.proxy = proxy;
 		return this;
 	}
@@ -315,7 +315,7 @@ public class NetworkFileUtils {
 	 * @param auth 授权码
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils authorization(@NotNull final String auth) {
+	@Contract(pure = true) public NetworkFileUtils authorization(@NotNull String auth) {
 		this.authorization = auth;
 		return this;
 	}
@@ -362,7 +362,7 @@ public class NetworkFileUtils {
 	 * @param hash 文件md5值
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils hash(@NotNull final String hash) {
+	@Contract(pure = true) public NetworkFileUtils hash(@NotNull String hash) {
 		this.hash = hash;
 		return this;
 	}
@@ -384,7 +384,7 @@ public class NetworkFileUtils {
 	 * @param filePath 待上传的文件路径
 	 * @return 上传状态码
 	 */
-	@Contract(pure = true) public int Upload(@NotNull final String filePath) {
+	@Contract(pure = true) public int Upload(@NotNull String filePath) {
 		return Upload(new File(filePath));
 	}
 
@@ -394,7 +394,7 @@ public class NetworkFileUtils {
 	 * @param file 待上传的文件对象
 	 * @return 上传状态码
 	 */
-	@Contract(pure = true) public int Upload(@NotNull final File file) {
+	@Contract(pure = true) public int Upload(@NotNull File file) {
 		if (!Judge.isEmpty(authorization)) {
 			headers.put("Authorization", authorization);
 		}
@@ -409,7 +409,7 @@ public class NetworkFileUtils {
 	 * @param folderPath 文件存放目录路径
 	 * @return 下载状态码
 	 */
-	@Contract(pure = true) public int download(@NotNull final String folderPath) {
+	@Contract(pure = true) public int download(@NotNull String folderPath) {
 		return download(new File(folderPath));
 	}
 
@@ -430,7 +430,7 @@ public class NetworkFileUtils {
 	 * @param folder 文件存放目录对象
 	 * @return 下载状态码
 	 */
-	@Contract(pure = true) public int download(@NotNull final File folder) {
+	@Contract(pure = true) public int download(@NotNull File folder) {
 		Response response = null;
 		JSONObject fileInfo = new JSONObject();
 

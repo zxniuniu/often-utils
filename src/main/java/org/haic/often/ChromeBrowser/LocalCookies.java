@@ -50,7 +50,7 @@ public class LocalCookies {
 	 * @param userHome 用户文件夹路径
 	 * @return new ChromeBrowser
 	 */
-	@NotNull @Contract(pure = true) public static ChromeBrowser home(@NotNull final String userHome) {
+	@NotNull @Contract(pure = true) public static ChromeBrowser home(@NotNull String userHome) {
 		return home(new File(userHome));
 	}
 
@@ -60,7 +60,7 @@ public class LocalCookies {
 	 * @param userHome 用户文件夹路径
 	 * @return new ChromeBrowser
 	 */
-	@NotNull @Contract(pure = true) public static ChromeBrowser home(@NotNull final File userHome) {
+	@NotNull @Contract(pure = true) public static ChromeBrowser home(@NotNull File userHome) {
 		return new ChromeBrowser(userHome);
 	}
 

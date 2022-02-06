@@ -74,7 +74,7 @@ public class StreamUtils {
 	 * @param <E>  泛型
 	 * @return 无排序的数组
 	 */
-	@NotNull @Contract(pure = true) public static <E> List<E> sort(@NotNull final List<E> list) {
+	@NotNull @Contract(pure = true) public static <E> List<E> sort(@NotNull List<E> list) {
 		return list.parallelStream().sorted().collect(Collectors.toList());
 	}
 
@@ -86,7 +86,7 @@ public class StreamUtils {
 	 * @param comparator Comparator排序参数
 	 * @return 无排序的数组
 	 */
-	@NotNull @Contract(pure = true) public static <E> List<E> sort(@NotNull final List<E> list, @NotNull final Comparator<E> comparator) {
+	@NotNull @Contract(pure = true) public static <E> List<E> sort(@NotNull List<E> list, @NotNull Comparator<E> comparator) {
 		return list.parallelStream().sorted(comparator).collect(Collectors.toList());
 	}
 
@@ -97,7 +97,7 @@ public class StreamUtils {
 	 * @param <E>  泛型
 	 * @return 无排序的数组
 	 */
-	@NotNull @Contract(pure = true) public static <E> List<E> streamSet(@NotNull final List<E> list) {
+	@NotNull @Contract(pure = true) public static <E> List<E> streamSet(@NotNull List<E> list) {
 		return list.parallelStream().distinct().collect(Collectors.toList());
 	}
 
@@ -117,7 +117,7 @@ public class StreamUtils {
 	 * @param str 字符串
 	 * @return 流
 	 */
-	@NotNull @Contract(pure = true) public static InputStream streamByString(@NotNull final String str) {
+	@NotNull @Contract(pure = true) public static InputStream streamByString(@NotNull String str) {
 		return new ByteArrayInputStream(str.getBytes());
 	}
 
@@ -127,7 +127,7 @@ public class StreamUtils {
 	 * @param inputStream InputStream
 	 * @return new InputStreamUtil
 	 */
-	@NotNull @Contract(pure = true) public static InputStreamUtil stream(@NotNull final InputStream inputStream) {
+	@NotNull @Contract(pure = true) public static InputStreamUtil stream(@NotNull InputStream inputStream) {
 		return new InputStreamUtil(inputStream);
 	}
 
@@ -137,7 +137,7 @@ public class StreamUtils {
 	 * @param inputStream InputStreamReader
 	 * @return new InputStreamReaderUtil
 	 */
-	@NotNull @Contract(pure = true) public static InputStreamReaderUtil stream(@NotNull final InputStreamReader inputStream) {
+	@NotNull @Contract(pure = true) public static InputStreamReaderUtil stream(@NotNull InputStreamReader inputStream) {
 		return new InputStreamReaderUtil(inputStream);
 	}
 
@@ -147,7 +147,7 @@ public class StreamUtils {
 	 * @param inputStream BufferedInputStream
 	 * @return new InputStreamReaderUtil
 	 */
-	@NotNull @Contract(pure = true) public static BufferedInputStreamUtil stream(@NotNull final BufferedInputStream inputStream) {
+	@NotNull @Contract(pure = true) public static BufferedInputStreamUtil stream(@NotNull BufferedInputStream inputStream) {
 		return new BufferedInputStreamUtil(inputStream);
 	}
 

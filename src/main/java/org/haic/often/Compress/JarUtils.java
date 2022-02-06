@@ -30,7 +30,7 @@ public class JarUtils extends ZipUtils {
 	 * @param origin 文件信息
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Override @Contract(pure = true) public List<String> compress(@NotNull final Map<String, byte[]> origin) {
+	@Override @Contract(pure = true) public List<String> compress(@NotNull Map<String, byte[]> origin) {
 		List<String> result = new ArrayList<>();
 		try (JarArchiveOutputStream outputStream = new JarArchiveOutputStream(new FileOutputStream(archive))) {
 			result = compress(origin, outputStream);
@@ -47,7 +47,7 @@ public class JarUtils extends ZipUtils {
 	 * @param origin       文件信息
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true) private List<String> compress(@NotNull final Map<String, byte[]> origin, JarArchiveOutputStream outputStream) {
+	@Contract(pure = true) private List<String> compress(@NotNull Map<String, byte[]> origin, JarArchiveOutputStream outputStream) {
 		try {
 			for (Map.Entry<String, byte[]> info : origin.entrySet()) {
 				JarArchiveEntry entry = new JarArchiveEntry(info.getKey());
@@ -67,7 +67,7 @@ public class JarUtils extends ZipUtils {
 	 * @param out 输出文件夹
 	 * @return 解压的文件列表
 	 */
-	@Override @Contract(pure = true) public List<String> deCompress(@NotNull final File out) {
+	@Override @Contract(pure = true) public List<String> deCompress(@NotNull File out) {
 		if (!archive.isFile()) {
 			throw new RuntimeException("Not found or not file " + archive);
 		}
@@ -96,7 +96,7 @@ public class JarUtils extends ZipUtils {
 	 * @param origin bytes列表
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Override @Contract(pure = true) public List<String> addBytes(@NotNull final Map<String, byte[]> origin) {
+	@Override @Contract(pure = true) public List<String> addBytes(@NotNull Map<String, byte[]> origin) {
 		if (!archive.isFile()) {
 			throw new RuntimeException("Not found or not file " + archive);
 		}

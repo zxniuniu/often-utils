@@ -80,7 +80,7 @@ public class HtmlUnitUtils {
 	 * @param url URL
 	 * @return this
 	 */
-	@Contract(pure = true) public static HtmlUnitUtils connect(@NotNull final String url) {
+	@Contract(pure = true) public static HtmlUnitUtils connect(@NotNull String url) {
 		return HtmlUnitUtils.config().url(url);
 	}
 
@@ -101,7 +101,7 @@ public class HtmlUnitUtils {
 	 * @param requestBody 数据
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils requestBody(@NotNull final String requestBody) {
+	@Contract(pure = true) public HtmlUnitUtils requestBody(@NotNull String requestBody) {
 		if (URIUtils.isJson(requestBody)) {
 			headers.put("content-type", "application/json;charset=UTF-8");
 		}
@@ -115,7 +115,7 @@ public class HtmlUnitUtils {
 	 * @param referrer 上一页URL
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils referrer(@NotNull final String referrer) {
+	@Contract(pure = true) public HtmlUnitUtils referrer(@NotNull String referrer) {
 		this.referrer = referrer;
 		return this;
 	}
@@ -137,7 +137,7 @@ public class HtmlUnitUtils {
 	 * @param userAgent userAgent
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils userAgent(@NotNull final String userAgent) {
+	@Contract(pure = true) public HtmlUnitUtils userAgent(@NotNull String userAgent) {
 		this.header("User-Agent", userAgent);
 		return this;
 	}
@@ -148,7 +148,7 @@ public class HtmlUnitUtils {
 	 * @param params data参数集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils data(@NotNull final Map<String, String> params) {
+	@Contract(pure = true) public HtmlUnitUtils data(@NotNull Map<String, String> params) {
 		this.params.clear();
 		for (Entry<String, String> param : params.entrySet()) {
 			data(param.getKey(), param.getValue());
@@ -163,7 +163,7 @@ public class HtmlUnitUtils {
 	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils data(@NotNull final String name, @NotNull final String value) {
+	@Contract(pure = true) public HtmlUnitUtils data(@NotNull String name, @NotNull String value) {
 		params.add(new NameValuePair(name, value));
 		return this;
 	}
@@ -174,7 +174,7 @@ public class HtmlUnitUtils {
 	 * @param url URL
 	 * @return this
 	 */
-	@Contract(pure = true) private HtmlUnitUtils url(@NotNull final String url) {
+	@Contract(pure = true) private HtmlUnitUtils url(@NotNull String url) {
 		this.url = url;
 		return this;
 	}
@@ -192,7 +192,7 @@ public class HtmlUnitUtils {
 		return this;
 	}
 
-	@Contract(pure = true) public HtmlUnitUtils request(@NotNull final WebRequest request) {
+	@Contract(pure = true) public HtmlUnitUtils request(@NotNull WebRequest request) {
 		this.request = request;
 		return this;
 	}
@@ -252,7 +252,7 @@ public class HtmlUnitUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils socks(@NotNull final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public HtmlUnitUtils socks(@NotNull String proxyHost, final int proxyPort) {
 		isSocksProxy = true;
 		return proxy(proxyHost, proxyPort);
 	}
@@ -266,8 +266,8 @@ public class HtmlUnitUtils {
 	 * @param password  代理用户密码
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils socks(@NotNull final String proxyHost, final int proxyPort, @NotNull final String username,
-			@NotNull final String password) {
+	@Contract(pure = true) public HtmlUnitUtils socks(@NotNull String proxyHost, final int proxyPort, @NotNull String username,
+			@NotNull String password) {
 		isSocksProxy = true;
 		return proxy(proxyHost, proxyPort, username, password);
 	}
@@ -279,7 +279,7 @@ public class HtmlUnitUtils {
 	 * @param proxyPort 代理端口
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils proxy(@NotNull final String proxyHost, final int proxyPort) {
+	@Contract(pure = true) public HtmlUnitUtils proxy(@NotNull String proxyHost, final int proxyPort) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		return this;
@@ -294,8 +294,8 @@ public class HtmlUnitUtils {
 	 * @param password  代理用户密码
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils proxy(@NotNull final String proxyHost, final int proxyPort, @NotNull final String username,
-			@NotNull final String password) {
+	@Contract(pure = true) public HtmlUnitUtils proxy(@NotNull String proxyHost, final int proxyPort, @NotNull String username,
+			@NotNull String password) {
 		this.proxyHost = proxyHost;
 		this.proxyPort = proxyPort;
 		this.username = username;
@@ -332,7 +332,7 @@ public class HtmlUnitUtils {
 	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils cookie(@NotNull final String name, @NotNull final String value) {
+	@Contract(pure = true) public HtmlUnitUtils cookie(@NotNull String name, @NotNull String value) {
 		this.cookies.put(name, value);
 		return this;
 	}
@@ -343,7 +343,7 @@ public class HtmlUnitUtils {
 	 * @param cookies Map集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils cookies(@NotNull final Map<String, String> cookies) {
+	@Contract(pure = true) public HtmlUnitUtils cookies(@NotNull Map<String, String> cookies) {
 		this.cookies = cookies;
 		return this;
 	}
@@ -354,7 +354,7 @@ public class HtmlUnitUtils {
 	 * @param cookies Set集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils cookies(@NotNull final Set<Cookie> cookies) {
+	@Contract(pure = true) public HtmlUnitUtils cookies(@NotNull Set<Cookie> cookies) {
 		for (Cookie cookie : cookies) {
 			cookie(cookie.getName(), cookie.getValue());
 		}
@@ -368,7 +368,7 @@ public class HtmlUnitUtils {
 	 * @param value value
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils header(@NotNull final String name, @NotNull final String value) {
+	@Contract(pure = true) public HtmlUnitUtils header(@NotNull String name, @NotNull String value) {
 		headers.put(name, value);
 		return this;
 	}
@@ -379,7 +379,7 @@ public class HtmlUnitUtils {
 	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils headers(@NotNull final Map<String, String> headers) {
+	@Contract(pure = true) public HtmlUnitUtils headers(@NotNull Map<String, String> headers) {
 		this.headers = headers;
 		return this;
 	}
@@ -390,7 +390,7 @@ public class HtmlUnitUtils {
 	 * @param headers 请求头集合
 	 * @return this
 	 */
-	@Contract(pure = true) public HtmlUnitUtils headers(@NotNull final List<NameValuePair> headers) {
+	@Contract(pure = true) public HtmlUnitUtils headers(@NotNull List<NameValuePair> headers) {
 		for (NameValuePair header : headers) {
 			this.headers.put(header.getName(), header.getValue());
 		}
@@ -459,7 +459,7 @@ public class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return Document
 	 */
-	@Contract(pure = true) public Document get(@NotNull final HttpMethod method) {
+	@Contract(pure = true) public Document get(@NotNull HttpMethod method) {
 		Page page = execute(method);
 		return Judge.isNull(page) ? null : page.isHtmlPage() ? Jsoup.parse(((HtmlPage) page).asXml()) : Jsoup.parse(page.getWebResponse().getContentAsString());
 	}
@@ -497,7 +497,7 @@ public class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return HtmlPage
 	 */
-	@Contract(pure = true) public HtmlPage getHtmlPage(@NotNull final HttpMethod method) {
+	@Contract(pure = true) public HtmlPage getHtmlPage(@NotNull HttpMethod method) {
 		Page page = execute(method);
 		return Judge.isNull(page) ? null : (HtmlPage) page;
 	}
@@ -517,7 +517,7 @@ public class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return Page
 	 */
-	@Contract(pure = true) public Page execute(@NotNull final HttpMethod method) {
+	@Contract(pure = true) public Page execute(@NotNull HttpMethod method) {
 		page = executeProgram(method);
 		int statusCode = Judge.isNull(page) ? HttpStatus.SC_REQUEST_TIMEOUT : page.getWebResponse().getStatusCode();
 		for (int i = 0;
@@ -538,7 +538,7 @@ public class HtmlUnitUtils {
 	 * @param method Method类型
 	 * @return Response
 	 */
-	@Contract(pure = true) private Page executeProgram(@NotNull final HttpMethod method) {
+	@Contract(pure = true) private Page executeProgram(@NotNull HttpMethod method) {
 		if (Judge.isNull(webClient)) {
 			setWebClient(); // 创建HtmlUnit
 		}
@@ -607,7 +607,7 @@ public class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return WebRequest
 	 */
-	@Contract(pure = true) private WebRequest getWebRequest(@NotNull final HttpMethod method) {
+	@Contract(pure = true) private WebRequest getWebRequest(@NotNull HttpMethod method) {
 		WebRequest webRequest = new WebRequest(URIUtils.getURL(url), method);
 		if (!params.isEmpty()) {
 			webRequest.setRequestParameters(params);

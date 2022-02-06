@@ -50,7 +50,7 @@ public class Zip4jUtils {
 	 * @param archive 压缩包文件路径
 	 * @return new Zip4jUtils
 	 */
-	public static Zip4jUtils origin(@NotNull final String archive) {
+	public static Zip4jUtils origin(@NotNull String archive) {
 		return origin(new File(archive));
 	}
 
@@ -60,7 +60,7 @@ public class Zip4jUtils {
 	 * @param archive 压缩包文件
 	 * @return new Zip4jUtils
 	 */
-	public static Zip4jUtils origin(@NotNull final File archive) {
+	public static Zip4jUtils origin(@NotNull File archive) {
 		return config().archive(archive);
 
 	}
@@ -80,7 +80,7 @@ public class Zip4jUtils {
 	 * @param archive 压缩包
 	 * @return this
 	 */
-	private Zip4jUtils archive(@NotNull final File archive) {
+	private Zip4jUtils archive(@NotNull File archive) {
 		this.archive = archive;
 		return this;
 	}
@@ -102,7 +102,7 @@ public class Zip4jUtils {
 	 * @param passwd 压缩包密码
 	 * @return this
 	 */
-	public Zip4jUtils passwd(@NotNull final String passwd) {
+	public Zip4jUtils passwd(@NotNull String passwd) {
 		this.passwd = passwd.toCharArray();
 		params.setEncryptFiles(true); // 设置文件加密
 		params.setEncryptionMethod(EncryptionMethod.AES); // 加密方式
@@ -128,7 +128,7 @@ public class Zip4jUtils {
 	 * @param method 压缩方式
 	 * @return this
 	 */
-	public Zip4jUtils method(@NotNull final CompressionMethod method) {
+	public Zip4jUtils method(@NotNull CompressionMethod method) {
 		this.method = method;
 		return this;
 	}
@@ -139,7 +139,7 @@ public class Zip4jUtils {
 	 * @param level 压缩级别
 	 * @return this
 	 */
-	public Zip4jUtils level(@NotNull final CompressionLevel level) {
+	public Zip4jUtils level(@NotNull CompressionLevel level) {
 		this.level = level;
 		return this;
 	}
@@ -150,7 +150,7 @@ public class Zip4jUtils {
 	 * @param charset 集编码格式
 	 * @return this
 	 */
-	public Zip4jUtils charset(@NotNull final Charset charset) {
+	public Zip4jUtils charset(@NotNull Charset charset) {
 		this.charset = charset;
 		return this;
 	}
@@ -161,7 +161,7 @@ public class Zip4jUtils {
 	 * @param charsetName 集编码格式名称
 	 * @return this
 	 */
-	public Zip4jUtils charset(@NotNull final String charsetName) {
+	public Zip4jUtils charset(@NotNull String charsetName) {
 		this.charset = Charset.forName(charsetName);
 		return this;
 	}
@@ -172,7 +172,7 @@ public class Zip4jUtils {
 	 * @param origin 文件或文件夹路径
 	 * @return 压缩的文件列表
 	 */
-	@NotNull @Contract(pure = true) public List<String> compress(@NotNull final String origin) {
+	@NotNull @Contract(pure = true) public List<String> compress(@NotNull String origin) {
 		return compress(new File(origin));
 	}
 
@@ -182,7 +182,7 @@ public class Zip4jUtils {
 	 * @param origin 文件或文件夹
 	 * @return 压缩的文件列表
 	 */
-	@NotNull @Contract(pure = true) public List<String> compress(@NotNull final File origin) {
+	@NotNull @Contract(pure = true) public List<String> compress(@NotNull File origin) {
 		if (!origin.exists()) {
 			throw new RuntimeException("Not found " + origin);
 		}
@@ -212,7 +212,7 @@ public class Zip4jUtils {
 	 * @param out 输出文件夹路径
 	 * @return 解压的文件列表
 	 */
-	@NotNull @Contract(pure = true) public List<String> deCompress(@NotNull final String out) {
+	@NotNull @Contract(pure = true) public List<String> deCompress(@NotNull String out) {
 		return deCompress(new File(out));
 	}
 
@@ -222,7 +222,7 @@ public class Zip4jUtils {
 	 * @param out 输出文件夹
 	 * @return 解压的文件列表
 	 */
-	@NotNull @Contract(pure = true) public List<String> deCompress(@NotNull final File out) {
+	@NotNull @Contract(pure = true) public List<String> deCompress(@NotNull File out) {
 		if (!archive.isFile()) {
 			throw new RuntimeException("Not found or not file " + archive);
 		}
@@ -254,7 +254,7 @@ public class Zip4jUtils {
 	 * @param origin 文件或文件夹路径
 	 * @return 添加的文件列表
 	 */
-	@NotNull @Contract(pure = true) public List<String> addFiles(@NotNull final String origin) {
+	@NotNull @Contract(pure = true) public List<String> addFiles(@NotNull String origin) {
 		return addFiles(new File(origin));
 	}
 
@@ -264,7 +264,7 @@ public class Zip4jUtils {
 	 * @param origin 文件或文件夹
 	 * @return 添加的文件列表
 	 */
-	@NotNull @Contract(pure = true) public List<String> addFiles(@NotNull final File origin) {
+	@NotNull @Contract(pure = true) public List<String> addFiles(@NotNull File origin) {
 		if (!origin.exists()) {
 			throw new RuntimeException("Not found " + origin);
 		}
@@ -286,7 +286,7 @@ public class Zip4jUtils {
 	 * @param entryName   文件名或路径
 	 * @return 添加的文件列表
 	 */
-	public String addStream(@NotNull final ByteArrayInputStream inputStream, String entryName) {
+	public String addStream(@NotNull ByteArrayInputStream inputStream, String entryName) {
 		ZipFile zipFile = new ZipFile(archive);
 		zipFile.setCharset(charset);
 		if (!Judge.isEmpty(passwd)) {
@@ -307,7 +307,7 @@ public class Zip4jUtils {
 	 * @param origin 集合 -> 文件名或路径、byte数组
 	 * @return 添加的文件列表
 	 */
-	public List<String> addStream(@NotNull final Map<String, byte[]> origin) {
+	public List<String> addStream(@NotNull Map<String, byte[]> origin) {
 		return origin.entrySet().parallelStream().map(entry -> addStream(new ByteArrayInputStream(entry.getValue()), entry.getKey()))
 				.collect(Collectors.toList());
 	}
@@ -318,7 +318,7 @@ public class Zip4jUtils {
 	 * @param origin 压缩包中的文件路径
 	 * @return 删除是否成功
 	 */
-	@Contract(pure = true) public boolean remove(@NotNull final String origin) {
+	@Contract(pure = true) public boolean remove(@NotNull String origin) {
 		if (!archive.isFile()) {
 			throw new RuntimeException("Not found or not file " + archive);
 		}
@@ -337,7 +337,7 @@ public class Zip4jUtils {
 	 * @param origin 压缩包中的文件路径列表
 	 * @return 删除是否成功
 	 */
-	@Contract(pure = true) public boolean remove(@NotNull final List<String> origin) {
+	@Contract(pure = true) public boolean remove(@NotNull List<String> origin) {
 		if (!archive.isFile()) {
 			throw new RuntimeException("Not found or not file " + archive);
 		}

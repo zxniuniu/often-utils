@@ -122,7 +122,7 @@ public final class ReadWriteUtils {
 	 * @param lists 字符串数组
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true) public boolean listToText(@NotNull final List<String> lists) {
+	@Contract(pure = true) public boolean listToText(@NotNull List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(StringUtils.join(lists, StringUtils.SPACE) + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
@@ -139,7 +139,7 @@ public final class ReadWriteUtils {
 	 * @param str 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true) public boolean text(@NotNull final String str) {
+	@Contract(pure = true) public boolean text(@NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(str + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
@@ -156,7 +156,7 @@ public final class ReadWriteUtils {
 	 * @param lists 字符串数组
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true) public boolean list(@NotNull final List<String> lists) {
+	@Contract(pure = true) public boolean list(@NotNull List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(lists.parallelStream().collect(Collectors.joining(StringUtils.LINE_SEPARATOR)) + StringUtils.LINE_SEPARATOR);
@@ -173,7 +173,7 @@ public final class ReadWriteUtils {
 	 * @param str 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true) public boolean binary(@NotNull final String str) {
+	@Contract(pure = true) public boolean binary(@NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (DataOutputStream outStream = new DataOutputStream(new FileOutputStream(source, append))) {
 			for (byte b : (str + StringUtils.LF).getBytes()) {
@@ -192,7 +192,7 @@ public final class ReadWriteUtils {
 	 * @param str 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true) public boolean randomAccessText(@NotNull final String str) {
+	@Contract(pure = true) public boolean randomAccessText(@NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (RandomAccessFile randomAccess = new RandomAccessFile(source, RandomAccessFileMode.WRITE.getValue())) {
 			if (append) {
@@ -211,7 +211,7 @@ public final class ReadWriteUtils {
 	 * @param str 字符串
 	 * @return 写入是否成功
 	 */
-	@Contract(pure = true) public boolean channelText(@NotNull final String str) {
+	@Contract(pure = true) public boolean channelText(@NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (FileChannel channel = new FileOutputStream(source, append).getChannel()) {
 			channel.write(ByteBuffer.wrap((str + StringUtils.LINE_SEPARATOR).getBytes(charset)));
@@ -320,7 +320,7 @@ public final class ReadWriteUtils {
 	 * @param file 文件或文件夹
 	 * @return 文本信息列表
 	 */
-	@NotNull @Contract(pure = true) private List<String> list(@NotNull final File file) {
+	@NotNull @Contract(pure = true) private List<String> list(@NotNull File file) {
 		List<String> result = new ArrayList<>();
 		if (file.isFile()) {
 			try (InputStreamReader inputStream = new InputStreamReader(new FileInputStream(file), charset)) {
@@ -357,7 +357,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return 文本信息
 	 */
-	@NotNull @Contract(pure = true) private String text(@NotNull final File file) {
+	@NotNull @Contract(pure = true) private String text(@NotNull File file) {
 		String result = "";
 		if (!file.isFile()) { // 判断文件是否存在
 			return result;
@@ -403,7 +403,7 @@ public final class ReadWriteUtils {
 	 * @param file 文件
 	 * @return bytes
 	 */
-	@Contract(pure = true) private byte[] array(@NotNull final File file) {
+	@Contract(pure = true) private byte[] array(@NotNull File file) {
 		byte[] result = new byte[0];
 		if (!file.isFile()) { // 判断文件是否存在
 			return result;

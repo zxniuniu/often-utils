@@ -32,7 +32,7 @@ public class TianYiYunPan {
 	 * @param cookies cookies
 	 * @return 文件直链
 	 */
-	@NotNull @Contract(pure = true) public static String getFileUrlOfNotCode(@NotNull final String url, @NotNull final Map<String, String> cookies) {
+	@NotNull @Contract(pure = true) public static String getFileUrlOfNotCode(@NotNull String url, @NotNull Map<String, String> cookies) {
 		FourTuple<String, String, String, String> urlInfo = getUrlInfo(url);
 		return JsoupUtils.connect(downApi + "?dt=1&fileId=" + urlInfo.first + "&shareId=" + urlInfo.second).cookies(cookies).retry(true).get().text();
 	}
@@ -44,7 +44,7 @@ public class TianYiYunPan {
 	 * @param cookies cookies
 	 * @return Map - 文件名 ,文件直链
 	 */
-	@NotNull @Contract(pure = true) public static Map<String, String> getFilesUrl(@NotNull final String url, @NotNull final Map<String, String> cookies) {
+	@NotNull @Contract(pure = true) public static Map<String, String> getFilesUrl(@NotNull String url, @NotNull Map<String, String> cookies) {
 		return getFilesUrl(url, "", cookies);
 	}
 
@@ -56,8 +56,8 @@ public class TianYiYunPan {
 	 * @param cookies    cookies
 	 * @return Map - 文件名 ,文件直链
 	 */
-	@NotNull @Contract(pure = true) public static Map<String, String> getFilesUrl(@NotNull final String url, @NotNull final String accessCode,
-			@NotNull final Map<String, String> cookies) {
+	@NotNull @Contract(pure = true) public static Map<String, String> getFilesUrl(@NotNull String url, @NotNull String accessCode,
+			@NotNull Map<String, String> cookies) {
 		Map<String, String> fileUrls = new HashMap<>();
 		for (ThreeTuple<String, String, String> fileInfo : getFilesInfo(url, accessCode)) {
 			String fileUrl = JsoupUtils.connect(downApi + "?dt=1&fileId=" + fileInfo.second + "&shareId=" + fileInfo.third).cookies(cookies).retry(true).get()
@@ -72,8 +72,8 @@ public class TianYiYunPan {
 	 * @param accessCode 提取码
 	 * @return List - fileName, fileId, shareId
 	 */
-	@NotNull @Contract(pure = true) private static List<ThreeTuple<String, String, String>> getFilesInfo(@NotNull final String url,
-			@NotNull final String accessCode) {
+	@NotNull @Contract(pure = true) private static List<ThreeTuple<String, String, String>> getFilesInfo(@NotNull String url,
+			@NotNull String accessCode) {
 		FourTuple<String, String, String, String> urlInfo = getUrlInfo(url);
 		Map<String, String> listData = new HashMap<>();
 		listData.put("fileId", urlInfo.first);
@@ -99,7 +99,7 @@ public class TianYiYunPan {
 	 * @param url 天翼URL
 	 * @return fileId, shareId, isFolder, shareMode
 	 */
-	@Contract(pure = true) private static FourTuple<String, String, String, String> getUrlInfo(@NotNull final String url) {
+	@Contract(pure = true) private static FourTuple<String, String, String, String> getUrlInfo(@NotNull String url) {
 		String code = url.contains("code") ?
 				StringUtils.extractRegex(url, "code=.*").substring(5) :
 				StringUtils.extractRegex(url, "code=.*").substring(url.lastIndexOf("/"), url.length());
