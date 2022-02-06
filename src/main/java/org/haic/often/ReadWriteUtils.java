@@ -324,7 +324,7 @@ public final class ReadWriteUtils {
 		List<String> result = new ArrayList<>();
 		if (file.isFile()) {
 			try (InputStreamReader inputStream = new InputStreamReader(new FileInputStream(file), charset)) {
-				result = StreamUtils.stream(inputStream).toStringAsLine();
+				result = StreamUtils.stream(inputStream).bufferSize(bufferSize).toStringAsLine();
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}
@@ -363,7 +363,7 @@ public final class ReadWriteUtils {
 			return result;
 		}
 		try (InputStream inputStream = new FileInputStream(file)) {
-			result = StreamUtils.stream(inputStream).bufferSize(bufferSize).toString();
+			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).toString();
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
