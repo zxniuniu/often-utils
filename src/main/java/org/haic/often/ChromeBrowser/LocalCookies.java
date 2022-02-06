@@ -64,6 +64,18 @@ public class LocalCookies {
 		return new ChromeBrowser(userHome);
 	}
 
+	/**
+	 * get encryptedKey
+	 *
+	 * @param userHome userData home
+	 * @return encryptedKey
+	 */
+	protected static String getEncryptedKey(File userHome) {
+		File userState = new File(userHome, "Local State");
+		JSONObject jsonObject = JSONObject.parseObject(JSONObject.parseObject(ReadWriteUtils.orgin(userState).text()).getString("os_crypt"));
+		return jsonObject.getString("encrypted_key");
+	}
+
 	public static abstract class Cookie {
 
 		protected String name;
@@ -123,7 +135,7 @@ public class LocalCookies {
 
 	public static class DecryptedCookie extends Cookie {
 
-		private final String decryptedValue;
+		protected String decryptedValue;
 
 		public DecryptedCookie(String name, byte[] encryptedValue, String decryptedValue, Date expires, String path, String domain, File cookieStore) {
 			super(name, encryptedValue, expires, path, domain, cookieStore);
@@ -243,18 +255,6 @@ public class LocalCookies {
 				ex.printStackTrace();
 			}
 			return encryptedValue;
-		}
-
-		/**
-		 * get encryptedKey
-		 *
-		 * @param userHome userData home
-		 * @return encryptedKey
-		 */
-		protected static String getEncryptedKey(File userHome) {
-			File userState = new File(userHome, "Local State");
-			JSONObject jsonObject = JSONObject.parseObject(JSONObject.parseObject(ReadWriteUtils.orgin(userState).text()).getString("os_crypt"));
-			return jsonObject.getString("encrypted_key");
 		}
 
 		/**

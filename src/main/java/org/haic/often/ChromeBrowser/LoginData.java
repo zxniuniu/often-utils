@@ -64,7 +64,7 @@ public class LoginData {
 
 	public static class DecryptedCookie extends Cookie {
 
-		private final String decryptedValue;
+		protected String decryptedValue;
 
 		public DecryptedCookie(String name, byte[] encryptedValue, String decryptedValue, Date created, String domain, File cookieStore) {
 			super(name, encryptedValue, created, domain, cookieStore);
@@ -215,7 +215,7 @@ public class LoginData {
 		 * @return decrypted cookie
 		 */
 		@Override protected DecryptedCookie decrypt(EncryptedCookie encryptedCookie) {
-			String encryptedKey = LocalCookies.ChromeBrowser.getEncryptedKey(userHome);
+			String encryptedKey = LocalCookies.getEncryptedKey(userHome);
 			byte[] decryptedBytes = LocalCookies.ChromeBrowser.encryptedValueDecrypt(encryptedCookie.encryptedValue, encryptedKey);
 			if (decryptedBytes == null) {
 				return null;
