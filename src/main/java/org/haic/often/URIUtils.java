@@ -177,7 +177,7 @@ public class URIUtils {
 		String filename = disposition.substring(disposition.lastIndexOf("filename"));
 		filename = filename.substring(filename.indexOf("=") + 1).replaceAll("\"", "");
 		filename = filename.contains("'") ? filename.substring(filename.lastIndexOf("'") + 1) : filename;
-		return TranscodUtils.decodeByURL(filename);
+		return StringUtils.decodeByURL(filename);
 	}
 
 	/**

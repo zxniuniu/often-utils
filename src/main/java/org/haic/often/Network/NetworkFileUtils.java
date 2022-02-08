@@ -472,7 +472,7 @@ public class NetworkFileUtils {
 			if (Judge.isEmpty(fileName)) {
 				String disposition = Objects.requireNonNull(response).header("Content-Disposition");
 				fileName = Judge.isNull(disposition) ?
-						TranscodUtils.decodeByURL(
+						StringUtils.decodeByURL(
 								url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)) :
 						URIUtils.getFileNameForDisposition(disposition);
 			}
