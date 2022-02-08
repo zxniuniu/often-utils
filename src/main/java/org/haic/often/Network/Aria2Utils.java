@@ -2,10 +2,10 @@ package org.haic.often.Network;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.haic.often.Base64Utils;
 import org.haic.often.FilesUtils;
 import org.haic.often.Judge;
 import org.haic.often.Multithread.MultiThreadUtils;
+import org.haic.often.StringUtils;
 import org.haic.often.URIUtils;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.enums.ReadyState;
@@ -245,7 +245,7 @@ public class Aria2Utils {
 	 * @return this
 	 */
 	@Contract(pure = true) public Aria2Utils addTorrent(final String torrentpath) {
-		this.addUrl(Base64Utils.encryptToBase64(torrentpath));
+		this.addUrl(StringUtils.encryptToBase64(torrentpath));
 		return this;
 	}
 
@@ -304,7 +304,7 @@ public class Aria2Utils {
 	 * @return result or webstatus
 	 */
 	@Contract(pure = true) public String get() {
-		Response response = JsoupUtils.connect(aria2RpcUrl).data("params", Base64Utils.encryptToBase64(getJsonArray().toJSONString()))
+		Response response = JsoupUtils.connect(aria2RpcUrl).data("params", StringUtils.encryptToBase64(getJsonArray().toJSONString()))
 				.proxy(proxyHost, proxyPort).execute();
 		int statusCode = Judge.isNull(response) ? 0 : response.statusCode();
 		return URIUtils.statusIsOK(statusCode) ? response.body() : String.valueOf(statusCode);
@@ -330,7 +330,7 @@ public class Aria2Utils {
 	 */
 	@Contract(pure = true) private Aria2Method getType(final String url) {
 		Aria2Method method = Aria2Method.ADD_URI;
-		if (url.endsWith("torrent") || Base64Utils.isBase64(url)) {
+		if (url.endsWith("torrent") || StringUtils.isBase64(url)) {
 			method = Aria2Method.ADD_TORRENT;
 		} else if (url.endsWith("xml")) {
 			method = Aria2Method.ADD_METALINK;

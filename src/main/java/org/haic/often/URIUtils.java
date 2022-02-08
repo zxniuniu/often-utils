@@ -187,7 +187,7 @@ public class URIUtils {
 	 * @return URL直链
 	 */
 	@NotNull @Contract(pure = true) public static String thunderToURL(@NotNull String thunder) {
-		String thunderUrl = Base64Utils.encryptByBase64(StringUtils.deleteSuffix(thunder, StringUtils.EQUAL_SIGN).replaceFirst("thunder://", ""), "GBK");
+		String thunderUrl = StringUtils.encryptByBase64(StringUtils.deleteSuffix(thunder, StringUtils.EQUAL_SIGN).replaceFirst("thunder://", ""), "GBK");
 		return thunderUrl.substring(2, thunderUrl.length() - 2);
 	}
 
