@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.Objects;
 
 /**
  * URI工具类
@@ -24,14 +23,14 @@ public class URIUtils {
 	 * @param url URL
 	 * @return URI对象
 	 */
-	@NotNull @Contract(pure = true) public static URI getURI(@NotNull String url) {
+	@Contract(pure = true) public static URI getURI(@NotNull String url) {
 		URI uri = null;
 		try {
 			uri = new URI(url);
-		} catch (final URISyntaxException e) {
+		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-		return Objects.requireNonNull(uri);
+		return uri;
 	}
 
 	/**
@@ -40,14 +39,14 @@ public class URIUtils {
 	 * @param url URL
 	 * @return URL对象
 	 */
-	@NotNull @Contract(pure = true) public static URL getURL(@NotNull String url) {
+	@Contract(pure = true) public static URL getURL(@NotNull String url) {
 		URL uri = null;
 		try {
 			uri = new URL(url);
-		} catch (final MalformedURLException e) {
+		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
-		return Objects.requireNonNull(uri);
+		return uri;
 	}
 
 	/**
