@@ -249,6 +249,17 @@ public final class ReadWriteUtils {
 		return true;
 	}
 
+	@Contract(pure = true) public boolean copy(File out) {
+		FilesUtils.createFolder(out.getParent());
+		try (InputStream input = new FileInputStream(source); OutputStream output = new FileOutputStream(out)) {
+			input.transferTo(output);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 	/**
 	 * FileChannel 文件复制
 	 *
@@ -268,11 +279,12 @@ public final class ReadWriteUtils {
 	@Contract(pure = true) public boolean channelCopy(File out) {
 		FilesUtils.createFolder(out.getParent());
 		try (FileChannel inputChannel = new FileInputStream(source).getChannel(); FileChannel outputChannel = new FileOutputStream(out).getChannel()) {
-			outputChannel.transferFrom(inputChannel, append ? out.length() : 0, inputChannel.size());
+			outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
+			return true;
 		} catch (IOException e) {
-			return false;
+			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -299,10 +311,11 @@ public final class ReadWriteUtils {
 			while (!Judge.isMinusOne(length = inputRandomAccess.read(buffer))) {
 				outputRandomAccess.write(buffer, 0, length);
 			}
+			return true;
 		} catch (IOException e) {
-			return false;
+			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -327,9 +340,9 @@ public final class ReadWriteUtils {
 			long size = inputChannel.size();
 			outputChannel.map(FileChannel.MapMode.READ_WRITE, 0, size).put(inputChannel.map(FileChannel.MapMode.READ_ONLY, 0, size).get(new byte[(int) size]));
 		} catch (IOException e) {
-			return false;
+			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 
 	// ================================================== ReadUtils ==================================================
@@ -423,7 +436,7 @@ public final class ReadWriteUtils {
 	@Contract(pure = true) private byte[] array(@NotNull File file) {
 		byte[] result = null;
 		try (InputStream inputStream = new FileInputStream(file)) {
-			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).getByteArray();
+			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).toByteArray();
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}

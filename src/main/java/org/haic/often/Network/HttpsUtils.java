@@ -646,7 +646,7 @@ public class HttpsUtils {
 		@Contract(pure = true) public byte[] bodyAsBytes() {
 			byte[] result;
 			try (InputStream inputStream = bodyStream()) {
-				result = StreamUtils.stream(inputStream).getByteArray();
+				result = StreamUtils.stream(inputStream).toByteArray();
 			} catch (final IOException e) {
 				return null;
 			}

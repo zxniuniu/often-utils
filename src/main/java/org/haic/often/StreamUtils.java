@@ -75,7 +75,7 @@ public class StreamUtils {
 	 * @return 无排序的数组
 	 */
 	@NotNull @Contract(pure = true) public static <E> List<E> sort(@NotNull List<E> list) {
-		return list.parallelStream().sorted().collect(Collectors.toList());
+		return list.stream().sorted().collect(Collectors.toList());
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class StreamUtils {
 	 * @return 无排序的数组
 	 */
 	@NotNull @Contract(pure = true) public static <E> List<E> sort(@NotNull List<E> list, @NotNull Comparator<E> comparator) {
-		return list.parallelStream().sorted(comparator).collect(Collectors.toList());
+		return list.stream().sorted(comparator).collect(Collectors.toList());
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class StreamUtils {
 	 * @return 无排序的数组
 	 */
 	@NotNull @Contract(pure = true) public static <E> List<E> streamSet(@NotNull List<E> list) {
-		return list.parallelStream().distinct().collect(Collectors.toList());
+		return list.stream().distinct().collect(Collectors.toList());
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class StreamUtils {
 	 * @return Integer类型动态数组
 	 */
 	@NotNull @Contract(pure = true) public static List<Integer> intToInteger(final int[] nums) {
-		return Arrays.stream(nums).parallel().boxed().collect(Collectors.toList());
+		return Arrays.stream(nums).boxed().collect(Collectors.toList());
 	}
 
 	/**
@@ -171,6 +171,29 @@ public class StreamUtils {
 		 */
 		public abstract StreamUtil bufferSize(int bufferSize);
 
+		/**
+		 * 设置 字符集编码(默认UTF8)
+		 *
+		 * @param charsetName 字符集编码名称
+		 * @return this
+		 */
+		@Contract(pure = true) public abstract StreamUtil charset(@NotNull String charsetName);
+
+		/**
+		 * 设置 字符集编码(默认UTF8)
+		 *
+		 * @param charset 字符集编码
+		 * @return this
+		 */
+		@Contract(pure = true) public abstract StreamUtil charset(@NotNull Charset charset);
+
+		/**
+		 * 获取 流中字符串信息
+		 *
+		 * @return 字符串文本
+		 */
+		@Contract(pure = true) public abstract String getString() throws IOException;
+
 	}
 
 	/**
@@ -188,33 +211,16 @@ public class StreamUtils {
 			return this;
 		}
 
-		/**
-		 * 设置 字符集编码(默认UTF8)
-		 *
-		 * @param charsetName 字符集编码名称
-		 * @return this
-		 */
 		@Contract(pure = true) public InputStreamUtil charset(@NotNull String charsetName) {
 			this.charset = Charset.forName(charsetName);
 			return this;
 		}
 
-		/**
-		 * 设置 字符集编码(默认UTF8)
-		 *
-		 * @param charset 字符集编码
-		 * @return this
-		 */
 		@Contract(pure = true) public InputStreamUtil charset(@NotNull Charset charset) {
 			this.charset = charset;
 			return this;
 		}
 
-		/**
-		 * 获取 流中字符串信息
-		 *
-		 * @return 字符串文本
-		 */
 		@NotNull @Contract(pure = true) public String getString() throws IOException {
 			return toByteArrayOutputStream().toString(charset);
 		}
@@ -225,7 +231,7 @@ public class StreamUtils {
 		 * @return 字符串
 		 */
 		@NotNull @Contract(pure = true) public List<String> getStringAsLine() throws IOException {
-			return new InputStreamReaderUtil(new InputStreamReader(inputStream, charset)).bufferSize(bufferSize).getStringAsLine();
+			return stream(new InputStreamReader(inputStream, charset)).bufferSize(bufferSize).getStringAsLine();
 		}
 
 		/**
@@ -233,8 +239,8 @@ public class StreamUtils {
 		 *
 		 * @return bytes
 		 */
-		@Contract(pure = true) public byte[] getByteArray() throws IOException {
-			return new BufferedInputStreamUtil(new BufferedInputStream(inputStream, bufferSize)).toByteArray();
+		@Contract(pure = true) public byte[] toByteArray() throws IOException {
+			return stream(new BufferedInputStream(inputStream, bufferSize)).toByteArray();
 		}
 
 		/**
@@ -243,7 +249,7 @@ public class StreamUtils {
 		 * @return ByteArrayOutputStream
 		 */
 		@NotNull @Contract(pure = true) public ByteArrayOutputStream toByteArrayOutputStream() throws IOException {
-			return new BufferedInputStreamUtil(new BufferedInputStream(inputStream)).bufferSize(bufferSize).toByteArrayOutputStream();
+			return stream(new BufferedInputStream(inputStream)).bufferSize(bufferSize).toByteArrayOutputStream();
 		}
 
 	}
@@ -258,22 +264,27 @@ public class StreamUtils {
 			this.inputStream = inputStream;
 		}
 
-		@Contract(pure = true) public InputStreamReaderUtil bufferSize(int bufferSize) {
+		@Override @Contract(pure = true) public InputStreamReaderUtil bufferSize(int bufferSize) {
 			this.bufferSize = bufferSize;
 			return this;
 		}
 
-		/**
-		 * 获取 流中字符串信息
-		 *
-		 * @return 字符串文本
-		 */
+		@Contract(pure = true) public InputStreamReaderUtil charset(@NotNull String charsetName) {
+			this.charset = Charset.forName(charsetName);
+			return this;
+		}
+
+		@Contract(pure = true) public InputStreamReaderUtil charset(@NotNull Charset charset) {
+			this.charset = charset;
+			return this;
+		}
+
 		@NotNull @Contract(pure = true) public String getString() throws IOException {
-			StringBuilder result = new StringBuilder();
-			BufferedReader bufferedReader = new BufferedReader(inputStream, bufferSize);
-			String line;
-			while (!Judge.isNull(line = bufferedReader.readLine())) {
-				result.append(line).append(StringUtils.LINE_SEPARATOR);
+			StringWriter result = new StringWriter();
+			char[] buffer = new char[bufferSize];
+			int length;
+			while (!Judge.isMinusOne(length = inputStream.read(buffer))) {
+				result.write(buffer, 0, length);
 			}
 			return String.valueOf(result);
 		}
@@ -310,6 +321,20 @@ public class StreamUtils {
 			return this;
 		}
 
+		@Contract(pure = true) public BufferedInputStreamUtil charset(@NotNull String charsetName) {
+			this.charset = Charset.forName(charsetName);
+			return this;
+		}
+
+		@Contract(pure = true) public BufferedInputStreamUtil charset(@NotNull Charset charset) {
+			this.charset = charset;
+			return this;
+		}
+
+		@NotNull @Contract(pure = true) public String getString() throws IOException {
+			return toByteArrayOutputStream().toString(charset);
+		}
+
 		/**
 		 * 转换为 ByteArrayOutputStream
 		 *
@@ -322,7 +347,6 @@ public class StreamUtils {
 			while (!Judge.isMinusOne(length = inputStream.read(buffer))) {
 				result.write(buffer, 0, length);
 			}
-			result.flush();
 			return result;
 		}
 
