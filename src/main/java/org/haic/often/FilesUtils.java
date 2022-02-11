@@ -283,8 +283,8 @@ public class FilesUtils {
 	 * @param suffix 文件后缀名
 	 * @return 文件对象列表
 	 */
-	@NotNull @Contract(pure = true) public static List<File> iterateFilesOfSuffix(@NotNull File files, @NotNull String suffix) {
-		return iterateFilesPathOfSuffix(files, suffix).parallelStream().map(File::new).collect(Collectors.toList());
+	@NotNull @Contract(pure = true) public static List<File> iterateFilesAsSuffix(@NotNull File files, @NotNull String suffix) {
+		return iterateFilesPathAsSuffix(files, suffix).parallelStream().map(File::new).collect(Collectors.toList());
 	}
 
 	/**
@@ -292,8 +292,8 @@ public class FilesUtils {
 	 * @param suffix    文件后缀名
 	 * @return 文件对象列表
 	 */
-	@NotNull @Contract(pure = true) public static List<File> iterateFilesOfSuffix(@NotNull String filesPath, @NotNull String suffix) {
-		return iterateFilesOfSuffix(new File(filesPath), suffix);
+	@NotNull @Contract(pure = true) public static List<File> iterateFilesAsSuffix(@NotNull String filesPath, @NotNull String suffix) {
+		return iterateFilesAsSuffix(new File(filesPath), suffix);
 	}
 
 	/**
@@ -301,8 +301,8 @@ public class FilesUtils {
 	 * @param suffix    文件后缀名
 	 * @return 文件路径列表
 	 */
-	@NotNull @Contract(pure = true) public static List<String> iterateFilesPathOfSuffix(@NotNull String filesPath, @NotNull String suffix) {
-		return iterateFilesPathOfSuffix(new File(filesPath), suffix);
+	@NotNull @Contract(pure = true) public static List<String> iterateFilesPathAsSuffix(@NotNull String filesPath, @NotNull String suffix) {
+		return iterateFilesPathAsSuffix(new File(filesPath), suffix);
 	}
 
 	/**
@@ -310,7 +310,7 @@ public class FilesUtils {
 	 * @param suffix 文件后缀名
 	 * @return 文件路径列表
 	 */
-	@NotNull @Contract(pure = true) public static List<String> iterateFilesPathOfSuffix(@NotNull File files, @NotNull String suffix) {
+	@NotNull @Contract(pure = true) public static List<String> iterateFilesPathAsSuffix(@NotNull File files, @NotNull String suffix) {
 		return iterateFilesPath(files).parallelStream().filter(file -> file.endsWith((char) 46 + suffix)).collect(Collectors.toList());
 	}
 
