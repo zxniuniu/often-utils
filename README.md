@@ -33,7 +33,8 @@ Aria2Utils.connect("127.0.0.1", 6800)  //地址以及端口
 文件读写，简单示例:  
 String str = ReadWriteUtils.orgin(filePath).text(); //读取文件文本  
 List<String> lists = ReadWriteUtils.orgin(filePath).list(); //按行读取文件文本  
-ReadWriteUtils.orgin(filePath).text(str); //字符串按行写入文本 ReadWriteUtils.orgin(file).copy(out); // 文件复制
+ReadWriteUtils.orgin(filePath).text(str); //字符串按行写入文本  
+ReadWriteUtils.orgin(file).copy(out); // 文件复制
 
 文件压缩，简单示例:  
 ZipUtils.origin(file).out(qq_tempfile).addFiles(file);  
