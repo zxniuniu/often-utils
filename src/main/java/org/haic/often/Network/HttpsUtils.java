@@ -488,7 +488,14 @@ public class HttpsUtils {
 	 * 方法名常量
 	 */
 	public enum HttpMethod {
-		GET(true), POST(true);
+		/**
+		 * GET请求方法
+		 */
+		GET(true),
+		/**
+		 * POST请求方法
+		 */
+		POST(true);
 
 		private final boolean hasBody;
 

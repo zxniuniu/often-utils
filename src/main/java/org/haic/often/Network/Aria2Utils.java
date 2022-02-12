@@ -393,7 +393,22 @@ public class Aria2Utils {
 	 * URI协议常量
 	 */
 	public enum URIMethod {
-		HTTP("http"), HTTPS("https"), WS("ws"), WWS("wws");
+		/**
+		 * http 协议
+		 */
+		HTTP("http"),
+		/**
+		 * https 协议
+		 */
+		HTTPS("https"),
+		/**
+		 * ws 协议
+		 */
+		WS("ws"),
+		/**
+		 * wws 协议
+		 */
+		WWS("wws");
 
 		private final String value;
 
