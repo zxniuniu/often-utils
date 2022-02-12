@@ -24,8 +24,62 @@ import java.util.stream.Stream;
  */
 public class FilesUtils {
 
-	protected File file;
-	protected String suffix;
+	/**
+	 * 获取 默认下载文件夹路径
+	 *
+	 * @return 下载文件夹路径
+	 */
+	public static String getDownloadsPath() {
+		return getSystemDefaultDirectory("{374DE290-123F-4565-9164-39C4925E467B}");
+	}
+
+	/**
+	 * 获取 默认文档文件夹路径
+	 *
+	 * @return 文档文件夹路径
+	 */
+	public static String getDocumentsPath() {
+		return getSystemDefaultDirectory("{F42EE2D3-909F-4907-8871-4C22FC0BF756}");
+	}
+
+	/**
+	 * 获取 默认图片文件夹路径
+	 *
+	 * @return 图片文件夹路径
+	 */
+	public static String getPicturesPath() {
+		return getSystemDefaultDirectory("{0DDD015D-B06C-45D5-8C4C-F59713854639}");
+	}
+
+	/**
+	 * 获取 默认音乐文件夹路径
+	 *
+	 * @return 音乐文件夹路径
+	 */
+	public static String getMusicPath() {
+		return getSystemDefaultDirectory("{A0C69A99-21C8-4671-8703-7934162FCF1D}");
+	}
+
+	/**
+	 * 获取 默认视频文件夹路径
+	 *
+	 * @return 视频文件夹路径
+	 */
+	public static String getVideosPath() {
+		return getSystemDefaultDirectory("{35286A68-3C57-41A1-BBB1-0EAE73D76C95}");
+	}
+
+	/**
+	 * 获取 系统默认文件夹路径
+	 *
+	 * @param id 字符串项名称
+	 * @return 文件夹路径
+	 */
+	private static String getSystemDefaultDirectory(String id) {
+		String[] value = RunCmd.dos("REG", "QUERY", "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", "/v", id)
+				.readInfo().split(" ");
+		return value[value.length - 1];
+	}
 
 	/**
 	 * 如果文件存在，删除文件

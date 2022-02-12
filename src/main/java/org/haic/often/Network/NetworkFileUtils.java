@@ -406,22 +406,20 @@ public class NetworkFileUtils {
 	/**
 	 * 下载网络文件,返回状态码
 	 *
-	 * @param folderPath 文件存放目录路径
 	 * @return 下载状态码
 	 */
-	@Contract(pure = true) public int download(@NotNull String folderPath) {
-		return download(new File(folderPath));
+	@Contract(pure = true) public int download() {
+		return download(FilesUtils.getDownloadsPath());
 	}
 
 	/**
 	 * 下载网络文件,返回状态码
 	 *
+	 * @param folderPath 文件存放目录路径
 	 * @return 下载状态码
 	 */
-	@Contract(pure = true) public int download() {
-		String[] value = RunCmd.dos("REG", "QUERY", "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", "/v",
-				"{374DE290-123F-4565-9164-39C4925E467B}").readInfo().split(" ");
-		return download(new File(value[value.length - 1]));
+	@Contract(pure = true) public int download(@NotNull String folderPath) {
+		return download(new File(folderPath));
 	}
 
 	/**
