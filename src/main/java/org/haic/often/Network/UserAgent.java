@@ -16,11 +16,29 @@ public class UserAgent {
 	private static final String mozilla = "Mozilla/5.0 (";
 
 	/**
-	 * 获取 随机UserAgent
+	 * 获取 Chrome Browser UserAgent
 	 *
-	 * @return 随机UserAgent
+	 * @return Chrome Browser UserAgent
+	 */
+	@Contract(pure = true) public static String randomChrome() {
+		return random(1);
+	}
+
+	/**
+	 * 获取 Random UserAgent
+	 *
+	 * @return Random UserAgent
 	 */
 	@Contract(pure = true) public static String random() {
+		return random(RandomUtils.nextInt(0, 20));
+	}
+
+	/**
+	 * 获取 Corresponding Browser UserAgent
+	 *
+	 * @return UserAgent
+	 */
+	@Contract(pure = true) public static String random(int randomIndex) {
 		String userAgent;
 		switch (RandomUtils.nextInt(0, 20)) {
 		case 0 -> // firefox
