@@ -285,7 +285,7 @@ public class UserAgent {
 		 * @param index 值
 		 * @return enum Browser
 		 */
-		public static Browser getEnum(int index) {
+		@Contract(pure = true) public static Browser getEnum(int index) {
 			for (Browser sexEnum : Browser.values()) {
 				if (sexEnum.value == index) {
 					return sexEnum;
@@ -299,7 +299,7 @@ public class UserAgent {
 		 *
 		 * @return value
 		 */
-		public final int getValue() {
+		@Contract(pure = true) public final int getValue() {
 			return value;
 		}
 	}

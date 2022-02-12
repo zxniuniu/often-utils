@@ -496,7 +496,12 @@ public class HttpsUtils {
 			this.hasBody = hasBody;
 		}
 
-		public final boolean hasBody() {
+		/**
+		 * 获得 枚举方法的值
+		 *
+		 * @return value
+		 */
+		@Contract(pure = true) public final boolean hasBody() {
 			return hasBody;
 		}
 	}

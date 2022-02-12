@@ -85,7 +85,7 @@ public class Aria2Utils {
 	 * @return this
 	 */
 	@Contract(pure = true) public static Aria2Utils connect(final URIMethod method, final String host, final int port) {
-		return config().setAria2RpcUrl(method.hasBody() + "://" + host + ":" + port + "/jsonrpc");
+		return config().setAria2RpcUrl(method.value + "://" + host + ":" + port + "/jsonrpc");
 	}
 
 	/**
@@ -395,14 +395,19 @@ public class Aria2Utils {
 	public enum URIMethod {
 		HTTP("http"), HTTPS("https"), WS("ws"), WWS("wws");
 
-		private final String hasBody;
+		private final String value;
 
-		URIMethod(String hasBody) {
-			this.hasBody = hasBody;
+		URIMethod(String value) {
+			this.value = value;
 		}
 
-		@Contract(pure = true) public final String hasBody() {
-			return hasBody;
+		/**
+		 * 获得 枚举方法的值
+		 *
+		 * @return value
+		 */
+		@Contract(pure = true) public final String getValue() {
+			return value;
 		}
 	}
 

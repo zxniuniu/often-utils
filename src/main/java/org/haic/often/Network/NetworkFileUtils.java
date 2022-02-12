@@ -710,7 +710,7 @@ public class NetworkFileUtils {
 		 *
 		 * @return value
 		 */
-		public final boolean hasBody() {
+		@Contract(pure = true) public final boolean hasBody() {
 			return hasBody;
 		}
 	}
