@@ -41,12 +41,11 @@ public class UserAgent {
 	 */
 	@Contract(pure = true) public static String random(Browser browser) {
 		String userAgent;
-		switch (browser.value) {
-		case 0 -> // firefox
-				userAgent = mozilla + header() + firefoxTail();
-		case 1 -> // chrome
+		switch (browser) {
+		case FIREFOX -> userAgent = mozilla + header() + firefoxTail(); // firefox
+		case CHROME -> // chrome
 				userAgent = mozilla + header() + chromeTail();
-		case 2 -> { // ie
+		case IE -> { // ie
 			if (Judge.isEmpty(RandomUtils.nextInt(0, 2))) {
 				userAgent = mozilla + "compatible; MSIE " + RandomUtils.nextInt(4, 20) + ".0; ";
 				userAgent += headerWin() + "; Trident/" + RandomUtils.nextInt(4, 10) + ".0)";
@@ -54,19 +53,19 @@ public class UserAgent {
 				userAgent = mozilla + headerWin() + "; Trident/" + RandomUtils.nextInt(4, 10) + ".0) like Gecko";
 			}
 		}
-		case 3 -> // Maxthon
+		case MAXTHON -> // Maxthon
 				userAgent = mozilla + "compatible; MSIE " + RandomUtils.nextInt(4, 20) + ".0; " + headerWin() + "; Maxthon 2.0)";
-		case 4 -> // TT
+		case TT -> // TT
 				userAgent = mozilla + "compatible; MSIE " + RandomUtils.nextInt(4, 20) + ".0; " + headerWin() + "; TencentTraveler  4.0)";
-		case 5 -> // The World,Green Browser
+		case Green -> // The World,Green Browser
 				userAgent = mozilla + "compatible; MSIE " + RandomUtils.nextInt(4, 20) + ".0; " + headerWin() + ")";
-		case 6 -> { // The World,Avant,360
+		case World, Avant, THREESIXZERO -> { // The World,Avant,360
 			String[] browserList = { "The World", "360SE", "Avant Browser" };
 			userAgent =
 					mozilla + "compatible; MSIE " + RandomUtils.nextInt(4, 20) + ".0; " + headerWin() + browserList[RandomUtils.nextInt(0, browserList.length)]
 							+ ")";
 		}
-		case 7 -> // sogu
+		case SUGO -> // sogu
 				userAgent = mozilla + "compatible; MSIE " + RandomUtils.nextInt(4, 20) + ".0; " + headerWin() + "; Trident/" + RandomUtils.nextInt(4, 10)
 						+ "; SE 2.X MetaSr 1.0; SE 2.X MetaSr 1.0; .NET CLR 2.0.50727; SE 2.X MetaSr 1.0)";
 		default -> userAgent = mozilla + header() + chromeTail(); // default chrome
@@ -75,25 +74,33 @@ public class UserAgent {
 	}
 
 	/**
+	 * 获取 手机端 Chrome UserAgent
+	 *
+	 * @return 手机端 Chrome UserAgent
+	 */
+	@Contract(pure = true) public static String randomChromeAsPE() {
+		return randomAsPE(PEBrowser.CHROME);
+	}
+
+	/**
 	 * 获取 随机手机端UserAgent
 	 *
 	 * @return 随机手机端UserAgent
 	 */
-	@Contract(pure = true) public static String randomPE() {
+	@Contract(pure = true) public static String randomAsPE(PEBrowser browser) {
 		String userAgent;
-		switch (RandomUtils.nextInt(0, 7)) {
-		case 0 -> { // firefox
+		switch (PEBrowser.getEnum(RandomUtils.nextInt(0, PEBrowser.values().length))) {
+		case FIREFOX -> { // firefox
 			String version = RandomUtils.nextInt(0, 100) + ".0";
 			String[] equipment = { "Tablet", "Mobile" };
 			userAgent = mozilla + androidVersion();
 			userAgent += "; " + equipment[RandomUtils.nextInt(0, equipment.length)];
 			userAgent += "; rv:" + version + ") Gecko/" + version + " Firefox/" + version;
 		}
-		case 1 -> // chrome
+		case CHROME ->  // chrome
 				userAgent = mozilla + chromeInfo() + chromeTail();
-		case 2 -> // qq
-				userAgent = "MQQBrowser/26 (" + chromeInfo() + "; CyanogenMod-7" + chromeTail();
-		case 3 -> { // Opera
+		case QQ -> userAgent = "MQQBrowser/26 (" + chromeInfo() + "; CyanogenMod-7" + chromeTail(); // qq
+		case OPERA -> { // Opera
 			String[] systems = { "Linux", "iPhone", "iPad", "iPod" };
 			String system = systems[RandomUtils.nextInt(0, systems.length)];
 			userAgent = "Opera/9.80 (" + system + "; U;";
@@ -106,17 +113,17 @@ public class UserAgent {
 			userAgent += language() + ") Presto/" + RandomUtils.nextInt(1, 10) + "." + RandomUtils.nextInt(0, 10) + "." + RandomUtils.nextInt(10, 500)
 					+ " Version/11.10";
 		}
-		case 4 -> // Touchpad
+		case TOUCHPAD -> // Touchpad
 				userAgent = mozilla + hpInfo() + ") AppleWebKit/" + RandomUtils.nextInt(500, 800) + "." + RandomUtils.nextInt(10, 100)
 						+ " (KHTML, like Gecko) Version/5.0." + RandomUtils.nextInt(2, 5) + " Safari/537.36" + " wOSBrowser/" + RandomUtils.nextInt(100, 800)
 						+ "." + RandomUtils.nextInt(0, 100) + " TouchPad/1.0";
-		case 5 -> { // SymbianOS
+		case SYMBIANOS -> { // SymbianOS
 			userAgent = mozilla + "SymbianOS/9.4; Series60/5.0 NokiaN97-1/20.0.019; Profile/MIDP-2.1 Configuration/CLDC-1.1";
 			userAgent += ") AppleWebKit/" + RandomUtils.nextInt(500, 800) + "." + RandomUtils.nextInt(10, 100);
 			userAgent +=
 					" (KHTML, like Gecko) BrowserNG/" + RandomUtils.nextInt(2, 10) + "." + RandomUtils.nextInt(0, 10) + "." + RandomUtils.nextInt(10000, 50000);
 		}
-		case 6 -> { // UC
+		case UC -> { // UC
 			String[] info = { "NOKIA5700/ UCWEB7.0.2.37/28/999", "Openwave/ UCWEB7.0.2.37/28/999",
 					"Mozilla/4.0 (compatible; MSIE 6.0; ) Opera/UCWEB7.0.2.37/28/999" };
 			userAgent = info[RandomUtils.nextInt(0, info.length)];
@@ -229,7 +236,71 @@ public class UserAgent {
 	}
 
 	/**
-	 * 浏览器名称枚举类
+	 * 移动端浏览器名称
+	 */
+	public enum PEBrowser {
+		/**
+		 * firefox Browser
+		 */
+		FIREFOX(0),
+		/**
+		 * chrome Browser
+		 */
+		CHROME(1),
+		/**
+		 * qq Browser
+		 */
+		QQ(2),
+		/**
+		 * opera Browser
+		 */
+		OPERA(3),
+		/**
+		 * touchpad Browser
+		 */
+		TOUCHPAD(4),
+		/**
+		 * symbianos Browser
+		 */
+		SYMBIANOS(5),
+		/**
+		 * uc Browser
+		 */
+		UC(6);
+
+		private final int value;
+
+		PEBrowser(final int value) {
+			this.value = value;
+		}
+
+		/**
+		 * 通过值匹配获得枚举方法
+		 *
+		 * @param index 值
+		 * @return enum Browser
+		 */
+		@Contract(pure = true) public static PEBrowser getEnum(int index) {
+			for (PEBrowser sexEnum : PEBrowser.values()) {
+				if (sexEnum.value == index) {
+					return sexEnum;
+				}
+			}
+			return CHROME;
+		}
+
+		/**
+		 * 获得 枚举方法的值
+		 *
+		 * @return value
+		 */
+		@Contract(pure = true) public final int getValue() {
+			return value;
+		}
+	}
+
+	/**
+	 * 浏览器名称
 	 */
 	public enum Browser {
 		/**
