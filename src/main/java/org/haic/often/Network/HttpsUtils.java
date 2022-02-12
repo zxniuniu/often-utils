@@ -425,7 +425,7 @@ public class HttpsUtils {
 				conn.setUseCaches(false); // POST请求不能使用缓存（POST不能被缓存）
 				conn.setDoOutput(true); // 设置是否向HttpUrlConnction输出，因为这个是POST请求，参数要放在http正文内，因此需要设为true，默认情况下是false
 				conn.setDoInput(true); // 设置是否向HttpUrlConnection读入，默认情况下是true
-				conn.setRequestMethod(method.hasBody()); // POST方法
+				conn.setRequestMethod(method.name()); // POST方法
 			}
 
 			conn.setReadTimeout(timeout); // 设置超时
@@ -488,15 +488,15 @@ public class HttpsUtils {
 	 * 方法名常量
 	 */
 	public enum HttpMethod {
-		GET("GET"), POST("POST");
+		GET(true), POST(true);
 
-		private final String hasBody;
+		private final boolean hasBody;
 
-		HttpMethod(final String hasBody) {
+		HttpMethod(final boolean hasBody) {
 			this.hasBody = hasBody;
 		}
 
-		public final String hasBody() {
+		public final boolean hasBody() {
 			return hasBody;
 		}
 	}

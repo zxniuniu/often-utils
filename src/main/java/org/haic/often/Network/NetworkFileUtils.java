@@ -506,7 +506,7 @@ public class NetworkFileUtils {
 				fileInfo.put("X-COS-META-MD5", hash);
 				fileInfo.put("referrer", referrer);
 				fileInfo.put("threads", MAX_THREADS);
-				fileInfo.put("method", method.getValue());
+				fileInfo.put("method", method.name());
 				if (!ReadWriteUtils.orgin(conf).text(fileInfo.toJSONString())) {
 					throw new RuntimeException("Configuration file creation failed");
 				}
@@ -675,26 +675,43 @@ public class NetworkFileUtils {
 	}
 
 	/**
-	 * 下载方法名常量<br/>
+	 * 下载方法名<br/>
 	 * FILE - 配置文件下载<br/>
 	 * FULL - 全量下载模式<br/>
 	 * MULTITHREAD - 多线程模式<br/>
 	 * INTELLIGENT - 智能多线程模式
 	 */
 	public enum Method {
-		FILE("file"), // 配置文件下载
-		FULL("full"),  //全量下载模式
-		PIECE("piece"), // 分块多线程模式
-		MULTITHREAD("multithread");  // 经典多线程模式
+		/**
+		 * 通过配置文件下载
+		 */
+		FILE(true),
+		/**
+		 * 全量下载模式
+		 */
+		FULL(true),
+		/**
+		 * 分块多线程模式
+		 */
+		PIECE(true),
+		/**
+		 * 经典多线程模式
+		 */
+		MULTITHREAD(true);
 
-		private final String value;
+		private final boolean hasBody;
 
-		Method(final String value) {
-			this.value = value;
+		Method(final boolean hasBody) {
+			this.hasBody = hasBody;
 		}
 
-		public final String getValue() {
-			return value;
+		/**
+		 * 获得 枚举方法的值
+		 *
+		 * @return value
+		 */
+		public final boolean hasBody() {
+			return hasBody;
 		}
 	}
 

@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Contract;
  * @since 2020/3/7 20:18
  */
 public class UserAgent {
+
 	private static final String mozilla = "Mozilla/5.0 (";
 
 	/**
@@ -21,7 +22,7 @@ public class UserAgent {
 	 * @return Chrome Browser UserAgent
 	 */
 	@Contract(pure = true) public static String randomChrome() {
-		return random(1);
+		return random(Browser.CHROME);
 	}
 
 	/**
@@ -30,7 +31,7 @@ public class UserAgent {
 	 * @return Random UserAgent
 	 */
 	@Contract(pure = true) public static String random() {
-		return random(RandomUtils.nextInt(0, 20));
+		return random(Browser.getEnum(RandomUtils.nextInt(0, Browser.values().length)));
 	}
 
 	/**
@@ -38,9 +39,9 @@ public class UserAgent {
 	 *
 	 * @return UserAgent
 	 */
-	@Contract(pure = true) public static String random(int randomIndex) {
+	@Contract(pure = true) public static String random(Browser browser) {
 		String userAgent;
-		switch (RandomUtils.nextInt(0, 20)) {
+		switch (browser.value) {
 		case 0 -> // firefox
 				userAgent = mozilla + header() + firefoxTail();
 		case 1 -> // chrome
@@ -60,9 +61,10 @@ public class UserAgent {
 		case 5 -> // The World,Green Browser
 				userAgent = mozilla + "compatible; MSIE " + RandomUtils.nextInt(4, 20) + ".0; " + headerWin() + ")";
 		case 6 -> { // The World,Avant,360
-			String[] browser = { "The World", "360SE", "Avant Browser" };
+			String[] browserList = { "The World", "360SE", "Avant Browser" };
 			userAgent =
-					mozilla + "compatible; MSIE " + RandomUtils.nextInt(4, 20) + ".0; " + headerWin() + browser[RandomUtils.nextInt(0, browser.length)] + ")";
+					mozilla + "compatible; MSIE " + RandomUtils.nextInt(4, 20) + ".0; " + headerWin() + browserList[RandomUtils.nextInt(0, browserList.length)]
+							+ ")";
 		}
 		case 7 -> // sogu
 				userAgent = mozilla + "compatible; MSIE " + RandomUtils.nextInt(4, 20) + ".0; " + headerWin() + "; Trident/" + RandomUtils.nextInt(4, 10)
@@ -79,7 +81,7 @@ public class UserAgent {
 	 */
 	@Contract(pure = true) public static String randomPE() {
 		String userAgent;
-		switch (RandomUtils.nextInt(0, 20)) {
+		switch (RandomUtils.nextInt(0, 7)) {
 		case 0 -> { // firefox
 			String version = RandomUtils.nextInt(0, 100) + ".0";
 			String[] equipment = { "Tablet", "Mobile" };
@@ -224,6 +226,82 @@ public class UserAgent {
 		chrome += " Chrome/" + RandomUtils.nextInt(10, 100) + "." + "0" + "." + RandomUtils.nextInt(1000, 10000) + "." + RandomUtils.nextInt(10, 100)
 				+ " Safari/537.36";
 		return chrome;
+	}
+
+	/**
+	 * 浏览器名称枚举类
+	 */
+	public enum Browser {
+		/**
+		 * firefox Browser
+		 */
+		FIREFOX(0),
+		/**
+		 * chrome Browser
+		 */
+		CHROME(1),
+		/**
+		 * IE Browser
+		 */
+		IE(2),
+		/**
+		 * maxthon Browser
+		 */
+		MAXTHON(3),
+		/**
+		 * TT  Browser
+		 */
+		TT(4),
+		/**
+		 * Green Browser
+		 */
+		Green(5),
+		/**
+		 * The World Browser
+		 */
+		World(6),
+		/**
+		 * Avant Browser
+		 */
+		Avant(6),
+		/**
+		 * 360 Browser
+		 */
+		THREESIXZERO(6),
+		/**
+		 * sogu Browser
+		 */
+		SUGO(7);
+
+		private final int value;
+
+		Browser(final int value) {
+			this.value = value;
+		}
+
+		/**
+		 * 通过值匹配获得枚举方法
+		 *
+		 * @param index 值
+		 * @return enum Browser
+		 */
+		public static Browser getEnum(int index) {
+			for (Browser sexEnum : Browser.values()) {
+				if (sexEnum.value == index) {
+					return sexEnum;
+				}
+			}
+			return CHROME;
+		}
+
+		/**
+		 * 获得 枚举方法的值
+		 *
+		 * @return value
+		 */
+		public final int getValue() {
+			return value;
+		}
 	}
 
 }
