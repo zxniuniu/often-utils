@@ -134,7 +134,7 @@ public class URIUtils {
 	 * @return 连接状态
 	 */
 	@Contract(pure = true) public static boolean pingIp(@NotNull String host) {
-		return RunCmd.dos("ping", host, "-n", "1", "-w", "5000").execute();
+		return Judge.isEmpty(RunCmd.dos("ping", host, "-n", "1", "-w", "5000").execute());
 	}
 
 	/**

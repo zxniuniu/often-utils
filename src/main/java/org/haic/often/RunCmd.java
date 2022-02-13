@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * CMD控制台
+ * 终端控制台
  *
  * @author haicdust
  * @version 1.0
@@ -31,9 +32,9 @@ public class RunCmd {
 	}
 
 	/**
-	 * 设置 cmd命令
+	 * 设置 终端命令
 	 *
-	 * @param dos cmd命令
+	 * @param dos 终端命令
 	 * @return new RunCmd
 	 */
 	public static RunCmd dos(@NotNull String... dos) {
@@ -41,9 +42,9 @@ public class RunCmd {
 	}
 
 	/**
-	 * 设置 cmd命令
+	 * 设置 终端命令
 	 *
-	 * @param dos cmd命令
+	 * @param dos 终端命令
 	 * @return new RunCmd
 	 */
 	public static RunCmd dos(@NotNull List<String> dos) {
@@ -60,9 +61,9 @@ public class RunCmd {
 	}
 
 	/**
-	 * 设置 cmd命令
+	 * 设置 终端命令
 	 *
-	 * @param command cmd命令
+	 * @param command 终端命令
 	 * @return this
 	 */
 	private RunCmd command(@NotNull List<String> command) {
@@ -137,21 +138,21 @@ public class RunCmd {
 	}
 
 	/**
-	 * 执行CMD命令
+	 * 执行 终端命令
 	 *
-	 * @return 执行是否成功
+	 * @return 进程的退出值, 一般情况下, 0为正常终止
 	 */
-	@Contract(pure = true) public boolean execute() {
-		int status = 0;
+	@Contract(pure = true) public int execute() {
+		int status = 1;
 		Process process;
 		try {
 			process = new ProcessBuilder(command).directory(directory).start();
 			status = process.waitFor();
 			process.destroy();
-		} catch (Exception e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		return Judge.isEmpty(status);
+		return status;
 	}
 
 }
