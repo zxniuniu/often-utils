@@ -3,7 +3,6 @@ package org.haic.often.Network;
 import com.alibaba.fastjson.JSONObject;
 import net.lingala.zip4j.model.enums.RandomAccessFileMode;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
 import org.haic.often.*;
 import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.Multithread.ParameterizedThread;
@@ -61,7 +60,7 @@ public class NetworkFileUtils {
 		PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
 		headers.put("accept-encoding", "gzip, deflate, br");
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
-		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
+		excludeErrorStatus(HttpStatus.SC_NOT_FOUND, HttpStatus.SC_TOO_MANY_REQUEST);
 		method = Method.MULTITHREAD;
 	}
 
@@ -139,6 +138,17 @@ public class NetworkFileUtils {
 		for (int code : statusCode) {
 			excludeErrorStatusCodes.add(code);
 		}
+		return this;
+	}
+
+	/**
+	 * 排除错误码,在指定状态发生时,不进行重试,可指定多个
+	 *
+	 * @param excludeErrorStatusCodes 状态码列表
+	 * @return this
+	 */
+	@Contract(pure = true) public NetworkFileUtils excludeErrorStatus(List<Integer> excludeErrorStatusCodes) {
+		this.excludeErrorStatusCodes = excludeErrorStatusCodes;
 		return this;
 	}
 
@@ -477,7 +487,7 @@ public class NetworkFileUtils {
 		case FULL, PIECE, MULTITHREAD -> {
 			// 获取文件信息
 			response = JsoupUtils.connect(url).proxy(proxy).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP)
-					.retry(unlimitedRetry).errorExit(errorExit).execute();
+					.excludeErrorStatus(excludeErrorStatusCodes).retry(unlimitedRetry).errorExit(errorExit).execute();
 			// 获取URL连接状态
 			int statusCode = Judge.isNull(response) ? HttpStatus.SC_REQUEST_TIMEOUT : response.statusCode();
 			if (!URIUtils.statusIsOK(statusCode)) {
@@ -627,9 +637,8 @@ public class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	@Contract(pure = true) private int writeFull() {
-		return writeFull(
-				JsoupUtils.connect(url).proxy(proxy).headers(headers).cookies(cookies).referrer(referrer).retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry)
-						.errorExit(errorExit).execute());
+		return writeFull(JsoupUtils.connect(url).proxy(proxy).headers(headers).cookies(cookies).referrer(referrer).excludeErrorStatus(excludeErrorStatusCodes)
+				.retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).execute());
 	}
 
 	/**

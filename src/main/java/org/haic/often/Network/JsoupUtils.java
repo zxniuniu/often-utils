@@ -1,6 +1,5 @@
 package org.haic.often.Network;
 
-import org.apache.http.HttpStatus;
 import org.haic.often.Judge;
 import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.Tuple.ThreeTuple;
@@ -53,7 +52,7 @@ public class JsoupUtils {
 		followRedirects = true;
 		headers.put("user-agent", UserAgent.randomChrome()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
-		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
+		excludeErrorStatus(HttpStatus.SC_NOT_FOUND, HttpStatus.SC_TOO_MANY_REQUEST);
 		proxy(Proxy.NO_PROXY);
 	}
 
@@ -361,10 +360,21 @@ public class JsoupUtils {
 	 * @param statusCode 状态码
 	 * @return this
 	 */
-	@Contract(pure = true) public JsoupUtils excludeErrorStatus(final int... statusCode) {
+	@Contract(pure = true) public JsoupUtils excludeErrorStatus(int... statusCode) {
 		for (int code : statusCode) {
 			excludeErrorStatusCodes.add(code);
 		}
+		return this;
+	}
+
+	/**
+	 * 排除错误码,在指定状态发生时,不进行重试,可指定多个
+	 *
+	 * @param excludeErrorStatusCodes 状态码列表
+	 * @return this
+	 */
+	@Contract(pure = true) public JsoupUtils excludeErrorStatus(List<Integer> excludeErrorStatusCodes) {
+		this.excludeErrorStatusCodes = excludeErrorStatusCodes;
 		return this;
 	}
 

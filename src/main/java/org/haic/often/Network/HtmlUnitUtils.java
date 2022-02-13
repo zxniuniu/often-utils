@@ -5,7 +5,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpStatus;
 import org.haic.often.Judge;
 import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.URIUtils;
@@ -62,7 +61,7 @@ public class HtmlUnitUtils {
 		waitJSTime = 1000;
 		headers.put("user-agent", UserAgent.randomChrome()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
-		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
+		excludeErrorStatus(HttpStatus.SC_NOT_FOUND, HttpStatus.SC_TOO_MANY_REQUEST);
 	}
 
 	/**

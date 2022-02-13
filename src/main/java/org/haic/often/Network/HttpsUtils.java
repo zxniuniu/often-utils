@@ -1,6 +1,5 @@
 package org.haic.often.Network;
 
-import org.apache.http.HttpStatus;
 import org.haic.often.Judge;
 import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.StreamUtils;
@@ -55,7 +54,7 @@ public class HttpsUtils {
 		this.followRedirects = true;
 		headers.put("user-agent", UserAgent.randomChrome()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
-		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
+		excludeErrorStatus(HttpStatus.SC_NOT_FOUND, HttpStatus.SC_TOO_MANY_REQUEST);
 		proxy(Proxy.NO_PROXY);
 	}
 
