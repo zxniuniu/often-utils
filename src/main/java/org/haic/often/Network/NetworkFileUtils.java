@@ -411,8 +411,8 @@ public class NetworkFileUtils {
 	 * @param filePath 待上传的文件路径
 	 * @return 上传状态码
 	 */
-	@Contract(pure = true) public int Upload(@NotNull String filePath) {
-		return Upload(new File(filePath));
+	@Contract(pure = true) public int upload(@NotNull String filePath) {
+		return upload(new File(filePath));
 	}
 
 	/**
@@ -421,7 +421,7 @@ public class NetworkFileUtils {
 	 * @param file 待上传的文件对象
 	 * @return 上传状态码
 	 */
-	@Contract(pure = true) public int Upload(@NotNull File file) {
+	@Contract(pure = true) public int upload(@NotNull File file) {
 		if (!Judge.isEmpty(authorization)) {
 			headers.put("Authorization", authorization);
 		}
@@ -466,8 +466,8 @@ public class NetworkFileUtils {
 				fileInfo = JSONObject.parseObject(infos.get(0));
 				url = fileInfo.getString("URL");
 				fileName = fileInfo.getString("fileName");
-				fileSize = fileInfo.getInteger("Content-Length");
-				hash = fileInfo.getString("X-COS-META-MD5");
+				fileSize = fileInfo.getInteger("content-length");
+				hash = fileInfo.getString("x-cos-meta-md5");
 				referrer = fileInfo.getString("referrer");
 				if (Judge.isEmpty(url) || Judge.isEmpty(fileName) || Judge.isEmpty(fileSize)) {
 					throw new RuntimeException("Info is error -> " + conf);
@@ -495,7 +495,7 @@ public class NetworkFileUtils {
 			}
 			// 获取文件名
 			if (Judge.isEmpty(fileName)) {
-				String disposition = Objects.requireNonNull(response).header("Content-Disposition");
+				String disposition = Objects.requireNonNull(response).header("content-disposition");
 				fileName = Judge.isNull(disposition) ?
 						StringUtils.decodeByURL(
 								url.contains("?") ? url.substring(url.lastIndexOf("/") + 1, url.indexOf("?")) : url.substring(url.lastIndexOf("/") + 1)) :
@@ -516,9 +516,9 @@ public class NetworkFileUtils {
 				return HttpStatus.SC_OK;
 			}
 			// 获取文件大小
-			String contentLength = response.header("Content-Length");
+			String contentLength = response.header("content-length");
 			fileSize = Judge.isEmpty(contentLength) ? 0 : Integer.parseInt(Objects.requireNonNull(contentLength));
-			hash = Judge.isEmpty(hash) ? response.header("X-COS-META-MD5") : hash; // 获取文件MD5
+			hash = Judge.isEmpty(hash) ? response.header("x-cos-meta-md5") : hash; // 获取文件MD5
 			if (conf.isFile()) { // 读取文件配置信息
 				infos = ReadWriteUtils.orgin(conf).list();
 				infos.remove(0); // 删除配置行
@@ -527,8 +527,8 @@ public class NetworkFileUtils {
 			} else { // 创建并写入文件配置信息
 				fileInfo.put("URL", url);
 				fileInfo.put("fileName", fileName);
-				fileInfo.put("Content-Length", String.valueOf(fileSize));
-				fileInfo.put("X-COS-META-MD5", hash);
+				fileInfo.put("content-length", String.valueOf(fileSize));
+				fileInfo.put("x-cos-meta-md5", hash);
 				fileInfo.put("referrer", referrer);
 				fileInfo.put("threads", MAX_THREADS);
 				fileInfo.put("method", method.name());
