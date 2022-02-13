@@ -25,6 +25,41 @@ import java.util.stream.Stream;
 public class FilesUtils {
 
 	/**
+	 * 文件hash效验, 支持 MD5, SHA1, SHA256, SHA384, SHA512
+	 *
+	 * @param filePath 文件路径
+	 * @param hash     待效验的值
+	 * @return 判断是否匹配, 如果格式不正确返回false
+	 */
+	public static boolean hashValidity(@NotNull String filePath, @NotNull String hash) {
+		return hashValidity(new File(filePath), hash);
+	}
+
+	/**
+	 * 文件效验, 支持 MD5, SHA1, SHA256, SHA384, SHA512
+	 *
+	 * @param file 文件
+	 * @param hash 待效验的值
+	 * @return 判断是否匹配, 如果格式不正确返回false
+	 */
+	public static boolean hashValidity(@NotNull File file, @NotNull String hash) {
+		if (hash.length() == 16) {
+			return FilesUtils.getMD5(file).substring(8, 24).equals(hash);
+		} else if (hash.length() == 32) {
+			return FilesUtils.getMD5(file).equals(hash);
+		} else if (hash.length() == 40) {
+			return FilesUtils.getSHA1(file).equals(hash);
+		} else if (hash.length() == 64) {
+			return FilesUtils.getSHA256(file).equals(hash);
+		} else if (hash.length() == 96) {
+			return FilesUtils.getSHA384(file).equals(hash);
+		} else if (hash.length() == 128) {
+			return FilesUtils.getSHA512(file).equals(hash);
+		}
+		return false;
+	}
+
+	/**
 	 * 获取 默认下载文件夹路径
 	 *
 	 * @return 下载文件夹路径
