@@ -31,7 +31,7 @@ public class FilesUtils {
 	 * @param hash     待效验的值
 	 * @return 判断是否匹配, 如果格式不正确返回false
 	 */
-	public static boolean hashValidity(@NotNull String filePath, @NotNull String hash) {
+	@Contract(pure = true) public static boolean hashValidity(@NotNull String filePath, @NotNull String hash) {
 		return hashValidity(new File(filePath), hash);
 	}
 
@@ -42,7 +42,7 @@ public class FilesUtils {
 	 * @param hash 待效验的值
 	 * @return 判断是否匹配, 如果格式不正确返回false
 	 */
-	public static boolean hashValidity(@NotNull File file, @NotNull String hash) {
+	@Contract(pure = true) public static boolean hashValidity(@NotNull File file, @NotNull String hash) {
 		if (hash.length() == 16) {
 			return FilesUtils.getMD5(file).substring(8, 24).equals(hash);
 		} else if (hash.length() == 32) {
@@ -64,7 +64,7 @@ public class FilesUtils {
 	 *
 	 * @return 下载文件夹路径
 	 */
-	public static String getDownloadsPath() {
+	@Contract(pure = true) public static String getDownloadsPath() {
 		return getSystemDefaultDirectory("{374DE290-123F-4565-9164-39C4925E467B}");
 	}
 
@@ -73,7 +73,7 @@ public class FilesUtils {
 	 *
 	 * @return 文档文件夹路径
 	 */
-	public static String getDocumentsPath() {
+	@Contract(pure = true) public static String getDocumentsPath() {
 		return getSystemDefaultDirectory("{F42EE2D3-909F-4907-8871-4C22FC0BF756}");
 	}
 
@@ -82,7 +82,7 @@ public class FilesUtils {
 	 *
 	 * @return 图片文件夹路径
 	 */
-	public static String getPicturesPath() {
+	@Contract(pure = true) public static String getPicturesPath() {
 		return getSystemDefaultDirectory("{0DDD015D-B06C-45D5-8C4C-F59713854639}");
 	}
 
@@ -91,7 +91,7 @@ public class FilesUtils {
 	 *
 	 * @return 音乐文件夹路径
 	 */
-	public static String getMusicPath() {
+	@Contract(pure = true) public static String getMusicPath() {
 		return getSystemDefaultDirectory("{A0C69A99-21C8-4671-8703-7934162FCF1D}");
 	}
 
@@ -100,7 +100,7 @@ public class FilesUtils {
 	 *
 	 * @return 视频文件夹路径
 	 */
-	public static String getVideosPath() {
+	@Contract(pure = true) public static String getVideosPath() {
 		return getSystemDefaultDirectory("{35286A68-3C57-41A1-BBB1-0EAE73D76C95}");
 	}
 
@@ -110,7 +110,7 @@ public class FilesUtils {
 	 * @param id 字符串项名称
 	 * @return 文件夹路径
 	 */
-	private static String getSystemDefaultDirectory(String id) {
+	@Contract(pure = true) private static String getSystemDefaultDirectory(String id) {
 		String[] value = RunCmd.dos("REG", "QUERY", "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", "/v", id)
 				.readInfo().split(" ");
 		return value[value.length - 1];
@@ -122,7 +122,7 @@ public class FilesUtils {
 	 * @param filepath 文件路径
 	 * @return 删除是否成功
 	 */
-	public static boolean deteleFile(String filepath) {
+	@Contract(pure = true) public static boolean deteleFile(String filepath) {
 		return deteleFile(new File(filepath));
 	}
 
