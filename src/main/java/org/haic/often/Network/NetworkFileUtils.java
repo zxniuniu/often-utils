@@ -28,29 +28,31 @@ import java.util.concurrent.Executors;
  */
 public class NetworkFileUtils {
 
+	protected String url; // 请求URL
+	protected String fileName; // 文件名
+	protected String referrer; // 上一页
+	protected String hash; // hash值,md5算法
+	protected String authorization; // 授权码
+	protected int MILLISECONDS_SLEEP; // 重试等待时间
+	protected int retry; // 请求异常重试次数
+	protected int MAX_THREADS; // 多线程下载
+	protected int bufferSize; // 缓冲区大小
+	protected int fileSize; // 文件大小
+	protected int PIECE_MAX_SIZE; // 块最大值
+	protected int interval; // 异步访问间隔
+	protected boolean unlimitedRetry;// 请求异常无限重试
+	protected boolean errorExit; // 错误退出
+	protected Proxy proxy; // 代理
+	protected File storage; // 本地存储文件
+	protected File conf; // 配置信息文件
+
+	protected List<String> infos = new ArrayList<>(); // 文件信息
+	protected Map<String, String> headers = new HashMap<>(); // headers
+	protected Map<String, String> cookies = new HashMap<>(); // cookies
 	protected List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
-	private String url; // 请求URL
-	private String fileName; // 文件名
-	private String referrer; // 上一页
-	private String hash; // hash值,md5算法
-	private String authorization; // 授权码
-	private int MILLISECONDS_SLEEP; // 重试等待时间
-	private int retry; // 请求异常重试次数
-	private int MAX_THREADS; // 多线程下载
-	private int bufferSize; // 缓冲区大小
-	private int fileSize; // 文件大小
-	private int PIECE_MAX_SIZE; // 块最大值
-	private int interval; // 异步访问间隔
-	private boolean unlimitedRetry;// 请求异常无限重试
-	private boolean errorExit; // 错误退出
-	private Proxy proxy; // 代理
-	private File storage; // 本地存储文件
-	private File conf; // 配置信息文件
-	private List<String> infos = new ArrayList<>(); // 文件信息
-	private Map<String, String> headers = new HashMap<>(); // headers
-	private Map<String, String> cookies = new HashMap<>(); // cookies
-	private ExecutorService executorService; // 下载线程池
-	private Method method;// 下载模式
+
+	protected ExecutorService executorService; // 下载线程池
+	protected Method method;// 下载模式
 
 	protected NetworkFileUtils() {
 		MAX_THREADS = 16; // 默认16线程下载
@@ -59,6 +61,7 @@ public class NetworkFileUtils {
 		PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
 		headers.put("accept-encoding", "gzip, deflate, br");
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
+		excludeErrorStatusCodes.add(HttpStatus.SC_NOT_FOUND);
 		method = Method.MULTITHREAD;
 	}
 
@@ -611,7 +614,7 @@ public class NetworkFileUtils {
 			return HttpStatus.SC_PARTIAL_CONTENT;
 		}
 		int statusCode = writePiece(start, end);
-		for (int j = 0; !URIUtils.statusIsOK(statusCode) && (j < retry || unlimitedRetry); j++) {
+		for (int j = 0; !URIUtils.statusIsOK(statusCode) && !excludeErrorStatusCodes.contains(statusCode) && (j < retry || unlimitedRetry); j++) {
 			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
 			statusCode = writePiece(start, end);
 		}
