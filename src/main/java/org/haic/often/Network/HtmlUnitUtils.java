@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
  */
 public class HtmlUnitUtils {
 
-	protected final List<NameValuePair> params = new ArrayList<>(); // params
-	protected final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 	protected String url; // 请求URL
 	protected String proxyHost; // 代理服务器地址
 	protected int proxyPort; // 代理服务器端口
@@ -51,6 +49,9 @@ public class HtmlUnitUtils {
 
 	protected Map<String, String> headers = new HashMap<>(); // 请求头参数
 	protected Map<String, String> cookies = new HashMap<>(); // cookies
+	protected List<NameValuePair> params = new ArrayList<>(); // params
+	protected List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
+
 	protected WebRequest request; // 会话
 	protected WebClient webClient; // HtmlUnit
 	protected Page page; // Page

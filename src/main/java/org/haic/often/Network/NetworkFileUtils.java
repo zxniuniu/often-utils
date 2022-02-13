@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
  */
 public class NetworkFileUtils {
 
+	protected List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 	private String url; // 请求URL
 	private String fileName; // 文件名
 	private String referrer; // 上一页
@@ -119,9 +120,22 @@ public class NetworkFileUtils {
 	 * @param conf 配置文件
 	 * @return this
 	 */
-	@Contract(pure = true) public NetworkFileUtils setConf(@NotNull File conf) {
+	@Contract(pure = true) private NetworkFileUtils setConf(@NotNull File conf) {
 		this.method = Method.FILE;
 		this.conf = conf;
+		return this;
+	}
+
+	/**
+	 * 排除错误码,在指定状态发生时,不进行重试,可指定多个
+	 *
+	 * @param statusCode 状态码
+	 * @return this
+	 */
+	@Contract(pure = true) public NetworkFileUtils excludeErrorStatus(final int... statusCode) {
+		for (int code : statusCode) {
+			excludeErrorStatusCodes.add(code);
+		}
 		return this;
 	}
 

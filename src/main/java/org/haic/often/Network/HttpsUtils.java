@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @since 2020/3/9 14:26
  */
 public class HttpsUtils {
-	protected final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
+
 	protected String url; // URL
 	protected String params; // 参数
 	protected String requestBody; // JSON请求参数
@@ -47,7 +47,9 @@ public class HttpsUtils {
 	protected boolean followRedirects; // 重定向
 	protected Proxy proxy; // 代理
 	protected HttpURLConnection conn; // HttpURLConnection对象
+
 	protected Map<String, String> headers = new HashMap<>(); // 请求头
+	protected List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 
 	protected HttpsUtils() {
 		this.followRedirects = true;

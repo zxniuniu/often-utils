@@ -29,7 +29,6 @@ import java.util.*;
  */
 public class JsoupUtils {
 
-	protected final List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 	protected String url; // 请求URL
 	protected String referrer; // 上一页
 	protected String requestBody; // 请求数据(JSON)
@@ -41,9 +40,12 @@ public class JsoupUtils {
 	protected boolean errorExit; // 错误退出
 	protected boolean followRedirects; // 重定向
 	protected Proxy proxy; // 代理
+
 	protected Map<String, String> headers = new HashMap<>(); // 请求头参数
 	protected Map<String, String> cookies = new HashMap<>(); // cookies
 	protected Map<String, String> params = new HashMap<>(); // params
+	protected List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
+
 	protected Request request; // 会话
 	protected ThreeTuple<String, String, InputStream> stream; // 数据流
 
