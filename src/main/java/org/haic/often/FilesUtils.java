@@ -497,7 +497,15 @@ public class FilesUtils {
 	 * @param filePath 文件路径
 	 */
 	@Contract(pure = true) public static void createFile(@NotNull String filePath) {
-		final File file = new File(filePath);
+		createFile(new File(filePath));
+	}
+
+	/**
+	 * 创建文件
+	 *
+	 * @param file 文件
+	 */
+	@Contract(pure = true) public static void createFile(@NotNull File file) {
 		if (!file.exists()) { // 文件不存在则创建文件，先创建目录
 			createFolder(file.getParent());
 			try {
