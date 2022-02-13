@@ -58,10 +58,11 @@ public class NetworkFileUtils {
 		interval = 50; // 默认异步访问间隔50毫秒
 		bufferSize = 8192; // 默认缓冲区大小
 		PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
-		// headers.put("accept-encoding", "gzip, deflate, br");
+		headers.put("accept-encoding", "gzip, deflate, br");
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatus(HttpStatus.SC_NOT_FOUND, HttpStatus.SC_TOO_MANY_REQUEST);
 		method = Method.MULTITHREAD;
+		proxy(Proxy.NO_PROXY);
 	}
 
 	/**
