@@ -17,10 +17,10 @@ import java.util.Map;
  */
 public class ALiYunPan {
 
-	private static final String dataApi = "https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous";
-	private static final String downApi = "https://api.aliyundrive.com/v2/file/get_share_link_download_url";
-	// private static final String fileListApi = "https://api.aliyundrive.com/adrive/v3/file/list";
-	private static final String shareTokenApi = "https://api.aliyundrive.com/v2/share_link/get_share_token";
+	public static final String dataApi = "https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous";
+	public static final String downApi = "https://api.aliyundrive.com/v2/file/get_share_link_download_url";
+	// public static final String fileListApi = "https://api.aliyundrive.com/adrive/v3/file/list";
+	public static final String shareTokenApi = "https://api.aliyundrive.com/v2/share_link/get_share_token";
 
 	/**
 	 * 获得分享页面所有文件直链(方法暂时废弃,阿里云盘限制,分享页面获取链接无用,需保存至个人盘内才能获取直链)

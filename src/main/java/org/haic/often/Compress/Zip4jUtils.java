@@ -30,15 +30,12 @@ public class Zip4jUtils {
 	protected final ZipParameters params = new ZipParameters(); // 压缩参数
 	protected File archive; // 压缩包
 	protected char[] passwd; // 压缩包密码
-	protected CompressionMethod method;// 压缩方式
-	protected CompressionLevel level;// 压缩级别
-	protected Charset charset; // 字符集编码格式
+	protected CompressionMethod method = CompressionMethod.STORE;// 压缩方式
+	protected CompressionLevel level = CompressionLevel.FASTEST;// 压缩级别
+	protected Charset charset = StandardCharsets.UTF_8;// 字符集编码格式
 	protected boolean archiveName; // 解压使用压缩包名称文件夹
 
 	protected Zip4jUtils() {
-		charset = StandardCharsets.UTF_8;
-		method = CompressionMethod.STORE;
-		level = CompressionLevel.FASTEST;
 		params.setCompressionMethod(method); // 压缩方式
 		params.setCompressionLevel(level); // 压缩级别
 		params.setIncludeRootFolder(false); // 包含根文件夹

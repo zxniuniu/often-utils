@@ -20,9 +20,9 @@ import java.util.*;
  * @since 2022/1/18 22:43
  */
 public class TianYiYunPan {
-	private static final String dataApi = "https://cloud.189.cn/api/open/share/getShareInfoByCode.action";
-	private static final String listApi = "https://cloud.189.cn/api/open/share/listShareDir.action";
-	private static final String downApi = "https://cloud.189.cn/api/open/file/getFileDownloadUrl.action";
+	public static final String dataApi = "https://cloud.189.cn/api/open/share/getShareInfoByCode.action";
+	public static final String listApi = "https://cloud.189.cn/api/open/share/listShareDir.action";
+	public static final String downApi = "https://cloud.189.cn/api/open/file/getFileDownloadUrl.action";
 
 	/**
 	 * 在需要提取码但自己没有时,可直接获得文件直链<br/>
@@ -72,8 +72,7 @@ public class TianYiYunPan {
 	 * @param accessCode 提取码
 	 * @return List - fileName, fileId, shareId
 	 */
-	@NotNull @Contract(pure = true) private static List<ThreeTuple<String, String, String>> getFilesInfo(@NotNull String url,
-			@NotNull String accessCode) {
+	@NotNull @Contract(pure = true) private static List<ThreeTuple<String, String, String>> getFilesInfo(@NotNull String url, @NotNull String accessCode) {
 		FourTuple<String, String, String, String> urlInfo = getUrlInfo(url);
 		Map<String, String> listData = new HashMap<>();
 		listData.put("fileId", urlInfo.first);

@@ -24,6 +24,9 @@ import java.util.Map;
  */
 public class JarUtils extends ZipUtils {
 
+	protected JarUtils() {
+	}
+
 	/**
 	 * 将列表的bytes添加进压缩包
 	 *

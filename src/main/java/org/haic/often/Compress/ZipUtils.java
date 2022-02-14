@@ -30,12 +30,11 @@ import java.util.stream.Collectors;
 public class ZipUtils {
 	protected File archive; // 压缩包
 	protected File out; // 输出文件
-	protected String charsetName; // 字符集编码格式
+	protected String charsetName = "UTF8"; // 字符集编码格式
 	protected boolean includeRoot; // 压缩时包含根目录
 	protected boolean archiveName; // 解压使用压缩包名称文件夹
 
 	protected ZipUtils() {
-		charsetName = "UTF8";
 	}
 
 	/**

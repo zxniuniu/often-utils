@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
  */
 public class LanZouYunPan {
 
-	private static final String domain = "https://www.lanzoui.com/";
-	private static final String downApi = domain + "ajaxm.php";
+	public static final String domain = "https://www.lanzoui.com/";
+	public static final String downApi = domain + "ajaxm.php";
 
 	/**
 	 * 获取分享页面文件信息集合
