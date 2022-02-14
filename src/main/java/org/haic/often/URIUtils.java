@@ -160,7 +160,7 @@ public class URIUtils {
 			InetSocketAddress endpointSocketAddr = new InetSocketAddress(host, port);
 			socket.connect(endpointSocketAddr, 5000);
 			isReachable = socket.isConnected();
-		} catch (final IOException e) {
+		} catch (IOException e) {
 			isReachable = false;
 		}
 		return isReachable;
@@ -186,7 +186,7 @@ public class URIUtils {
 	 * @return URL直链
 	 */
 	@NotNull @Contract(pure = true) public static String thunderToURL(@NotNull String thunder) {
-		String thunderUrl = StringUtils.encryptByBase64(StringUtils.deleteSuffix(thunder, StringUtils.EQUAL_SIGN).replaceFirst("thunder://", ""), "GBK");
+		String thunderUrl = Base64Utils.decryptByBase64(StringUtils.deleteSuffix(thunder, StringUtils.EQUAL_SIGN).replaceFirst("thunder://", ""), "GBK");
 		return thunderUrl.substring(2, thunderUrl.length() - 2);
 	}
 

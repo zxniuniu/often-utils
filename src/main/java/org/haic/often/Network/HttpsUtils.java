@@ -588,7 +588,7 @@ public class HttpsUtils {
 			int statusCode;
 			try {
 				statusCode = conn.getResponseCode();
-			} catch (final IOException e) {
+			} catch (IOException e) {
 				statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
 			}
 			return statusCode;
@@ -636,7 +636,7 @@ public class HttpsUtils {
 			String result;
 			try (InputStream inputStream = bodyStream()) {
 				result = StreamUtils.stream(inputStream).getString();
-			} catch (final IOException e) {
+			} catch (IOException e) {
 				return null;
 			}
 			return result;
@@ -660,7 +660,7 @@ public class HttpsUtils {
 			byte[] result;
 			try (InputStream inputStream = bodyStream()) {
 				result = StreamUtils.stream(inputStream).toByteArray();
-			} catch (final IOException e) {
+			} catch (IOException e) {
 				return null;
 			}
 			return result;

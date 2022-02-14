@@ -19,15 +19,15 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @since 2021/4/12 11:04
  */
-public final class ReadWriteUtils {
+public class ReadWriteUtils {
 
-	private File source; // 目标文件或文件夹
-	private int bufferSize = 8192; // 缓冲区大小
-	private Charset charset = StandardCharsets.UTF_8; // 字符集编码格式
-	private boolean append = true; // 默认追加写入
+	protected File source; // 目标文件或文件夹
+	protected int bufferSize = 8192; // 缓冲区大小
+	protected Charset charset = StandardCharsets.UTF_8; // 字符集编码格式
+	protected boolean append = true; // 默认追加写入
+	protected boolean newline = true; // 默认自动换行
 
-	private ReadWriteUtils() {
-
+	protected ReadWriteUtils() {
 	}
 
 	/**
@@ -55,7 +55,7 @@ public final class ReadWriteUtils {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true) private static ReadWriteUtils config() {
+	@Contract(pure = true) protected static ReadWriteUtils config() {
 		return new ReadWriteUtils();
 	}
 
@@ -65,7 +65,7 @@ public final class ReadWriteUtils {
 	 * @param source 文件或文件夹
 	 * @return this
 	 */
-	@Contract(pure = true) private ReadWriteUtils file(File source) {
+	@Contract(pure = true) protected ReadWriteUtils file(File source) {
 		this.source = source;
 		return this;
 	}
@@ -126,10 +126,11 @@ public final class ReadWriteUtils {
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(StringUtils.join(lists, StringUtils.SPACE) + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
 			outStream.flush();
-		} catch (final IOException e) {
-			return false;
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -143,10 +144,29 @@ public final class ReadWriteUtils {
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(str + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
 			outStream.flush();
-		} catch (final IOException e) {
-			return false;
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		return true;
+		return false;
+	}
+
+	/**
+	 * 将byte数组写入文件
+	 *
+	 * @param bytes byte数组
+	 * @return 写入是否成功
+	 */
+	@Contract(pure = true) public boolean bytes(byte[] bytes) {
+		FilesUtils.createFolder(source.getParent());
+		try (FileOutputStream outStream = new FileOutputStream(source, append)) {
+			outStream.write(bytes); // 文件输出流用于将数据写入文件
+			outStream.flush();
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	/**
@@ -160,10 +180,11 @@ public final class ReadWriteUtils {
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
 			outStream.write(lists.parallelStream().collect(Collectors.joining(StringUtils.LINE_SEPARATOR)) + StringUtils.LINE_SEPARATOR);
 			outStream.flush();
-		} catch (final IOException e) {
-			return false;
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -179,10 +200,11 @@ public final class ReadWriteUtils {
 				outStream.writeInt(b); // 文件输出流用于将数据写入文件
 			}
 			outStream.flush();
-		} catch (final IOException e) {
-			return false;
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -195,10 +217,11 @@ public final class ReadWriteUtils {
 		FilesUtils.createFolder(source.getParent());
 		try (FileChannel channel = new FileOutputStream(source, append).getChannel()) {
 			channel.write(charset.encode(str + StringUtils.LINE_SEPARATOR));
+			return true;
 		} catch (IOException e) {
-			return false;
+			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -214,10 +237,11 @@ public final class ReadWriteUtils {
 				randomAccess.seek(source.length());
 			}
 			randomAccess.write((str + StringUtils.LINE_SEPARATOR).getBytes(charset));
+			return true;
 		} catch (IOException e) {
-			return false;
+			e.printStackTrace();
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -234,19 +258,21 @@ public final class ReadWriteUtils {
 			try (FileChannel fileChannel = FileChannel.open(source.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE)) {
 				mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, source.length(), params.length);
 				mappedByteBuffer.put(params);
+				return true;
 			} catch (IOException e) {
-				return false;
+				e.printStackTrace();
 			}
 		} else {
 			try (FileChannel fileChannel = FileChannel.open(source.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE,
 					StandardOpenOption.TRUNCATE_EXISTING)) {
 				mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, params.length);
 				mappedByteBuffer.put(params);
+				return true;
 			} catch (IOException e) {
-				return false;
+				e.printStackTrace();
 			}
 		}
-		return true;
+		return false;
 	}
 
 	@Contract(pure = true) public boolean copy(File out) {
@@ -358,7 +384,7 @@ public final class ReadWriteUtils {
 		if (file.isFile()) {
 			try (InputStreamReader inputStream = new InputStreamReader(new FileInputStream(file), charset)) {
 				result = StreamUtils.stream(inputStream).bufferSize(bufferSize).getStringAsLine();
-			} catch (final IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else if (file.isDirectory()) {
@@ -394,7 +420,7 @@ public final class ReadWriteUtils {
 		String result = null;
 		try (InputStream inputStream = new FileInputStream(file)) {
 			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).getString();
-		} catch (final IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return result;
@@ -407,6 +433,21 @@ public final class ReadWriteUtils {
 	 */
 	@Contract(pure = true) public String text() {
 		return text(source);
+	}
+
+	/**
+	 * 读取指定文件的内容
+	 *
+	 * @return byte数组
+	 */
+	@Contract(pure = true) public byte[] bytes() {
+		byte[] result = null;
+		try (InputStream inputStream = new FileInputStream(source)) {
+			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 	/**
@@ -437,7 +478,7 @@ public final class ReadWriteUtils {
 		byte[] result = null;
 		try (InputStream inputStream = new FileInputStream(file)) {
 			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).toByteArray();
-		} catch (final IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return result;
@@ -481,7 +522,7 @@ public final class ReadWriteUtils {
 			for (int i = 0; i < source.length() / 4; i++) {
 				result.append((char) inputStream.readInt());
 			}
-		} catch (final IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return String.valueOf(result);

@@ -561,7 +561,7 @@ public class HtmlUnitUtils {
 
 		try { // 获得页面
 			page = webClient.getPage(Judge.isNull(request) ? getWebRequest(method) : request);
-		} catch (final IOException e) {
+		} catch (IOException e) {
 			return page;
 		}
 

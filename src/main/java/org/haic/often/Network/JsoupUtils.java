@@ -464,7 +464,7 @@ public class JsoupUtils {
 			if (!Judge.isNull(stream)) {
 				stream.third.close();
 			}
-		} catch (final IOException e) {
+		} catch (IOException e) {
 			return null;
 		}
 		return response;
