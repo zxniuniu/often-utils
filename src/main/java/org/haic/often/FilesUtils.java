@@ -249,7 +249,7 @@ public class FilesUtils {
 	 * @return 删除的文件路径列表
 	 */
 	@NotNull @Contract(pure = true) public static List<String> deleteSuffixFiles(@NotNull File files, @NotNull String suffix) {
-		return iterateSuffixFiles(files, suffix).parallelStream().filter(File::delete).map(File::getPath).collect(Collectors.toList());
+		return iterateFilesAsSuffix(files, suffix).parallelStream().filter(File::delete).map(File::getPath).collect(Collectors.toList());
 	}
 
 	/**
@@ -365,21 +365,14 @@ public class FilesUtils {
 	@NotNull @Contract(pure = true) public static List<File> iterateFiles(@NotNull File file) {
 		return file.exists() ?
 				file.isFile() ?
-						List.of(file) :
+						Collections.singletonList(file) :
 						Arrays.stream(Objects.requireNonNull(file.listFiles())).parallel().flatMap(f -> iterateFiles(f).stream()).collect(Collectors.toList()) :
 				new ArrayList<>();
 	}
 
 	/**
-	 * @param file   文件夹或文件对象
-	 * @param suffix 文件后缀名
-	 * @return 文件对象列表
-	 */
-	@NotNull @Contract(pure = true) public static List<File> iterateFilesAsSuffix(@NotNull File file, @NotNull String suffix) {
-		return iterateFilesPathAsSuffix(file, suffix).parallelStream().map(File::new).collect(Collectors.toList());
-	}
-
-	/**
+	 * 获取文件夹所有指定后缀的文件路径列表
+	 *
 	 * @param filePath 文件夹或文件路径
 	 * @param suffix   文件后缀名
 	 * @return 文件对象列表
@@ -389,21 +382,14 @@ public class FilesUtils {
 	}
 
 	/**
-	 * @param filePath 文件夹或文件路径
-	 * @param suffix   文件后缀名
-	 * @return 文件路径列表
-	 */
-	@NotNull @Contract(pure = true) public static List<String> iterateFilesPathAsSuffix(@NotNull String filePath, @NotNull String suffix) {
-		return iterateFilesPathAsSuffix(new File(filePath), suffix);
-	}
-
-	/**
+	 * 获取文件夹所有指定后缀的文件路径列表
+	 *
 	 * @param file   文件夹或文件对象
 	 * @param suffix 文件后缀名
-	 * @return 文件路径列表
+	 * @return 文件对象列表
 	 */
-	@NotNull @Contract(pure = true) public static List<String> iterateFilesPathAsSuffix(@NotNull File file, @NotNull String suffix) {
-		return iterateFilesPath(file).parallelStream().filter(f -> f.endsWith((char) 46 + suffix)).collect(Collectors.toList());
+	@NotNull @Contract(pure = true) public static List<File> iterateFilesAsSuffix(@NotNull File file, @NotNull String suffix) {
+		return iterateFiles(file).parallelStream().filter(f -> f.getName().endsWith((char) 46 + suffix)).collect(Collectors.toList());
 	}
 
 	/**
@@ -430,47 +416,22 @@ public class FilesUtils {
 	 * 获取文件夹所有指定后缀的文件路径列表
 	 *
 	 * @param filePath 文件夹或文件路径
-	 * @param suffix   文件后缀
+	 * @param suffix   文件后缀名
 	 * @return 文件路径列表
 	 */
-	@NotNull public static List<File> iterateSuffixFiles(@NotNull String filePath, @NotNull String suffix) {
-		return iterateSuffixFiles(new File(filePath), suffix);
+	@NotNull @Contract(pure = true) public static List<String> iterateFilesPathAsSuffix(@NotNull String filePath, @NotNull String suffix) {
+		return iterateFilesPathAsSuffix(new File(filePath), suffix);
 	}
 
 	/**
 	 * 获取文件夹所有指定后缀的文件路径列表
 	 *
-	 * @param file   文件夹或文件
-	 * @param suffix 文件后缀
+	 * @param file   文件夹或文件对象
+	 * @param suffix 文件后缀名
 	 * @return 文件路径列表
 	 */
-	@NotNull @Contract(pure = true) public static List<File> iterateSuffixFiles(@NotNull File file, @NotNull String suffix) {
-		return file.isDirectory() ?
-				Arrays.stream(Objects.requireNonNull(file.listFiles())).parallel().flatMap(f -> iterateSuffixFiles(f, suffix).parallelStream())
-						.collect(Collectors.toList()) :
-				isSuffixFile(file, suffix) ? Collections.singletonList(file) : new ArrayList<>();
-	}
-
-	/**
-	 * 获取文件夹所有指定后缀的文件列表
-	 *
-	 * @param filePath 文件夹或文件路径
-	 * @param suffix   文件后缀
-	 * @return 文件列表
-	 */
-	public static List<String> iterateSuffixFilesPath(@NotNull String filePath, @NotNull String suffix) {
-		return iterateSuffixFilesPath(new File(filePath), suffix);
-	}
-
-	/**
-	 * 获取文件夹所有指定后缀的文件列表
-	 *
-	 * @param file   文件夹或文件
-	 * @param suffix 文件后缀
-	 * @return 文件列表
-	 */
-	public static List<String> iterateSuffixFilesPath(@NotNull File file, @NotNull String suffix) {
-		return iterateSuffixFiles(file, suffix).parallelStream().map(File::getPath).collect(Collectors.toList());
+	@NotNull @Contract(pure = true) public static List<String> iterateFilesPathAsSuffix(@NotNull File file, @NotNull String suffix) {
+		return iterateFilesAsSuffix(file, suffix).parallelStream().map(File::getPath).collect(Collectors.toList());
 	}
 
 	/**
