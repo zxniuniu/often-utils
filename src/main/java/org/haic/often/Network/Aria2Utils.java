@@ -28,11 +28,11 @@ import java.util.Map.Entry;
  */
 public class Aria2Utils {
 
-	protected final String jsonrpc;
+	protected final String jsonrpc = "2.0";
 	protected Map<String, Map<String, String>> urlsMap = new HashMap<>();
 	protected Map<String, String> mixinparams = new HashMap<>();
 	protected String aria2RpcUrl;
-	protected String token; // 密钥
+	protected String token = ""; // 密钥
 	protected String proxyHost;
 	protected int proxyPort;
 	protected String result;
@@ -41,9 +41,6 @@ public class Aria2Utils {
 	 * 默认设置
 	 */
 	protected Aria2Utils() {
-		jsonrpc = "2.0";
-		token = "";
-		mixinparams.put("all-proxy", "");
 	}
 
 	/**
@@ -93,7 +90,7 @@ public class Aria2Utils {
 	 *
 	 * @return new Aria2Utils
 	 */
-	@Contract(pure = true) private static Aria2Utils config() {
+	@Contract(pure = true) protected static Aria2Utils config() {
 		return new Aria2Utils();
 	}
 
@@ -126,7 +123,7 @@ public class Aria2Utils {
 	 * @param aria2RpcUrl RpcUrl
 	 * @return this
 	 */
-	@Contract(pure = true) private Aria2Utils setAria2RpcUrl(final String aria2RpcUrl) {
+	@Contract(pure = true) protected Aria2Utils setAria2RpcUrl(final String aria2RpcUrl) {
 		this.aria2RpcUrl = aria2RpcUrl;
 		return this;
 	}
@@ -328,7 +325,7 @@ public class Aria2Utils {
 	 * @param url 链接
 	 * @return Aria2Method
 	 */
-	@Contract(pure = true) private Aria2Method getType(final String url) {
+	@Contract(pure = true) protected Aria2Method getType(final String url) {
 		Aria2Method method = Aria2Method.ADD_URI;
 		if (url.endsWith("torrent") || Base64Utils.isBase64(url)) {
 			method = Aria2Method.ADD_TORRENT;
@@ -343,12 +340,14 @@ public class Aria2Utils {
 	 *
 	 * @return JSONArray
 	 */
-	@Contract(pure = true) private JSONArray getJsonArray() {
+	@Contract(pure = true) protected JSONArray getJsonArray() {
 		JSONArray jsonArray = new JSONArray();
 		for (Entry<String, Map<String, String>> urlinfo : urlsMap.entrySet()) {
 			String url = urlinfo.getKey();
 			Map<String, String> params = urlinfo.getValue();
-			params.putAll(mixinparams);
+			if (!mixinparams.isEmpty()) {
+				params.putAll(mixinparams);
+			}
 			jsonArray.add(getJsonObject(getType(url), url, params));
 		}
 		return jsonArray;
@@ -359,7 +358,7 @@ public class Aria2Utils {
 	 *
 	 * @return JSONObject
 	 */
-	@Contract(pure = true) private JSONObject getJsonObject(final Aria2Method method, final String url, final Map<String, String> params) {
+	@Contract(pure = true) protected JSONObject getJsonObject(final Aria2Method method, final String url, final Map<String, String> params) {
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.add("token:" + token);
 		jsonArray.add(Collections.singletonList(url));

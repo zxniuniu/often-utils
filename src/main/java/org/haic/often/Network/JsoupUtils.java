@@ -37,8 +37,8 @@ public class JsoupUtils {
 	protected int maxBodySize; // 数据大小
 	protected boolean unlimitedRetry;// 请求异常无限重试
 	protected boolean errorExit; // 错误退出
-	protected boolean followRedirects; // 重定向
-	protected Proxy proxy; // 代理
+	protected boolean followRedirects = true; // 重定向
+	protected Proxy proxy = Proxy.NO_PROXY; // 代理
 
 	protected Map<String, String> headers = new HashMap<>(); // 请求头参数
 	protected Map<String, String> cookies = new HashMap<>(); // cookies
@@ -49,11 +49,9 @@ public class JsoupUtils {
 	protected ThreeTuple<String, String, InputStream> stream; // 数据流
 
 	protected JsoupUtils() {
-		followRedirects = true;
 		headers.put("user-agent", UserAgent.randomChrome()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatus(HttpStatus.SC_NOT_FOUND, HttpStatus.SC_TOO_MANY_REQUEST);
-		proxy(Proxy.NO_PROXY);
 	}
 
 	/**
@@ -71,7 +69,7 @@ public class JsoupUtils {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true) private static JsoupUtils config() {
+	@Contract(pure = true) protected static JsoupUtils config() {
 		return new JsoupUtils();
 	}
 
@@ -81,7 +79,7 @@ public class JsoupUtils {
 	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true) private JsoupUtils url(@NotNull String url) {
+	@Contract(pure = true) protected JsoupUtils url(@NotNull String url) {
 		this.url = url;
 		return this;
 	}
@@ -449,7 +447,7 @@ public class JsoupUtils {
 	 * @param method Method类型
 	 * @return Response
 	 */
-	@Contract(pure = true) private Response executeProgram(@NotNull Method method) {
+	@Contract(pure = true) protected Response executeProgram(@NotNull Method method) {
 		Connection conn = Jsoup.connect(url).headers(headers).proxy(proxy).timeout(timeout).method(method).maxBodySize(maxBodySize)
 				.followRedirects(followRedirects);
 		conn = Judge.isNull(request) ? conn : conn.request(request);

@@ -43,19 +43,17 @@ public class HttpsUtils {
 	protected int timeout; // 连接超时时间
 	protected boolean unlimitedRetry;// 请求异常无限重试
 	protected boolean errorExit; // 错误退出
-	protected boolean followRedirects; // 重定向
-	protected Proxy proxy; // 代理
+	protected boolean followRedirects = true; // 重定向
+	protected Proxy proxy = Proxy.NO_PROXY; // 代理
 	protected HttpURLConnection conn; // HttpURLConnection对象
 
 	protected Map<String, String> headers = new HashMap<>(); // 请求头
 	protected List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 
 	protected HttpsUtils() {
-		this.followRedirects = true;
 		headers.put("user-agent", UserAgent.randomChrome()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatus(HttpStatus.SC_NOT_FOUND, HttpStatus.SC_TOO_MANY_REQUEST);
-		proxy(Proxy.NO_PROXY);
 	}
 
 	/**
@@ -73,7 +71,7 @@ public class HttpsUtils {
 	 *
 	 * @return new HttpsUtils
 	 */
-	@Contract(pure = true) private static HttpsUtils config() {
+	@Contract(pure = true) protected static HttpsUtils config() {
 		return new HttpsUtils();
 	}
 
@@ -83,7 +81,7 @@ public class HttpsUtils {
 	 * @param url 请求的URL
 	 * @return this
 	 */
-	@Contract(pure = true) private HttpsUtils url(@NotNull String url) {
+	@Contract(pure = true) protected HttpsUtils url(@NotNull String url) {
 		this.url = url;
 		return this;
 	}
@@ -393,7 +391,7 @@ public class HttpsUtils {
 	 * @param method http响应类型 HttpMethod
 	 * @return this
 	 */
-	@Contract(pure = true) private HttpsResult executeProgram(@NotNull HttpMethod method) {
+	@Contract(pure = true) protected HttpsResult executeProgram(@NotNull HttpMethod method) {
 		return executeProgram(url, method);
 	}
 
@@ -404,7 +402,7 @@ public class HttpsUtils {
 	 * @param method http响应类型 HttpMethod
 	 * @return this
 	 */
-	@Contract(pure = true) private HttpsResult executeProgram(@NotNull String url, @NotNull HttpMethod method) {
+	@Contract(pure = true) protected HttpsResult executeProgram(@NotNull String url, @NotNull HttpMethod method) {
 		try {
 			if (method == HttpMethod.GET && !Judge.isEmpty(params)) {
 				url = url + "?" + params;
@@ -473,7 +471,7 @@ public class HttpsUtils {
 		return new HttpsResult(url, conn);
 	}
 
-	private SSLContext MyX509TrustManagerUtils() {
+	protected SSLContext MyX509TrustManagerUtils() {
 		TrustManager[] tm = { new MyX509TrustManager() };
 		SSLContext ctx = null;
 		try {
@@ -517,7 +515,7 @@ public class HttpsUtils {
 	/*
 	 * HTTPS忽略证书验证,防止高版本jdk因证书算法不符合约束条件,使用继承X509ExtendedTrustManager的方式
 	 */
-	private static class MyX509TrustManager extends X509ExtendedTrustManager {
+	protected static class MyX509TrustManager extends X509ExtendedTrustManager {
 
 		@Override public void checkClientTrusted(X509Certificate[] arg0, String arg1) {
 

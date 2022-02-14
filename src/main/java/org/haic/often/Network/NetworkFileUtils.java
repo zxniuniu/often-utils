@@ -102,7 +102,7 @@ public class NetworkFileUtils {
 	 *
 	 * @return this
 	 */
-	@Contract(pure = true) private static NetworkFileUtils config() {
+	@Contract(pure = true) protected static NetworkFileUtils config() {
 		return new NetworkFileUtils();
 	}
 
@@ -112,7 +112,7 @@ public class NetworkFileUtils {
 	 * @param url 链接
 	 * @return this
 	 */
-	@Contract(pure = true) private NetworkFileUtils url(@NotNull String url) {
+	@Contract(pure = true) protected NetworkFileUtils url(@NotNull String url) {
 		this.url = url;
 		return this;
 	}
@@ -123,7 +123,7 @@ public class NetworkFileUtils {
 	 * @param conf 配置文件
 	 * @return this
 	 */
-	@Contract(pure = true) private NetworkFileUtils setConf(@NotNull File conf) {
+	@Contract(pure = true) protected NetworkFileUtils setConf(@NotNull File conf) {
 		this.method = Method.FILE;
 		this.conf = conf;
 		return this;
@@ -586,7 +586,7 @@ public class NetworkFileUtils {
 		return HttpStatus.SC_OK;
 	}
 
-	@Contract(pure = true) private int MULTITHREAD(int PIECE_COUNT, int PIECE_SIZE) {
+	@Contract(pure = true) protected int MULTITHREAD(int PIECE_COUNT, int PIECE_SIZE) {
 		final List<Integer> statusCodes = new CopyOnWriteArrayList<>();
 		executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
 		for (int i = 0; i < PIECE_COUNT; i++, MultiThreadUtils.WaitForThread(interval)) {
@@ -620,7 +620,7 @@ public class NetworkFileUtils {
 	 * @param end   结束位
 	 * @return 状态码
 	 */
-	@Contract(pure = true) private int addPiece(int start, int end) {
+	@Contract(pure = true) protected int addPiece(int start, int end) {
 		if (infos.contains(start + "-" + end)) {
 			return HttpStatus.SC_PARTIAL_CONTENT;
 		}
@@ -637,7 +637,7 @@ public class NetworkFileUtils {
 	 *
 	 * @return 下载并写入是否成功(状态码)
 	 */
-	@Contract(pure = true) private int writeFull() {
+	@Contract(pure = true) protected int writeFull() {
 		return writeFull(JsoupUtils.connect(url).proxy(proxy).headers(headers).cookies(cookies).referrer(referrer).excludeErrorStatus(excludeErrorStatusCodes)
 				.retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).execute());
 	}
@@ -648,7 +648,7 @@ public class NetworkFileUtils {
 	 * @param response 网页Response对象
 	 * @return 下载并写入是否成功(状态码)
 	 */
-	@Contract(pure = true) private int writeFull(final Response response) {
+	@Contract(pure = true) protected int writeFull(final Response response) {
 		try (BufferedInputStream bufferedInputStream = response.bodyStream();
 				BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(storage))) {
 			IOUtils.copy(bufferedInputStream, bufferedOutputStream, bufferSize);
@@ -665,7 +665,7 @@ public class NetworkFileUtils {
 	 * @param end   块结束位
 	 * @return 下载并写入是否成功(状态码)
 	 */
-	@Contract(pure = true) private int writePiece(final int start, final int end) {
+	@Contract(pure = true) protected int writePiece(final int start, final int end) {
 		Response piece = JsoupUtils.connect(url).proxy(proxy).headers(headers).header("range", "bytes=" + start + "-" + end).cookies(cookies).referrer(referrer)
 				.execute();
 		return Judge.isNull(piece) ?
@@ -680,7 +680,7 @@ public class NetworkFileUtils {
 	 * @param end   块结束位 * @param piece 块Response对象
 	 * @return 下载并写入是否成功(状态码)
 	 */
-	@Contract(pure = true) private int writePiece(final int start, final int end, final Response piece) {
+	@Contract(pure = true) protected int writePiece(final int start, final int end, final Response piece) {
 		try (BufferedInputStream inputStream = piece.bodyStream();
 				RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
 			output.seek(start);

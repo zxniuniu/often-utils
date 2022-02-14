@@ -47,7 +47,7 @@ public class JarUtils extends ZipUtils {
 	 * @param origin       文件信息
 	 * @return 添加压缩包中的文件列表
 	 */
-	@Contract(pure = true) private List<String> compress(@NotNull Map<String, byte[]> origin, JarArchiveOutputStream outputStream) {
+	@Contract(pure = true) protected List<String> compress(@NotNull Map<String, byte[]> origin, JarArchiveOutputStream outputStream) {
 		try {
 			for (Map.Entry<String, byte[]> info : origin.entrySet()) {
 				JarArchiveEntry entry = new JarArchiveEntry(info.getKey());

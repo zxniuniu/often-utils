@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Contract;
  */
 public class UserAgent {
 
-	private static final String mozilla = "Mozilla/5.0 (";
+	protected static final String mozilla = "Mozilla/5.0 (";
 
 	/**
 	 * 获取 Chrome Browser UserAgent
@@ -133,7 +133,7 @@ public class UserAgent {
 		return userAgent;
 	}
 
-	@Contract(pure = true) private static String chromeInfo() {
+	@Contract(pure = true) protected static String chromeInfo() {
 		String info;
 		String[] system = { "iPhone", "iPad", "iPod", "Linux", "BlackBerry" };
 		int index = RandomUtils.nextInt(0, 20);
@@ -152,12 +152,12 @@ public class UserAgent {
 		return info;
 	}
 
-	@Contract(pure = true) private static String hpInfo() {
+	@Contract(pure = true) protected static String hpInfo() {
 		String[] brand = { "SM-G850F Build/LRX22G", "GT-I9300 Build/JRO03C", "ZTE BLADE A610 Build/MRA58K" };
 		return "hp-tablet" + "; U;" + androidVersion() + "; " + brand[RandomUtils.nextInt(0, brand.length)] + language();
 	}
 
-	@Contract(pure = true) private static String language() {
+	@Contract(pure = true) protected static String language() {
 		String info = "";
 		if (Judge.isEmpty(RandomUtils.nextInt(0, 2))) {
 			String[] language = { "en-us", "zh-cn", "en-GB" };
@@ -166,7 +166,7 @@ public class UserAgent {
 		return info;
 	}
 
-	@Contract(pure = true) private static String androidVersion() {
+	@Contract(pure = true) protected static String androidVersion() {
 		String version = "Android " + RandomUtils.nextInt(4, 13) + "." + RandomUtils.nextInt(0, 5);
 		if (!version.endsWith("0")) {
 			version += "." + RandomUtils.nextInt(0, 5);
@@ -174,7 +174,7 @@ public class UserAgent {
 		return version;
 	}
 
-	@Contract(pure = true) private static String header() {
+	@Contract(pure = true) protected static String header() {
 		String header = "";
 		switch (RandomUtils.nextInt(0, 2)) {
 		case 0 -> header = headerWin();
@@ -184,7 +184,7 @@ public class UserAgent {
 		return header;
 	}
 
-	@Contract(pure = true) private static String headerWin() {
+	@Contract(pure = true) protected static String headerWin() {
 		String header = winVersion();
 		switch (RandomUtils.nextInt(0, 3)) {
 		case 1 -> header += "; WOW64";
@@ -193,13 +193,13 @@ public class UserAgent {
 		return header;
 	}
 
-	@Contract(pure = true) private static String winVersion() {
+	@Contract(pure = true) protected static String winVersion() {
 		String[] system = { "Windows NT 10.0", "windows NT 6.2", "Windows NT 6.1", "Windows NT 6.0", "Windows NT 5.2", "Windows NT 5.1", "Windows NT 5.0",
 				"Windows ME", "Windows 98" };
 		return system[RandomUtils.nextInt(0, system.length)];
 	}
 
-	@Contract(pure = true) private static String headerLinux() {
+	@Contract(pure = true) protected static String headerLinux() {
 		String[] hardware = { "Linux x86_64", "Linux i686", "Linux ppc64", "Linux ppc" };
 		String header = "X11; ";
 		if (Judge.isEmpty(RandomUtils.nextInt(0, 2))) {
@@ -213,11 +213,11 @@ public class UserAgent {
 		return header;
 	}
 
-	@Contract(pure = true) private static String headerMac() {
+	@Contract(pure = true) protected static String headerMac() {
 		return "Macintosh; Intel Mac OS X " + RandomUtils.nextInt(4, 20) + "_" + RandomUtils.nextInt(0, 10) + "_" + RandomUtils.nextInt(0, 10);
 	}
 
-	@Contract(pure = true) private static String firefoxTail() {
+	@Contract(pure = true) protected static String firefoxTail() {
 		String firefox = "";
 		String version = RandomUtils.nextInt(0, 100) + ".0";
 		if (Judge.isEmpty(RandomUtils.nextInt(0, 2))) {
@@ -227,7 +227,7 @@ public class UserAgent {
 		return firefox;
 	}
 
-	@Contract(pure = true) private static String chromeTail() {
+	@Contract(pure = true) protected static String chromeTail() {
 		String chrome = ") AppleWebKit/" + RandomUtils.nextInt(500, 800) + "." + RandomUtils.nextInt(10, 100);
 		chrome += " (KHTML, like Gecko) Version/5.0." + RandomUtils.nextInt(2, 5);
 		chrome += " Chrome/" + RandomUtils.nextInt(10, 100) + "." + "0" + "." + RandomUtils.nextInt(1000, 10000) + "." + RandomUtils.nextInt(10, 100)

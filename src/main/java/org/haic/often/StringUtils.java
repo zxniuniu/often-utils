@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 	/**
-	 * 换行符
+	 * 换行符 "\n"
 	 */
 	public static final String LINE_SEPARATOR = "\n";
 
@@ -35,12 +35,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	public static final String DOUBLE_QUOTES = "\"";
 
 	/**
-	 * 单引号
+	 * 单引号 "'"
 	 */
 	public static final String APOSTROPHE = "'";
 
 	/**
-	 * 等于号
+	 * 等于号 "="
 	 */
 	public static final String EQUAL_SIGN = "=";
 

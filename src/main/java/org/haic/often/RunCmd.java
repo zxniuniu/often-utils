@@ -20,15 +20,14 @@ import java.util.List;
  * @since 2021/12/25 06:50
  */
 public class RunCmd {
-	private static final String OS = System.getProperty("os.name").toLowerCase();
 
-	private List<String> command; // cmd命令
-	private Charset charset; // 字符集格式
-	private File directory; // 工作目录
+	protected static final String OS = System.getProperty("os.name").toLowerCase();
+	protected Charset charset = OS.contains("windows") ? Charset.forName("GBK") : StandardCharsets.UTF_8; // 字符集格式
+	protected File directory = new File(System.getProperty("user.dir")); // 工作目录
 
-	private RunCmd() {
-		charset = OS.contains("windows") ? Charset.forName("GBK") : StandardCharsets.UTF_8;
-		directory(System.getProperty("user.dir"));
+	protected List<String> command; // cmd命令
+
+	protected RunCmd() {
 	}
 
 	/**
@@ -37,7 +36,7 @@ public class RunCmd {
 	 * @param dos 终端命令
 	 * @return new RunCmd
 	 */
-	public static RunCmd dos(@NotNull String... dos) {
+	@Contract(pure = true) public static RunCmd dos(@NotNull String... dos) {
 		return dos(Arrays.stream(dos).toList());
 	}
 
@@ -47,7 +46,7 @@ public class RunCmd {
 	 * @param dos 终端命令
 	 * @return new RunCmd
 	 */
-	public static RunCmd dos(@NotNull List<String> dos) {
+	@Contract(pure = true) public static RunCmd dos(@NotNull List<String> dos) {
 		return config().command(dos);
 	}
 
@@ -56,7 +55,7 @@ public class RunCmd {
 	 *
 	 * @return new RunCmd
 	 */
-	private static RunCmd config() {
+	@Contract(pure = true) protected static RunCmd config() {
 		return new RunCmd();
 	}
 
@@ -66,7 +65,7 @@ public class RunCmd {
 	 * @param command 终端命令
 	 * @return this
 	 */
-	private RunCmd command(@NotNull List<String> command) {
+	@Contract(pure = true) protected RunCmd command(@NotNull List<String> command) {
 		this.command = new ArrayList<>();
 		if (OS.contains("windows")) {
 			this.command.add("cmd");
@@ -82,7 +81,7 @@ public class RunCmd {
 	 * @param CharsetName 字符集编码名
 	 * @return this
 	 */
-	public RunCmd charset(@NotNull String CharsetName) {
+	@Contract(pure = true) public RunCmd charset(@NotNull String CharsetName) {
 		charset(Charset.forName(CharsetName));
 		return this;
 	}
@@ -93,7 +92,7 @@ public class RunCmd {
 	 * @param charset 字符集编码
 	 * @return this
 	 */
-	public RunCmd charset(@NotNull Charset charset) {
+	@Contract(pure = true) public RunCmd charset(@NotNull Charset charset) {
 		this.charset = charset;
 		return this;
 	}
@@ -104,7 +103,7 @@ public class RunCmd {
 	 * @param directory 工作目录路径
 	 * @return this
 	 */
-	public RunCmd directory(@NotNull String directory) {
+	@Contract(pure = true) public RunCmd directory(@NotNull String directory) {
 		return directory(new File(directory));
 	}
 
@@ -114,7 +113,7 @@ public class RunCmd {
 	 * @param directory 工作目录
 	 * @return this
 	 */
-	public RunCmd directory(File directory) {
+	@Contract(pure = true) public RunCmd directory(File directory) {
 		this.directory = directory;
 		return this;
 	}

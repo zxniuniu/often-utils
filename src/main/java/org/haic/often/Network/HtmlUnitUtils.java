@@ -38,10 +38,10 @@ public class HtmlUnitUtils {
 	protected boolean enableCSS; // CSS支持
 	protected boolean errorExit; // 错误退出
 	protected boolean unlimitedRetry;// 请求异常无限重试
-	protected boolean followRedirects; // 重定向
+	protected boolean followRedirects = true; // 重定向
 	protected boolean isSocksProxy; // 是否Socks代理
-	protected boolean isCloseWebClient; // 是否关闭WebClient
-	protected int waitJSTime; // JS最大运行时间
+	protected boolean isCloseWebClient = true; // 是否关闭WebClient
+	protected int waitJSTime = 1000; // JS最大运行时间
 	protected int retry; // 请求异常重试次数
 	protected int MILLISECONDS_SLEEP; // 重试等待时间
 	protected int timeout; // 连接超时时间
@@ -56,9 +56,6 @@ public class HtmlUnitUtils {
 	protected Page page; // Page
 
 	protected HtmlUnitUtils() {
-		followRedirects = true;
-		isCloseWebClient = true;
-		waitJSTime = 1000;
 		headers.put("user-agent", UserAgent.randomChrome()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatus(HttpStatus.SC_NOT_FOUND, HttpStatus.SC_TOO_MANY_REQUEST);
@@ -69,7 +66,7 @@ public class HtmlUnitUtils {
 	 *
 	 * @return new HtmlUnitUtils
 	 */
-	@Contract(pure = true) private static HtmlUnitUtils config() {
+	@Contract(pure = true) protected static HtmlUnitUtils config() {
 		return new HtmlUnitUtils();
 	}
 
@@ -173,7 +170,7 @@ public class HtmlUnitUtils {
 	 * @param url URL
 	 * @return this
 	 */
-	@Contract(pure = true) private HtmlUnitUtils url(@NotNull String url) {
+	@Contract(pure = true) protected HtmlUnitUtils url(@NotNull String url) {
 		this.url = url;
 		return this;
 	}
@@ -428,7 +425,7 @@ public class HtmlUnitUtils {
 	 *
 	 * @return boolean
 	 */
-	private boolean enableJS() {
+	protected boolean enableJS() {
 		return !Judge.isEmpty(waitJSTime);
 	}
 
@@ -535,7 +532,7 @@ public class HtmlUnitUtils {
 	 * @param method Method类型
 	 * @return Response
 	 */
-	@Contract(pure = true) private Page executeProgram(@NotNull HttpMethod method) {
+	@Contract(pure = true) protected Page executeProgram(@NotNull HttpMethod method) {
 		if (Judge.isNull(webClient)) {
 			setWebClient(); // 创建HtmlUnit
 		}
@@ -604,7 +601,7 @@ public class HtmlUnitUtils {
 	 * @param method HttpMethod类型
 	 * @return WebRequest
 	 */
-	@Contract(pure = true) private WebRequest getWebRequest(@NotNull HttpMethod method) {
+	@Contract(pure = true) protected WebRequest getWebRequest(@NotNull HttpMethod method) {
 		WebRequest webRequest = new WebRequest(URIUtils.getURL(url), method);
 		if (!params.isEmpty()) {
 			webRequest.setRequestParameters(params);

@@ -64,7 +64,7 @@ public class ZipUtils {
 	 *
 	 * @return new Zip4jUtils
 	 */
-	private static ZipUtils config() {
+	protected static ZipUtils config() {
 		return new ZipUtils();
 	}
 
@@ -74,7 +74,7 @@ public class ZipUtils {
 	 * @param archive 压缩包文件
 	 * @return this
 	 */
-	private ZipUtils archive(File archive) {
+	protected ZipUtils archive(File archive) {
 		this.archive = archive;
 		return this;
 	}
@@ -218,7 +218,7 @@ public class ZipUtils {
 	 * @param origin       文件信息
 	 * @return 添加压缩包中的文件列表
 	 */
-	private List<String> compress(@NotNull Map<String, byte[]> origin, ZipArchiveOutputStream outputStream) {
+	protected List<String> compress(@NotNull Map<String, byte[]> origin, ZipArchiveOutputStream outputStream) {
 		try {
 			for (Map.Entry<String, byte[]> info : origin.entrySet()) {
 				ZipArchiveEntry entry = new ZipArchiveEntry(info.getKey());
@@ -332,7 +332,7 @@ public class ZipUtils {
 	 * @param origin 来源文件或文件夹
 	 * @return 文件列表信息集合
 	 */
-	@NotNull @Contract(pure = true) private Map<String, byte[]> getFilesInfo(@NotNull File origin) {
+	@NotNull @Contract(pure = true) protected Map<String, byte[]> getFilesInfo(@NotNull File origin) {
 		if (!origin.exists()) {
 			throw new RuntimeException("Not found " + origin);
 		}

@@ -124,7 +124,7 @@ public class ReadWriteUtils {
 	@Contract(pure = true) public boolean listToText(@NotNull List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
-			outStream.write(StringUtils.join(lists, StringUtils.SPACE) + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
+			outStream.write(StringUtils.join(lists, StringUtils.SPACE) + (newline ? StringUtils.LINE_SEPARATOR : "")); // 文件输出流用于将数据写入文件
 			outStream.flush();
 			return true;
 		} catch (IOException e) {
@@ -142,7 +142,7 @@ public class ReadWriteUtils {
 	@Contract(pure = true) public boolean text(@NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
-			outStream.write(str + StringUtils.LINE_SEPARATOR); // 文件输出流用于将数据写入文件
+			outStream.write(str + (newline ? StringUtils.LINE_SEPARATOR : "")); // 文件输出流用于将数据写入文件
 			outStream.flush();
 			return true;
 		} catch (IOException e) {
@@ -178,7 +178,7 @@ public class ReadWriteUtils {
 	@Contract(pure = true) public boolean list(@NotNull List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
-			outStream.write(lists.parallelStream().collect(Collectors.joining(StringUtils.LINE_SEPARATOR)) + StringUtils.LINE_SEPARATOR);
+			outStream.write(lists.parallelStream().collect(Collectors.joining(StringUtils.LINE_SEPARATOR)) + (newline ? StringUtils.LINE_SEPARATOR : ""));
 			outStream.flush();
 			return true;
 		} catch (IOException e) {
@@ -196,7 +196,7 @@ public class ReadWriteUtils {
 	@Contract(pure = true) public boolean binary(@NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(source, append), bufferSize))) {
-			for (byte b : (str + StringUtils.LF).getBytes()) {
+			for (byte b : (str + (newline ? StringUtils.LINE_SEPARATOR : "")).getBytes()) {
 				outStream.writeInt(b); // 文件输出流用于将数据写入文件
 			}
 			outStream.flush();
@@ -216,7 +216,7 @@ public class ReadWriteUtils {
 	@Contract(pure = true) public boolean channelText(@NotNull String str) {
 		FilesUtils.createFolder(source.getParent());
 		try (FileChannel channel = new FileOutputStream(source, append).getChannel()) {
-			channel.write(charset.encode(str + StringUtils.LINE_SEPARATOR));
+			channel.write(charset.encode(str + (newline ? StringUtils.LINE_SEPARATOR : "")));
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -236,7 +236,7 @@ public class ReadWriteUtils {
 			if (append) {
 				randomAccess.seek(source.length());
 			}
-			randomAccess.write((str + StringUtils.LINE_SEPARATOR).getBytes(charset));
+			randomAccess.write((str + (newline ? StringUtils.LINE_SEPARATOR : "")).getBytes(charset));
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -252,7 +252,7 @@ public class ReadWriteUtils {
 	 */
 	@Contract(pure = true) public boolean mappedText(String str) {
 		FilesUtils.createFolder(source.getParent());
-		byte[] params = (str + StringUtils.LINE_SEPARATOR).getBytes(charset);
+		byte[] params = (str + (newline ? StringUtils.LINE_SEPARATOR : "")).getBytes(charset);
 		MappedByteBuffer mappedByteBuffer;
 		if (append) {
 			try (FileChannel fileChannel = FileChannel.open(source.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE)) {
@@ -474,7 +474,7 @@ public class ReadWriteUtils {
 	 * @param file 文件
 	 * @return bytes
 	 */
-	@Contract(pure = true) private byte[] array(@NotNull File file) {
+	@Contract(pure = true) protected byte[] array(@NotNull File file) {
 		byte[] result = null;
 		try (InputStream inputStream = new FileInputStream(file)) {
 			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).toByteArray();
