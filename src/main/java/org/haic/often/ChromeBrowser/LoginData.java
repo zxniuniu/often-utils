@@ -201,7 +201,7 @@ public class LoginData {
 						connection.close();
 					}
 				} catch (SQLException e) {
-					// connection close failed
+					e.printStackTrace();// connection close failed
 				}
 				cookieStoreCopy.delete(); // 删除备份
 			}
