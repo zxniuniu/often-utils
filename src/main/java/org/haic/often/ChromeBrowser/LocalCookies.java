@@ -13,10 +13,11 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
-import java.nio.file.Files;
 import java.security.Security;
-import java.sql.*;
-import java.util.Date;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -180,11 +181,6 @@ public class LocalCookies {
 		protected File cookieStore;
 
 		/**
-		 * A file that should be used to make a temporary copy of the browser's cookie store
-		 */
-		protected File cookieStoreCopy = new File(".cookies.db");
-
-		/**
 		 * Returns all cookies
 		 */
 		public Set<Cookie> getCookies() {
@@ -266,14 +262,12 @@ public class LocalCookies {
 		 */
 		@Override protected Set<Cookie> processCookies(File cookieStore, String domainFilter) {
 			Set<Cookie> cookies = new HashSet<>();
-			Connection connection = null;
-			try {
-				cookieStoreCopy.delete();
-				Files.copy(cookieStore.toPath(), cookieStoreCopy.toPath());
-				// load the sqlite-JDBC driver using the current class loader
+			try { // load the sqlite-JDBC driver using the current class loader
 				Class.forName("org.sqlite.JDBC");
-				// create a database connection
-				connection = DriverManager.getConnection("jdbc:sqlite:" + cookieStoreCopy.getAbsolutePath());
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + cookieStore.getAbsolutePath())) {
 				Statement statement = connection.createStatement();
 				statement.setQueryTimeout(30); // set timeout to 30 seconds
 				ResultSet result;
@@ -293,18 +287,7 @@ public class LocalCookies {
 					cookies.add(Objects.requireNonNullElse(decryptedCookie, encryptedCookie));
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
-				// if the error message is "out of memory",
-				// it probably means no database file is found
-			} finally {
-				try { // 关闭数据库
-					if (connection != null) {
-						connection.close();
-					}
-				} catch (SQLException e) {
-					// connection close failed
-				}
-				cookieStoreCopy.delete(); // 删除备份
+				e.printStackTrace(); // if the error message is "out of memory", it probably means no database file is found
 			}
 			return cookies;
 		}
