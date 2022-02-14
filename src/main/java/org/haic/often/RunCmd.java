@@ -133,7 +133,7 @@ public class RunCmd {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return StringUtils.deletePefixAndSuffix(result, StringUtils.LINE_SEPARATOR);
+		return StringUtils.deletePefixAndSuffix(result, OS.contains("windows") ? StringUtils.CRLF : StringUtils.LF);
 	}
 
 	/**

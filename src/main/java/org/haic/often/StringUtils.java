@@ -25,10 +25,9 @@ import java.util.regex.Pattern;
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 	/**
-	 * 换行符 "\n"
+	 * 行分隔符 "\r\n"
 	 */
-	public static final String LINE_SEPARATOR = "\n";
-
+	public static final String CRLF = "\r\n";
 	/**
 	 * 双引号
 	 */
@@ -150,7 +149,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param term 条件字符串
 	 * @return 处理后的字符串
 	 */
-	public static String deletePefixAndSuffix(@NotNull String str, @NotNull String term) {
+	@NotNull @Contract(pure = true) public static String deletePefixAndSuffix(@NotNull String str, @NotNull String term) {
 		return deleteSuffix(deletePefix(str, term), term);
 	}
 
@@ -161,7 +160,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param term 条件字符
 	 * @return 处理后的字符串
 	 */
-	public static String deletePefixAndSuffix(@NotNull String str, final char term) {
+	@NotNull @Contract(pure = true) public static String deletePefixAndSuffix(@NotNull String str, final char term) {
 		return deletePefixAndSuffix(str, String.valueOf(term));
 	}
 
@@ -172,7 +171,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param term 条件字符串
 	 * @return 处理后的字符串
 	 */
-	public static String deletePefix(@NotNull String str, @NotNull String term) {
+	@NotNull @Contract(pure = true) public static String deletePefix(@NotNull String str, @NotNull String term) {
 		while (!Judge.isEmpty(term) && str.startsWith(term)) {
 			str = str.substring(term.length());
 		}
@@ -186,7 +185,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param term 条件字符
 	 * @return 处理后的字符串
 	 */
-	public static String deletePefix(@NotNull String str, final char term) {
+	@NotNull @Contract(pure = true) public static String deletePefix(@NotNull String str, final char term) {
 		return deletePefix(str, String.valueOf(term));
 	}
 
@@ -197,7 +196,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param term 条件字符串
 	 * @return 处理后的字符串
 	 */
-	public static String deleteSuffix(@NotNull String str, @NotNull String term) {
+	@NotNull @Contract(pure = true) public static String deleteSuffix(@NotNull String str, @NotNull String term) {
 		while (!Judge.isEmpty(term) && str.endsWith(term)) {
 			str = str.substring(0, str.length() - term.length());
 		}
@@ -211,7 +210,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param term 条件字符
 	 * @return 处理后的字符串
 	 */
-	public static String deleteSuffix(@NotNull String str, final char term) {
+	@NotNull @Contract(pure = true) public static String deleteSuffix(@NotNull String str, final char term) {
 		return deleteSuffix(str, String.valueOf(term));
 	}
 
