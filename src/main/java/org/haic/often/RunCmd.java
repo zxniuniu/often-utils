@@ -24,8 +24,7 @@ public class RunCmd {
 	protected File directory = new File(System.getProperty("user.dir")); // 工作目录
 
 	protected List<String> command = new ArrayList<>(); // 命令
-
-	protected String terminal = Terminal.CMD.value; // 默认终端
+	protected String terminal; // 默认终端
 
 	protected RunCmd() {
 	}
@@ -66,7 +65,14 @@ public class RunCmd {
 	 * @return this
 	 */
 	@Contract(pure = true) protected RunCmd command(@NotNull List<String> command) {
-		this.command = command;
+		if (Judge.isEmpty(terminal)) {
+			this.command = command;
+		} else {
+			this.command = new ArrayList<>();
+			this.command.add(terminal);
+			this.command.add("/c");
+			this.command.addAll(command);
+		}
 		return this;
 	}
 
@@ -96,12 +102,8 @@ public class RunCmd {
 	 * @return this
 	 */
 	@Contract(pure = true) public RunCmd terminal(String terminal) {
-		List<String> command = new ArrayList<>();
-		command.add(terminal);
-		command.add("/c");
-		command.addAll(this.command);
-		this.command = command;
-		return this;
+		this.terminal = terminal;
+		return command(this.command);
 	}
 
 	/**
