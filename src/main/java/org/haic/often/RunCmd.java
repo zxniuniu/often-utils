@@ -25,7 +25,6 @@ public class RunCmd {
 
 	protected List<String> command = new ArrayList<>(); // 命令
 
-	protected boolean useTerminal; // 使用终端执行命令
 	protected String terminal = Terminal.CMD.value; // 默认终端
 
 	protected RunCmd() {
@@ -67,49 +66,41 @@ public class RunCmd {
 	 * @return this
 	 */
 	@Contract(pure = true) protected RunCmd command(@NotNull List<String> command) {
-		if (useTerminal) {
-			this.command.clear();
-			this.command.add(terminal);
-			this.command.add("/c");
-			this.command.addAll(command);
-		} else {
-			this.command = command;
-		}
+		this.command = command;
 		return this;
 	}
 
 	/**
-	 * 设置 是否使用终端执行命令,默认为true
+	 * 使用终端执行命令,默认为cmd终端
 	 *
-	 * @param terminal boolean
 	 * @return this
 	 */
-	@Contract(pure = true) public RunCmd terminal(boolean terminal) {
-		this.useTerminal = terminal;
-		return this;
+	@Contract(pure = true) public RunCmd terminal() {
+		return terminal(Terminal.CMD);
 	}
 
 	/**
-	 * 设置 默认可执行终端
-	 *
-	 * @param terminal 终端路径
-	 * @return this
-	 */
-	@Contract(pure = true) public RunCmd terminal(String terminal) {
-		this.useTerminal = true;
-		this.terminal = terminal;
-		return this;
-	}
-
-	/**
-	 * 设置 默认可执行终端
+	 * 使用终端执行命令
 	 *
 	 * @param terminal 枚举Terminal类可执行终端
 	 * @return this
 	 */
 	@Contract(pure = true) public RunCmd terminal(Terminal terminal) {
-		this.useTerminal = true;
-		this.terminal = terminal.value;
+		return terminal(terminal.value);
+	}
+
+	/**
+	 * 使用终端执行命令
+	 *
+	 * @param terminal 终端路径
+	 * @return this
+	 */
+	@Contract(pure = true) public RunCmd terminal(String terminal) {
+		List<String> command = new ArrayList<>();
+		command.add(terminal);
+		command.add("/c");
+		command.addAll(this.command);
+		this.command = command;
 		return this;
 	}
 
