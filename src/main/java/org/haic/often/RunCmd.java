@@ -25,7 +25,7 @@ public class RunCmd {
 
 	protected List<String> command = new ArrayList<>(); // 命令
 
-	protected boolean useTerminal = true; // 使用终端执行命令
+	protected boolean useTerminal; // 使用终端执行命令
 	protected String terminal = Terminal.CMD.value; // 默认终端
 
 	protected RunCmd() {
@@ -68,10 +68,13 @@ public class RunCmd {
 	 */
 	@Contract(pure = true) protected RunCmd command(@NotNull List<String> command) {
 		if (useTerminal) {
+			this.command.clear();
 			this.command.add(terminal);
 			this.command.add("/c");
+			this.command.addAll(command);
+		} else {
+			this.command = command;
 		}
-		this.command.addAll(command);
 		return this;
 	}
 
@@ -93,6 +96,7 @@ public class RunCmd {
 	 * @return this
 	 */
 	@Contract(pure = true) protected RunCmd terminal(String terminal) {
+		this.useTerminal = true;
 		this.terminal = terminal;
 		return this;
 	}
@@ -104,6 +108,7 @@ public class RunCmd {
 	 * @return this
 	 */
 	@Contract(pure = true) protected RunCmd terminal(Terminal terminal) {
+		this.useTerminal = true;
 		this.terminal = terminal.value;
 		return this;
 	}
