@@ -124,7 +124,7 @@ public class ReadWriteUtils {
 	@Contract(pure = true) public boolean listToText(@NotNull List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
-			outStream.write(StringUtils.join(lists, StringUtils.SPACE) + (newline ? StringUtils.LF : "")); // 文件输出流用于将数据写入文件
+			outStream.write(org.apache.commons.lang3.StringUtils.join(lists, StringUtils.SPACE) + (newline ? StringUtils.LF : "")); // 文件输出流用于将数据写入文件
 			outStream.flush();
 			return true;
 		} catch (IOException e) {

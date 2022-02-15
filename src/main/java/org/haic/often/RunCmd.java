@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,11 +20,13 @@ import java.util.List;
  */
 public class RunCmd {
 
-	protected static final String OS = System.getProperty("os.name").toLowerCase();
-	protected Charset charset = OS.contains("windows") ? Charset.forName("GBK") : StandardCharsets.UTF_8; // 字符集格式
+	protected Charset charset = Charset.defaultCharset(); // 字符集格式
 	protected File directory = new File(System.getProperty("user.dir")); // 工作目录
 
-	protected List<String> command; // cmd命令
+	protected List<String> command = new ArrayList<>(); // 命令
+
+	protected boolean useTerminal = true; // 使用终端执行命令
+	protected String terminal = Terminal.CMD.value; // 默认终端
 
 	protected RunCmd() {
 	}
@@ -66,12 +67,44 @@ public class RunCmd {
 	 * @return this
 	 */
 	@Contract(pure = true) protected RunCmd command(@NotNull List<String> command) {
-		this.command = new ArrayList<>();
-		if (OS.contains("windows")) {
-			this.command.add("cmd");
+		if (useTerminal) {
+			this.command.add(terminal);
 			this.command.add("/c");
 		}
 		this.command.addAll(command);
+		return this;
+	}
+
+	/**
+	 * 设置 是否使用终端执行命令,默认为true
+	 *
+	 * @param terminal boolean
+	 * @return this
+	 */
+	@Contract(pure = true) protected RunCmd terminal(boolean terminal) {
+		this.useTerminal = terminal;
+		return this;
+	}
+
+	/**
+	 * 设置 默认可执行终端
+	 *
+	 * @param terminal 终端路径
+	 * @return this
+	 */
+	@Contract(pure = true) protected RunCmd terminal(String terminal) {
+		this.terminal = terminal;
+		return this;
+	}
+
+	/**
+	 * 设置 默认可执行终端
+	 *
+	 * @param terminal 枚举Terminal类可执行终端
+	 * @return this
+	 */
+	@Contract(pure = true) protected RunCmd terminal(Terminal terminal) {
+		this.terminal = terminal.value;
 		return this;
 	}
 
@@ -133,7 +166,7 @@ public class RunCmd {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return StringUtils.deletePefixAndSuffix(result, OS.contains("windows") ? StringUtils.CRLF : StringUtils.LF);
+		return StringUtils.deletePefixAndSuffix(result, charset.name().equals("GBK") ? StringUtils.CRLF : StringUtils.LF);
 	}
 
 	/**
@@ -152,6 +185,35 @@ public class RunCmd {
 			e.printStackTrace();
 		}
 		return status;
+	}
+
+	/**
+	 * 终端枚举类
+	 */
+	public enum Terminal {
+		/**
+		 * CMD 终端
+		 */
+		CMD("cmd"),
+		/**
+		 * powershell 终端
+		 */
+		POWERSHELL("powershell");
+
+		private final String value;
+
+		Terminal(final String value) {
+			this.value = value;
+		}
+
+		/**
+		 * 获得 枚举方法的值
+		 *
+		 * @return value
+		 */
+		@Contract(pure = true) public final String getValue() {
+			return value;
+		}
 	}
 
 }
