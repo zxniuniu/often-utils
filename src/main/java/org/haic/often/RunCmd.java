@@ -150,7 +150,7 @@ public class RunCmd {
 	}
 
 	/**
-	 * 获取执行的信息
+	 * 执行终端命令并获取执行的信息
 	 *
 	 * @return 执行的信息
 	 */
@@ -161,22 +161,22 @@ public class RunCmd {
 			result = StreamUtils.stream(inputStream).charset(charset).getString();
 			process.waitFor();
 			process.destroy();
-		} catch (Exception e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 		return StringUtils.deletePefixAndSuffix(result, charset.name().equals("GBK") ? StringUtils.CRLF : StringUtils.LF);
 	}
 
 	/**
-	 * 执行 终端命令
+	 * 执行终端命令并获取退出值
 	 *
 	 * @return 进程的退出值, 一般情况下, 0为正常终止
 	 */
 	@Contract(pure = true) public int execute() {
 		int status = 1;
 		Process process;
-		try {
-			process = new ProcessBuilder(command).directory(directory).start();
+		try (InputStream inputStream = (process = new ProcessBuilder(command).redirectErrorStream(true).directory(directory).start()).getInputStream()) {
+			inputStream.close();
 			status = process.waitFor();
 			process.destroy();
 		} catch (IOException | InterruptedException e) {
@@ -189,6 +189,10 @@ public class RunCmd {
 	 * 终端枚举类
 	 */
 	public enum Terminal {
+		/**
+		 * windows环境变量默认终端
+		 */
+		DEFAULT(new File(System.getenv("ComSpec")).getName()),
 		/**
 		 * CMD 终端
 		 */
