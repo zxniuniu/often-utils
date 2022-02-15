@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,8 +20,8 @@ import java.util.List;
  * @since 2021/12/25 06:50
  */
 public class RunCmd {
-
-	protected Charset charset = Charset.defaultCharset(); // 字符集格式
+	protected static String os = System.getProperty("os.name").toLowerCase();
+	protected Charset charset = StandardCharsets.UTF_8; // 字符集格式
 	protected File directory = new File(System.getProperty("user.dir")); // 工作目录
 
 	protected List<String> command = new ArrayList<>(); // 命令
@@ -164,7 +165,7 @@ public class RunCmd {
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		return StringUtils.deletePefixAndSuffix(result, charset.name().equals("GBK") ? StringUtils.CRLF : StringUtils.LF);
+		return StringUtils.deletePefixAndSuffix(os.startsWith("windows") ? result.replaceAll("\r\n", "\n") : result, StringUtils.LF);
 	}
 
 	/**
