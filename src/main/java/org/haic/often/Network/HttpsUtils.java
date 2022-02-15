@@ -287,7 +287,7 @@ public class HttpsUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HttpsUtils data(@NotNull Map<String, String> params) {
-		this.params = null;
+		this.params = "";
 		for (Map.Entry<String, String> param : params.entrySet()) {
 			data(param.getKey(), param.getValue());
 		}

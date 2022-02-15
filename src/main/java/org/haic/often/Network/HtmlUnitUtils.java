@@ -145,7 +145,7 @@ public class HtmlUnitUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HtmlUnitUtils data(@NotNull Map<String, String> params) {
-		this.params.clear();
+		this.params = new ArrayList<>();
 		for (Entry<String, String> param : params.entrySet()) {
 			data(param.getKey(), param.getValue());
 		}
