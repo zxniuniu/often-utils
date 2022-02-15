@@ -20,7 +20,7 @@ import java.util.List;
  * @since 2021/12/25 06:50
  */
 public class RunCmd {
-	protected static String os = System.getProperty("os.name").toLowerCase();
+
 	protected Charset charset = StandardCharsets.UTF_8; // 字符集格式
 	protected File directory = new File(System.getProperty("user.dir")); // 工作目录
 
@@ -165,7 +165,7 @@ public class RunCmd {
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		return StringUtils.deletePefixAndSuffix(os.startsWith("windows") ? result.replaceAll("\r\n", "\n") : result, StringUtils.LF);
+		return StringUtils.deletePefixAndSuffix(result.replaceAll("\r\n", "\n"), StringUtils.LF);
 	}
 
 	/**
