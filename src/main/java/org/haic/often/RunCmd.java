@@ -84,7 +84,7 @@ public class RunCmd {
 	 * @param terminal boolean
 	 * @return this
 	 */
-	@Contract(pure = true) protected RunCmd terminal(boolean terminal) {
+	@Contract(pure = true) public RunCmd terminal(boolean terminal) {
 		this.useTerminal = terminal;
 		return this;
 	}
@@ -95,7 +95,7 @@ public class RunCmd {
 	 * @param terminal 终端路径
 	 * @return this
 	 */
-	@Contract(pure = true) protected RunCmd terminal(String terminal) {
+	@Contract(pure = true) public RunCmd terminal(String terminal) {
 		this.useTerminal = true;
 		this.terminal = terminal;
 		return this;
@@ -107,7 +107,7 @@ public class RunCmd {
 	 * @param terminal 枚举Terminal类可执行终端
 	 * @return this
 	 */
-	@Contract(pure = true) protected RunCmd terminal(Terminal terminal) {
+	@Contract(pure = true) public RunCmd terminal(Terminal terminal) {
 		this.useTerminal = true;
 		this.terminal = terminal.value;
 		return this;
