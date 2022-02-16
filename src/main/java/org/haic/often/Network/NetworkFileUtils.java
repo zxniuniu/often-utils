@@ -544,9 +544,9 @@ public class NetworkFileUtils {
 			statusCode = MULTITHREAD(PIECE_COUNT, PIECE_MAX_SIZE);
 		}
 		case MULTITHREAD -> {
-			int PIECE_COUNT = Math.min((int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE), MAX_THREADS);
-			int PIECE_SIZE = (int) Math.ceil((double) fileSize / (double) PIECE_COUNT);
-			statusCode = MULTITHREAD(PIECE_COUNT, PIECE_SIZE);
+			//int PIECE_COUNT = Math.min((int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE), MAX_THREADS);
+			int PIECE_SIZE = (int) Math.ceil((double) fileSize / (double) MAX_THREADS);
+			statusCode = MULTITHREAD(MAX_THREADS, PIECE_SIZE);
 		}
 		}
 		if (!URIUtils.statusIsOK(statusCode)) { // 验证下载状态
