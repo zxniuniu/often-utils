@@ -132,16 +132,6 @@ public class StreamUtils {
 	}
 
 	/**
-	 * InputStreamReader 流工具
-	 *
-	 * @param inputStream InputStreamReader
-	 * @return new InputStreamReaderUtil
-	 */
-	@NotNull @Contract(pure = true) public static InputStreamReaderUtil stream(@NotNull InputStreamReader inputStream) {
-		return new InputStreamReaderUtil(inputStream);
-	}
-
-	/**
 	 * BufferedInputStream 流工具
 	 *
 	 * @param inputStream BufferedInputStream
@@ -149,6 +139,16 @@ public class StreamUtils {
 	 */
 	@NotNull @Contract(pure = true) public static BufferedInputStreamUtil stream(@NotNull BufferedInputStream inputStream) {
 		return new BufferedInputStreamUtil(inputStream);
+	}
+
+	/**
+	 * InputStreamReader 流工具
+	 *
+	 * @param inputStream InputStreamReader
+	 * @return new InputStreamReaderUtil
+	 */
+	@NotNull @Contract(pure = true) public static InputStreamReaderUtil stream(@NotNull InputStreamReader inputStream) {
+		return new InputStreamReaderUtil(inputStream);
 	}
 
 	/**
@@ -162,18 +162,48 @@ public class StreamUtils {
 		}
 
 		/**
-		 * 获取 流中字符串信息
+		 * 设置 字符集编码(默认UTF8)
+		 *
+		 * @param charsetName 字符集编码名称
+		 * @return this
+		 */
+		@Contract(pure = true) public abstract StreamUtil charset(@NotNull String charsetName);
+
+		/**
+		 * 设置 字符集编码(默认UTF8)
+		 *
+		 * @param charset 字符集编码
+		 * @return this
+		 */
+		@Contract(pure = true) public abstract StreamUtil charset(@NotNull Charset charset);
+
+		/**
+		 * 获取 Stream 中字符串信息
 		 *
 		 * @return 字符串文本
 		 */
 		@NotNull @Contract(pure = true) public abstract String getString() throws IOException;
 
 		/**
-		 * 获取 流中字符串信息
+		 * 获取 Stream 中字符串信息
 		 *
-		 * @return 字符串列表(按行分割)
+		 * @return 按行分割的字符串列表
 		 */
 		@NotNull @Contract(pure = true) public abstract List<String> getStringAsLine() throws IOException;
+
+		/**
+		 * 获取 Stream 中字符信息,转为 ByteArrayOutputStream
+		 *
+		 * @return ByteArrayOutputStream
+		 */
+		@NotNull @Contract(pure = true) public abstract ByteArrayOutputStream toByteArrayOutputStream() throws IOException;
+
+		/**
+		 * 获取 Stream 中字符信息
+		 *
+		 * @return byte数组
+		 */
+		@Contract(pure = true) public abstract byte[] toByteArray() throws IOException;
 
 	}
 
@@ -187,24 +217,12 @@ public class StreamUtils {
 			this.inputStream = inputStream;
 		}
 
-		/**
-		 * 设置 字符集编码(默认UTF8)
-		 *
-		 * @param charsetName 字符集编码名称
-		 * @return this
-		 */
-		@Contract(pure = true) public InputStreamUtil charset(@NotNull String charsetName) {
+		@Override @Contract(pure = true) public InputStreamUtil charset(@NotNull String charsetName) {
 			this.charset = Charset.forName(charsetName);
 			return this;
 		}
 
-		/**
-		 * 设置 字符集编码(默认UTF8)
-		 *
-		 * @param charset 字符集编码
-		 * @return this
-		 */
-		@Contract(pure = true) public InputStreamUtil charset(@NotNull Charset charset) {
+		@Override @Contract(pure = true) public InputStreamUtil charset(@NotNull Charset charset) {
 			this.charset = charset;
 			return this;
 		}
@@ -217,56 +235,13 @@ public class StreamUtils {
 			return stream(new InputStreamReader(inputStream, charset)).getStringAsLine();
 		}
 
-		/**
-		 * 获取 Stream 中字符信息
-		 *
-		 * @return bytes
-		 */
 		@Contract(pure = true) public byte[] toByteArray() throws IOException {
 			return toByteArrayOutputStream().toByteArray();
 		}
 
-		/**
-		 * 转换为 ByteArrayOutputStream
-		 *
-		 * @return ByteArrayOutputStream
-		 */
 		@NotNull @Contract(pure = true) public ByteArrayOutputStream toByteArrayOutputStream() throws IOException {
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
 			inputStream.transferTo(result);
-			return result;
-		}
-
-	}
-
-	/**
-	 * InputStreamReader 工具类
-	 */
-	public static class InputStreamReaderUtil extends StreamUtil {
-		protected InputStreamReader inputStream;
-
-		protected InputStreamReaderUtil(@NotNull InputStreamReader inputStream) {
-			this.inputStream = inputStream;
-		}
-
-		@NotNull @Contract(pure = true) public String getString() throws IOException {
-			StringWriter result = new StringWriter();
-			inputStream.transferTo(result);
-			return String.valueOf(result);
-		}
-
-		/**
-		 * 获取 Stream 中字符串信息
-		 *
-		 * @return 字符串列表(按行分割)
-		 */
-		@NotNull @Contract(pure = true) public List<String> getStringAsLine() throws IOException {
-			List<String> result = new ArrayList<>();
-			BufferedReader bufferedReader = new BufferedReader(inputStream);
-			String line;
-			while (!Judge.isNull(line = bufferedReader.readLine())) {
-				result.add(line);
-			}
 			return result;
 		}
 
@@ -300,24 +275,52 @@ public class StreamUtils {
 			return stream(new InputStreamReader(inputStream, charset)).getStringAsLine();
 		}
 
-		/**
-		 * 转换为 ByteArrayOutputStream
-		 *
-		 * @return ByteArrayOutputStream
-		 */
 		@NotNull @Contract(pure = true) public ByteArrayOutputStream toByteArrayOutputStream() throws IOException {
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
 			inputStream.transferTo(result);
 			return result;
 		}
 
-		/**
-		 * 获取 Stream 中字符信息
-		 *
-		 * @return bytes
-		 */
 		@Contract(pure = true) public byte[] toByteArray() throws IOException {
 			return toByteArrayOutputStream().toByteArray();
+		}
+
+	}
+
+	/**
+	 * InputStreamReader 工具类
+	 */
+	public static class InputStreamReaderUtil {
+		protected InputStreamReader inputStream;
+
+		protected InputStreamReaderUtil(@NotNull InputStreamReader inputStream) {
+			this.inputStream = inputStream;
+		}
+
+		/**
+		 * 获取 Stream 中字符串信息
+		 *
+		 * @return 字符串文本
+		 */
+		@NotNull @Contract(pure = true) public String getString() throws IOException {
+			StringWriter result = new StringWriter();
+			inputStream.transferTo(result);
+			return String.valueOf(result);
+		}
+
+		/**
+		 * 获取 Stream 中字符串信息
+		 *
+		 * @return 按行分割的字符串列表
+		 */
+		@NotNull @Contract(pure = true) public List<String> getStringAsLine() throws IOException {
+			List<String> result = new ArrayList<>();
+			BufferedReader bufferedReader = new BufferedReader(inputStream);
+			String line;
+			while (!Judge.isNull(line = bufferedReader.readLine())) {
+				result.add(line);
+			}
+			return result;
 		}
 
 	}
