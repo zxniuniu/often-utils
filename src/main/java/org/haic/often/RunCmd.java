@@ -92,7 +92,7 @@ public class RunCmd {
 	 * @param terminal 枚举Terminal类可执行终端
 	 * @return this
 	 */
-	@Contract(pure = true) public RunCmd terminal(Terminal terminal) {
+	@Contract(pure = true) public RunCmd terminal(@NotNull Terminal terminal) {
 		return terminal(terminal.value);
 	}
 
@@ -102,7 +102,7 @@ public class RunCmd {
 	 * @param terminal 终端路径
 	 * @return this
 	 */
-	@Contract(pure = true) public RunCmd terminal(String terminal) {
+	@Contract(pure = true) public RunCmd terminal(@NotNull String terminal) {
 		this.terminal = terminal;
 		return command(this.command);
 	}
@@ -145,7 +145,7 @@ public class RunCmd {
 	 * @param directory 工作目录
 	 * @return this
 	 */
-	@Contract(pure = true) public RunCmd directory(File directory) {
+	@Contract(pure = true) public RunCmd directory(@NotNull File directory) {
 		this.directory = directory;
 		return this;
 	}
