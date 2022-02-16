@@ -162,7 +162,7 @@ public class ReadWriteUtils {
 	 */
 	@Contract(pure = true) public boolean bytes(byte[] bytes) {
 		FilesUtils.createFolder(source.getParent());
-		try (FileOutputStream outStream = new FileOutputStream(source, append)) {
+		try (OutputStream outStream = new FileOutputStream(source, append)) {
 			outStream.write(bytes); // 文件输出流用于将数据写入文件
 			outStream.flush();
 			return true;
