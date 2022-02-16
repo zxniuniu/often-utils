@@ -33,14 +33,14 @@ public class NetworkFileUtils {
 	protected String authorization; // 授权码
 	protected int MILLISECONDS_SLEEP; // 重试等待时间
 	protected int retry; // 请求异常重试次数
-	protected int MAX_THREADS; // 多线程下载
-	protected int bufferSize; // 缓冲区大小
+	protected int MAX_THREADS = 16; // 默认16线程下载
+	protected int bufferSize = 8192; // 默认缓冲区大小
 	protected int fileSize; // 文件大小
-	protected int PIECE_MAX_SIZE; // 块最大值
-	protected int interval; // 异步访问间隔
+	protected int PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
+	protected int interval = 50; // 默认异步访问间隔50毫秒
 	protected boolean unlimitedRetry;// 请求异常无限重试
 	protected boolean errorExit; // 错误退出
-	protected Proxy proxy; // 代理
+	protected Proxy proxy = Proxy.NO_PROXY; // 代理
 	protected File storage; // 本地存储文件
 	protected File conf; // 配置信息文件
 
@@ -50,18 +50,12 @@ public class NetworkFileUtils {
 	protected List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 
 	protected ExecutorService executorService; // 下载线程池
-	protected Method method;// 下载模式
+	protected Method method = Method.MULTITHREAD;// 下载模式
 
 	protected NetworkFileUtils() {
-		MAX_THREADS = 16; // 默认16线程下载
-		interval = 50; // 默认异步访问间隔50毫秒
-		bufferSize = 8192; // 默认缓冲区大小
-		PIECE_MAX_SIZE = 1048576; // 默认块大小，1M
 		headers.put("accept-encoding", "gzip, deflate, br");
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatus(HttpStatus.SC_NOT_FOUND, HttpStatus.SC_TOO_MANY_REQUEST);
-		method = Method.MULTITHREAD;
-		proxy(Proxy.NO_PROXY);
 	}
 
 	/**
@@ -395,7 +389,7 @@ public class NetworkFileUtils {
 	}
 
 	/**
-	 * 设置多线程分块大小
+	 * 设置多线程分块大小,仅对PIECE下载模式有效
 	 *
 	 * @param pieceSize 指定块大小(KB)
 	 * @return this
@@ -544,7 +538,7 @@ public class NetworkFileUtils {
 
 		int statusCode = 0;
 		switch (method) {  // 开始下载
-		case FULL -> statusCode = Judge.isNull(response) ? writeFull() : writeFull(response);
+		case FULL -> statusCode = Judge.isNull(response) ? FULL() : FULL(response);
 		case PIECE -> {
 			int PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
 			statusCode = MULTITHREAD(PIECE_COUNT, PIECE_MAX_SIZE);
@@ -585,6 +579,31 @@ public class NetworkFileUtils {
 		return HttpStatus.SC_OK;
 	}
 
+	/**
+	 * 全量下载，下载获取文件信息并写入文件
+	 *
+	 * @return 下载并写入是否成功(状态码)
+	 */
+	@Contract(pure = true) protected int FULL() {
+		return FULL(JsoupUtils.connect(url).proxy(proxy).headers(headers).cookies(cookies).referrer(referrer).excludeErrorStatus(excludeErrorStatusCodes)
+				.retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).execute());
+	}
+
+	/**
+	 * 全量下载，下载获取文件信息并写入文件
+	 *
+	 * @param response 网页Response对象
+	 * @return 下载并写入是否成功(状态码)
+	 */
+	@Contract(pure = true) protected int FULL(final Response response) {
+		try (InputStream inputStream = response.bodyStream(); OutputStream outputStream = new FileOutputStream(storage)) {
+			inputStream.transferTo(outputStream);
+		} catch (Exception e) {
+			return HttpStatus.SC_REQUEST_TIMEOUT;
+		}
+		return HttpStatus.SC_OK;
+	}
+
 	@Contract(pure = true) protected int MULTITHREAD(int PIECE_COUNT, int PIECE_SIZE) {
 		final List<Integer> statusCodes = new CopyOnWriteArrayList<>();
 		executorService = Executors.newFixedThreadPool(MAX_THREADS); // 限制多线程;
@@ -608,31 +627,6 @@ public class NetworkFileUtils {
 				}
 				return statusCode;
 			}
-		}
-		return HttpStatus.SC_OK;
-	}
-
-	/**
-	 * 全量下载，下载获取文件信息并写入文件
-	 *
-	 * @return 下载并写入是否成功(状态码)
-	 */
-	@Contract(pure = true) protected int writeFull() {
-		return writeFull(JsoupUtils.connect(url).proxy(proxy).headers(headers).cookies(cookies).referrer(referrer).excludeErrorStatus(excludeErrorStatusCodes)
-				.retry(retry, MILLISECONDS_SLEEP).retry(unlimitedRetry).errorExit(errorExit).execute());
-	}
-
-	/**
-	 * 全量下载，下载获取文件信息并写入文件
-	 *
-	 * @param response 网页Response对象
-	 * @return 下载并写入是否成功(状态码)
-	 */
-	@Contract(pure = true) protected int writeFull(final Response response) {
-		try (InputStream inputStream = response.bodyStream(); OutputStream outputStream = new FileOutputStream(storage)) {
-			inputStream.transferTo(outputStream);
-		} catch (Exception e) {
-			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
 		return HttpStatus.SC_OK;
 	}
@@ -688,7 +682,7 @@ public class NetworkFileUtils {
 			}
 			if (end - start + 1 == count) {
 				ReadWriteUtils.orgin(conf).text(start + "-" + end);
-				return piece.statusCode();
+				return HttpStatus.SC_PARTIAL_CONTENT;
 			}
 		} catch (IOException e) {
 			// e.printStackTrace();
