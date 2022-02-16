@@ -11,7 +11,10 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -275,6 +278,22 @@ public class ReadWriteUtils {
 		return false;
 	}
 
+	/**
+	 * 文件复制
+	 *
+	 * @param out 指定输出文件路径
+	 * @return 文件复制状态
+	 */
+	@Contract(pure = true) public boolean copy(String out) {
+		return copy(new File(out));
+	}
+
+	/**
+	 * 文件复制
+	 *
+	 * @param out 指定输出文件
+	 * @return 文件复制状态
+	 */
 	@Contract(pure = true) public boolean copy(File out) {
 		FilesUtils.createFolder(out.getParent());
 		try (InputStream input = new FileInputStream(source); OutputStream output = new FileOutputStream(out)) {
@@ -379,16 +398,12 @@ public class ReadWriteUtils {
 	 * @param file 文件或文件夹
 	 * @return 文本信息列表
 	 */
-	@Contract(pure = true) private List<String> list(@NotNull File file) {
+	@Contract(pure = true) protected List<String> list(@NotNull File file) {
 		List<String> result = null;
-		if (file.isFile()) {
-			try (InputStreamReader inputStream = new InputStreamReader(new FileInputStream(file), charset)) {
-				result = StreamUtils.stream(inputStream).bufferSize(bufferSize).getStringAsLine();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else if (file.isDirectory()) {
-			result = mapList().values().parallelStream().flatMap(Collection::parallelStream).collect(Collectors.toList());
+		try (InputStream inputStream = new FileInputStream(file)) {
+			result = StreamUtils.stream(inputStream).charset(charset).getStringAsLine();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return result;
 	}
@@ -407,8 +422,8 @@ public class ReadWriteUtils {
 	 *
 	 * @return 集合 -> 文件路径 和 文本信息列表
 	 */
-	@Contract(pure = true) public Map<String, List<String>> mapList() {
-		return FilesUtils.iterateFiles(source).parallelStream().collect(Collectors.toMap(File::getPath, this::list));
+	@Contract(pure = true) public Map<File, List<String>> listOfDirectory() {
+		return FilesUtils.iterateFiles(source).parallelStream().collect(Collectors.toMap(f -> f, this::list));
 	}
 
 	/**
@@ -416,10 +431,10 @@ public class ReadWriteUtils {
 	 *
 	 * @return 文本信息
 	 */
-	@Contract(pure = true) private String text(@NotNull File file) {
+	@Contract(pure = true) protected String text(@NotNull File file) {
 		String result = null;
 		try (InputStream inputStream = new FileInputStream(file)) {
-			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).getString();
+			result = StreamUtils.stream(inputStream).charset(charset).getString();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -436,27 +451,12 @@ public class ReadWriteUtils {
 	}
 
 	/**
-	 * 读取指定文件的内容
-	 *
-	 * @return byte数组
-	 */
-	@Contract(pure = true) public byte[] bytes() {
-		byte[] result = null;
-		try (InputStream inputStream = new FileInputStream(source)) {
-			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).toByteArray();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
-
-	/**
 	 * 读取指定文件夹内所有文件的内容
 	 *
 	 * @return 文本信息列表
 	 */
 	@Contract(pure = true) public List<String> texts() {
-		return new ArrayList<>(mapText().values());
+		return new ArrayList<>(textOfDirectory().values());
 	}
 
 	/**
@@ -464,8 +464,23 @@ public class ReadWriteUtils {
 	 *
 	 * @return 集合 -> 文件路径 和 文本信息
 	 */
-	@Contract(pure = true) public Map<String, String> mapText() {
-		return FilesUtils.iterateFiles(source).parallelStream().collect(Collectors.toMap(File::getPath, this::text));
+	@Contract(pure = true) public Map<File, String> textOfDirectory() {
+		return FilesUtils.iterateFiles(source).parallelStream().collect(Collectors.toMap(f -> f, this::text));
+	}
+
+	/**
+	 * 读取指定文件的内容
+	 *
+	 * @return byte数组
+	 */
+	@Contract(pure = true) public byte[] bytes() {
+		byte[] result = null;
+		try (InputStream inputStream = new FileInputStream(source)) {
+			result = StreamUtils.stream(inputStream).charset(charset).toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 	/**
@@ -477,7 +492,7 @@ public class ReadWriteUtils {
 	@Contract(pure = true) protected byte[] array(@NotNull File file) {
 		byte[] result = null;
 		try (InputStream inputStream = new FileInputStream(file)) {
-			result = StreamUtils.stream(inputStream).charset(charset).bufferSize(bufferSize).toByteArray();
+			result = StreamUtils.stream(inputStream).charset(charset).toByteArray();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -499,7 +514,7 @@ public class ReadWriteUtils {
 	 * @return bytes列表
 	 */
 	@Contract(pure = true) public List<byte[]> arrays() {
-		return new ArrayList<>(mapArray().values());
+		return new ArrayList<>(arrayOfDirectory().values());
 	}
 
 	/**
@@ -507,8 +522,8 @@ public class ReadWriteUtils {
 	 *
 	 * @return 集合 -> 文件路径 和 bytes
 	 */
-	@Contract(pure = true) public Map<String, byte[]> mapArray() {
-		return FilesUtils.iterateFiles(source).parallelStream().collect(Collectors.toMap(File::getPath, this::array));
+	@Contract(pure = true) public Map<File, byte[]> arrayOfDirectory() {
+		return FilesUtils.iterateFiles(source).parallelStream().collect(Collectors.toMap(f -> f, this::array));
 	}
 
 	/**
@@ -533,7 +548,7 @@ public class ReadWriteUtils {
 	 *
 	 * @return 文件文本信息
 	 */
-	@Contract(pure = true) public List<String> binaryList() {
+	@Contract(pure = true) public List<String> binarys() {
 		return new ArrayList<>(Arrays.asList(binary().split(StringUtils.LF)));
 	}
 

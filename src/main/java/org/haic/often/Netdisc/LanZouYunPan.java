@@ -76,7 +76,7 @@ public class LanZouYunPan {
 	 * @return 文件直链集合
 	 */
 	@NotNull @Contract(pure = true) public static Map<String, String> getPageStraights(@NotNull String lanzouUrl, @NotNull String passwd) {
-		return getPageInfos(lanzouUrl, passwd).entrySet().parallelStream().collect(Collectors.toMap(Map.Entry::getKey, f -> getStraight(f.getValue())));
+		return getPageInfos(lanzouUrl, passwd).entrySet().parallelStream().collect(Collectors.toMap(Map.Entry::getKey, l -> getStraight(l.getValue())));
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class LanZouYunPan {
 	 * @return 文件直链集合
 	 */
 	@NotNull @Contract(pure = true) public static Map<String, String> getPageStraights(@NotNull String lanzouUrl) {
-		return getPageInfos(lanzouUrl).entrySet().parallelStream().collect(Collectors.toMap(Map.Entry::getKey, f -> getStraight(f.getValue())));
+		return getPageInfos(lanzouUrl).entrySet().parallelStream().collect(Collectors.toMap(Map.Entry::getKey, l -> getStraight(l.getValue())));
 	}
 
 	/**

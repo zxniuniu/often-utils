@@ -613,25 +613,6 @@ public class NetworkFileUtils {
 	}
 
 	/**
-	 * 添加区块线程
-	 *
-	 * @param start 起始位
-	 * @param end   结束位
-	 * @return 状态码
-	 */
-	@Contract(pure = true) protected int addPiece(int start, int end) {
-		if (infos.contains(start + "-" + end)) {
-			return HttpStatus.SC_PARTIAL_CONTENT;
-		}
-		int statusCode = writePiece(start, end);
-		for (int j = 0; !URIUtils.statusIsOK(statusCode) && !excludeErrorStatusCodes.contains(statusCode) && (j < retry || unlimitedRetry); j++) {
-			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
-			statusCode = writePiece(start, end);
-		}
-		return statusCode;
-	}
-
-	/**
 	 * 全量下载，下载获取文件信息并写入文件
 	 *
 	 * @return 下载并写入是否成功(状态码)
@@ -648,12 +629,31 @@ public class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	@Contract(pure = true) protected int writeFull(final Response response) {
-		try (InputStream inputStream = response.bodyStream(); OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(storage))) {
+		try (InputStream inputStream = response.bodyStream(); OutputStream outputStream = new FileOutputStream(storage)) {
 			inputStream.transferTo(outputStream);
 		} catch (Exception e) {
 			return HttpStatus.SC_REQUEST_TIMEOUT;
 		}
 		return HttpStatus.SC_OK;
+	}
+
+	/**
+	 * 添加区块线程
+	 *
+	 * @param start 起始位
+	 * @param end   结束位
+	 * @return 状态码
+	 */
+	@Contract(pure = true) protected int addPiece(int start, int end) {
+		if (infos.contains(start + "-" + end)) {
+			return HttpStatus.SC_PARTIAL_CONTENT;
+		}
+		int statusCode = writePiece(start, end);
+		for (int j = 0; !URIUtils.statusIsOK(statusCode) && !excludeErrorStatusCodes.contains(statusCode) && (j < retry || unlimitedRetry); j++) {
+			MultiThreadUtils.WaitForThread(MILLISECONDS_SLEEP); // 程序等待
+			statusCode = writePiece(start, end);
+		}
+		return statusCode;
 	}
 
 	/**
