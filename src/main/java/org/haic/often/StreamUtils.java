@@ -155,12 +155,10 @@ public class StreamUtils {
 	 * 流工具类
 	 */
 	public abstract static class StreamUtil {
-		protected int bufferSize;
-		protected Charset charset;
+		protected int bufferSize = 8192;
+		protected Charset charset = StandardCharsets.UTF_8;
 
 		protected StreamUtil() {
-			bufferSize = 8192;
-			charset = StandardCharsets.UTF_8;
 		}
 
 		/**
@@ -260,7 +258,7 @@ public class StreamUtils {
 	public static class InputStreamReaderUtil extends StreamUtil {
 		protected InputStreamReader inputStream;
 
-		protected InputStreamReaderUtil(InputStreamReader inputStream) {
+		protected InputStreamReaderUtil(@NotNull InputStreamReader inputStream) {
 			this.inputStream = inputStream;
 		}
 
