@@ -74,7 +74,7 @@ public class ReadWriteUtils {
 	}
 
 	/**
-	 * 设置 缓冲区大小
+	 * 设置 缓冲区大小,用于写入数据时使用
 	 *
 	 * @param bufferSize 缓冲区大小
 	 * @return this
@@ -127,7 +127,7 @@ public class ReadWriteUtils {
 	@Contract(pure = true) public boolean listToText(@NotNull List<String> lists) {
 		FilesUtils.createFolder(source.getParent());
 		try (BufferedWriter outStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source, append), charset), bufferSize)) {
-			outStream.write(org.apache.commons.lang3.StringUtils.join(lists, StringUtils.SPACE) + (newline ? StringUtils.LF : "")); // 文件输出流用于将数据写入文件
+			outStream.write(StringUtils.join(lists, StringUtils.SPACE) + (newline ? StringUtils.LF : "")); // 文件输出流用于将数据写入文件
 			outStream.flush();
 			return true;
 		} catch (IOException e) {
@@ -256,24 +256,13 @@ public class ReadWriteUtils {
 	@Contract(pure = true) public boolean mappedText(String str) {
 		FilesUtils.createFolder(source.getParent());
 		byte[] params = (str + (newline ? StringUtils.LF : "")).getBytes(charset);
-		MappedByteBuffer mappedByteBuffer;
-		if (append) {
-			try (FileChannel fileChannel = FileChannel.open(source.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE)) {
-				mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, source.length(), params.length);
-				mappedByteBuffer.put(params);
-				return true;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-			try (FileChannel fileChannel = FileChannel.open(source.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE,
-					StandardOpenOption.TRUNCATE_EXISTING)) {
-				mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, params.length);
-				mappedByteBuffer.put(params);
-				return true;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		try (FileChannel fileChannel = append ?
+				new RandomAccessFile(source, "rw").getChannel() :
+				FileChannel.open(source.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			fileChannel.map(FileChannel.MapMode.READ_WRITE, append ? source.length() : 0, params.length).put(params);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return false;
 	}
@@ -383,7 +372,8 @@ public class ReadWriteUtils {
 		FilesUtils.createFolder(out.getParent());
 		try (FileChannel inputChannel = new FileInputStream(source).getChannel(); FileChannel outputChannel = new RandomAccessFile(out, "rw").getChannel()) {
 			long size = inputChannel.size();
-			outputChannel.map(FileChannel.MapMode.READ_WRITE, 0, size).put(inputChannel.map(FileChannel.MapMode.READ_ONLY, 0, size).get(new byte[(int) size]));
+			outputChannel.map(FileChannel.MapMode.READ_WRITE, 0, size).put(inputChannel.map(FileChannel.MapMode.READ_ONLY, 0, size));
+			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
