@@ -1,7 +1,6 @@
 package org.haic.often.Network;
 
 import com.alibaba.fastjson.JSONObject;
-import net.lingala.zip4j.model.enums.RandomAccessFileMode;
 import org.haic.often.*;
 import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.Multithread.ParameterizedThread;
@@ -673,7 +672,7 @@ public class NetworkFileUtils {
 	 * @return 下载并写入是否成功(状态码)
 	 */
 	@Contract(pure = true) protected int writePiece(final int start, final int end, final Response piece) {
-		try (InputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storage, RandomAccessFileMode.WRITE.getValue())) {
+		try (InputStream inputStream = piece.bodyStream(); RandomAccessFile output = new RandomAccessFile(storage, "rw")) {
 			output.seek(start);
 			byte[] buffer = new byte[bufferSize];
 			int count = 0;
