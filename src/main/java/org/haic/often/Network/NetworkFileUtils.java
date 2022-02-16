@@ -538,15 +538,8 @@ public class NetworkFileUtils {
 		int statusCode = 0;
 		switch (method) {  // 开始下载
 		case FULL -> statusCode = Judge.isNull(response) ? FULL() : FULL(response);
-		case PIECE -> {
-			int PIECE_COUNT = (int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE);
-			statusCode = MULTITHREAD(PIECE_COUNT, PIECE_MAX_SIZE);
-		}
-		case MULTITHREAD -> {
-			//int PIECE_COUNT = Math.min((int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE), MAX_THREADS);
-			int PIECE_SIZE = (int) Math.ceil((double) fileSize / (double) MAX_THREADS);
-			statusCode = MULTITHREAD(MAX_THREADS, PIECE_SIZE);
-		}
+		case PIECE -> statusCode = MULTITHREAD((int) Math.ceil((double) fileSize / (double) PIECE_MAX_SIZE), PIECE_MAX_SIZE);
+		case MULTITHREAD -> statusCode = MULTITHREAD(MAX_THREADS, (int) Math.ceil((double) fileSize / (double) MAX_THREADS));
 		}
 		if (!URIUtils.statusIsOK(statusCode)) { // 验证下载状态
 			if (errorExit) {
