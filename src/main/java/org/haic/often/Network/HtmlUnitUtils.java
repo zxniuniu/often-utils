@@ -603,6 +603,7 @@ public class HtmlUnitUtils {
 	 */
 	@Contract(pure = true) protected WebRequest getWebRequest(@NotNull HttpMethod method) {
 		WebRequest webRequest = new WebRequest(URIUtils.getURL(url), method);
+		webRequest.setAdditionalHeaders(headers);    // 设置headers
 		if (!params.isEmpty()) {
 			webRequest.setRequestParameters(params);
 		}
@@ -612,11 +613,9 @@ public class HtmlUnitUtils {
 		if (!Judge.isEmpty(referrer)) { // 设置请求报文头里的 Referer 字段
 			webRequest.setAdditionalHeader("referer", referrer);
 		}
-		webRequest.setAdditionalHeaders(headers); // 设置headers
 		if (!cookies.isEmpty()) { // 设置cookies
 			webRequest.setAdditionalHeader("cookie", cookies.toString().replaceAll(",", ";").replace("{", "").replace("}", ""));
 		}
-
 		return webRequest;
 	}
 

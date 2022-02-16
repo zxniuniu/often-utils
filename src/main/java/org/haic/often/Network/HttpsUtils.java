@@ -429,14 +429,14 @@ public class HttpsUtils {
 
 			conn.setReadTimeout(timeout); // 设置超时
 
-			// 设置上一页
-			if (!Judge.isEmpty(referrer)) {
-				headers.put("referer", referrer);
-			}
-
 			// 设置通用的请求属性
 			for (Map.Entry<String, String> entry : headers.entrySet()) {
 				conn.setRequestProperty(entry.getKey(), entry.getValue());
+			}
+
+			// 设置上一页
+			if (!Judge.isEmpty(referrer)) {
+				headers.put("referer", referrer);
 			}
 
 			// 建立连接
