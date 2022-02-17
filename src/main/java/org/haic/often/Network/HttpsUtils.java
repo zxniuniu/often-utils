@@ -264,8 +264,7 @@ public class HttpsUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HttpsUtils socks(@NotNull String proxyHost, final int proxyPort) {
-		proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(proxyHost, proxyPort)));
-		return this;
+		return proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(proxyHost, proxyPort)));
 	}
 
 	/**
@@ -274,8 +273,7 @@ public class HttpsUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HttpsUtils proxy(@NotNull String proxyHost, final int proxyPort) {
-		proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
-		return this;
+		return proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
 	}
 
 	/**

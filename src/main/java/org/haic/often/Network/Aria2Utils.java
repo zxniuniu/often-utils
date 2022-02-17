@@ -197,8 +197,7 @@ public class Aria2Utils {
 	 * @return this
 	 */
 	@Contract(pure = true) public Aria2Utils addUrl(final String url) {
-		this.addUrl(url, new HashMap<>());
-		return this;
+		return addUrl(url, new HashMap<>());
 	}
 
 	/**
@@ -209,8 +208,7 @@ public class Aria2Utils {
 	 * @return this
 	 */
 	@Contract(pure = true) public Aria2Utils addUrl(final String url, final String filename) {
-		this.addUrl(url, filename, "*");
-		return this;
+		return addUrl(url, filename, "*");
 	}
 
 	/**
