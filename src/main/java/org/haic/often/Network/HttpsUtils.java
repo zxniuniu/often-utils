@@ -213,7 +213,7 @@ public class HttpsUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HttpsUtils header(@NotNull String name, @NotNull String value) {
-		headers.put(name, value);
+		this.headers.put(name, value);
 		return this;
 	}
 
@@ -250,10 +250,8 @@ public class HttpsUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HttpsUtils cookie(@NotNull String name, @NotNull String value) {
-		String cookies = headers.get("Cookie");
-		cookies = Judge.isEmpty(cookies) ? name + "=" + value : cookies + "&" + name + "=" + value;
-		headers.put("Cookie", cookies);
-		return this;
+		String cookies = headers.get("cookie");
+		return header("cookie", Judge.isEmpty(cookies) ? name + "=" + value : cookies + ";" + name + "=" + value);
 	}
 
 	/**
