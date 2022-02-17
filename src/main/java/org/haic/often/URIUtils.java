@@ -2,11 +2,14 @@ package org.haic.often;
 
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpStatus;
+import org.haic.often.Network.JsoupUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * URI工具类
@@ -188,6 +191,37 @@ public class URIUtils {
 	@NotNull @Contract(pure = true) public static String thunderToURL(@NotNull String thunder) {
 		String thunderUrl = Base64Utils.decryptByBase64(StringUtils.deleteSuffix(thunder, StringUtils.EQUAL_SIGN).replaceFirst("thunder://", ""), "GBK");
 		return thunderUrl.substring(2, thunderUrl.length() - 2);
+	}
+
+	/**
+	 * 获取 新浪微博临时访客Cookies
+	 *
+	 * @return 新浪微博Cookies
+	 */
+	@NotNull @Contract(pure = true) public static Map<String, String> getWeiBoCookies() {
+		// API
+		String ajaxUrl = "https://weibo.com/ajax/";
+		String genvisitor = "https://passport.weibo.com/visitor/genvisitor";
+		String visitor = "https://passport.weibo.com/visitor/visitor";
+
+		Map<String, String> cookies = JsoupUtils.connect(ajaxUrl).execute().cookies(); // 获取XSRF-TOKEN
+
+		String genvisitorInfo = JsoupUtils.connect(genvisitor).data("cb", "gen_callback").post().text();
+		genvisitorInfo = genvisitorInfo.substring(genvisitorInfo.indexOf("{"), genvisitorInfo.lastIndexOf("}") + 1);
+		String tid = JSONObject.parseObject(JSONObject.parseObject(genvisitorInfo).getString("data")).getString("tid");
+		Map<String, String> visitorData = new HashMap<>();
+		visitorData.put("a", "incarnate");
+		visitorData.put("cb", "cross_domain");
+		visitorData.put("from", "weibo");
+		visitorData.put("t", tid);
+		String visitorInfo = JsoupUtils.connect(visitor).data(visitorData).get().text();
+		visitorInfo = visitorInfo.substring(visitorInfo.indexOf("{"), visitorInfo.lastIndexOf("}") + 1);
+
+		JSONObject visitorInfoData = JSONObject.parseObject(JSONObject.parseObject(visitorInfo).getString("data"));
+		cookies.put("SUB", visitorInfoData.getString("sub"));
+		cookies.put("SUBP", visitorInfoData.getString("subp"));
+
+		return cookies;
 	}
 
 }
