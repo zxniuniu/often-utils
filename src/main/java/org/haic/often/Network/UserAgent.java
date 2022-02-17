@@ -87,9 +87,18 @@ public class UserAgent {
 	 *
 	 * @return 随机手机端UserAgent
 	 */
+	@Contract(pure = true) public static String randomAsPE() {
+		return randomAsPE(PEBrowser.getEnum(RandomUtils.nextInt(0, PEBrowser.values().length)));
+	}
+
+	/**
+	 * 获取 随机手机端UserAgent
+	 *
+	 * @return 随机手机端UserAgent
+	 */
 	@Contract(pure = true) public static String randomAsPE(PEBrowser browser) {
 		String userAgent;
-		switch (PEBrowser.getEnum(RandomUtils.nextInt(0, PEBrowser.values().length))) {
+		switch (browser) {
 		case FIREFOX -> { // firefox
 			String version = RandomUtils.nextInt(0, 100) + ".0";
 			String[] equipment = { "Tablet", "Mobile" };

@@ -141,8 +141,17 @@ public class JsoupUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public JsoupUtils userAgent(@NotNull String userAgent) {
-		header("User-Agent", userAgent);
-		return this;
+		return header("user-agent", userAgent);
+	}
+
+	/**
+	 * 访问移动端页面
+	 *
+	 * @param isPhone true or false
+	 * @return this
+	 */
+	@Contract(pure = true) public JsoupUtils isPhone(boolean isPhone) {
+		return isPhone ? header("user-agent", UserAgent.randomChromeAsPE()) : header("user-agent", UserAgent.randomChrome());
 	}
 
 	/**
