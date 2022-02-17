@@ -68,6 +68,8 @@ public class TianYiYunPan {
 	}
 
 	/**
+	 * 获得分享页面所有文件的信息
+	 *
 	 * @param url        天翼URL
 	 * @param accessCode 提取码
 	 * @return List - fileName, fileId, shareId
