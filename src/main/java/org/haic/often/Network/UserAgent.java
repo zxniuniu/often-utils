@@ -251,6 +251,10 @@ public class UserAgent {
 		return " UBrowser/" + RandomUtils.nextInt(5, 10) + ".0." + RandomUtils.nextInt(1000, 10000) + "." + RandomUtils.nextInt(0, 1000);
 	}
 
+	@Contract(pure = true) protected static String prestoTail() {
+		return " Presto/" + RandomUtils.nextInt(2, 10) + "." + RandomUtils.nextInt(0, 10) + "." + RandomUtils.nextInt(100, 1000);
+	}
+
 	/**
 	 * Get Phone of Random Browser UserAgent
 	 *
@@ -258,9 +262,12 @@ public class UserAgent {
 	 */
 	@Contract(pure = true) public static String randomAsPhone() {
 		String result = "";
-		switch (RandomUtils.nextInt(0, 2)) {
+		switch (RandomUtils.nextInt(0, 5)) {
 		case 0 -> result = chromeAsPhone();
 		case 1 -> result = safariAsPhone();
+		case 2 -> result = operaAsPhone();
+		case 3 -> result = qqAsPhone();
+		case 4 -> result = ucAsPhone();
 		}
 		return result;
 	}
@@ -286,9 +293,39 @@ public class UserAgent {
 		case 1 -> result += "iPod" + uHeader() + "; CPU iPhone ";
 		case 2 -> result += "iPad" + uHeader() + "; CPU ";
 		}
-		result += "OS " + RandomUtils.nextInt(5, 20) + "_" + RandomUtils.nextInt(0, 10) + " like Mac OS X)" + appleWebKitTail() + versionTail() + mobileTail()
-				+ safariTail();
+		result +=
+				"OS " + RandomUtils.nextInt(5, 20) + "_" + RandomUtils.nextInt(0, 10) + " like Mac OS X" + language() + ")" + appleWebKitTail() + versionTail()
+						+ mobileTail() + safariTail();
 		return result;
+	}
+
+	/**
+	 * Phone of Opera Browser
+	 *
+	 * @return Random UserAgent
+	 */
+	@Contract(pure = true) public static String operaAsPhone() {
+		return "Opera/9.80 (Linux" + androidHeader() + "; Opera Mobi/build-" + RandomStringUtils.randomNumeric(10) + uHeader() + ")" + prestoTail()
+				+ versionTail();
+	}
+
+	/**
+	 * Phone of QQ Browser
+	 *
+	 * @return Random UserAgent
+	 */
+	@Contract(pure = true) public static String qqAsPhone() {
+		return "MQQBrowser/26 " + mozilla + " (Linux" + uHeader() + androidHeader() + language() + "; MB200 Build/" + RandomStringUtils.randomAlphanumeric(5)
+				.toUpperCase() + "; CyanogenMod-7)" + appleWebKitTail() + versionTail() + safariTail();
+	}
+
+	/**
+	 * Phone of UC Browser
+	 *
+	 * @return Random UserAgent
+	 */
+	@Contract(pure = true) public static String ucAsPhone() {
+		return mozilla + " (" + compatibleHeader() + ") Opera/UCWEB7.0.2.37/28/999";
 	}
 
 	@Contract(pure = true) protected static String androidHeader() {
