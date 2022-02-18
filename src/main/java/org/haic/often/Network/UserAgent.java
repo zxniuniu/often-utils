@@ -188,7 +188,7 @@ public class UserAgent {
 	}
 
 	@Contract(pure = true) protected static String winPlatform() {
-		String result = winSystem[RandomUtils.nextInt(0, winSystem.length)];
+		String result = "; " + winSystem[RandomUtils.nextInt(0, winSystem.length)];
 		result += twoSelectOne() ? "; Win64" : "; WOW64";
 		result += twoSelectOne() ? "" : "; x64";
 		return result;
@@ -208,7 +208,7 @@ public class UserAgent {
 	}
 
 	@Contract(pure = true) protected static String compatibleHeader() {
-		return "compatible; MSIE " + RandomUtils.nextInt(5, 10) + ".0; ";
+		return "compatible; MSIE " + RandomUtils.nextInt(5, 10) + ".0";
 	}
 
 	@Contract(pure = true) protected static String tridentHeader() {
