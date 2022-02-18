@@ -292,7 +292,7 @@ public class UserAgent {
 	}
 
 	@Contract(pure = true) protected static String androidHeader() {
-		return "; Android " + RandomUtils.nextInt(5, 13);
+		return "; Android " + RandomUtils.nextInt(5, 13) + ".0";
 	}
 
 	@Contract(pure = true) protected static String mobileTail() {
