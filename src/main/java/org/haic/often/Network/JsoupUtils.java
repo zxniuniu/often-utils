@@ -49,7 +49,7 @@ public class JsoupUtils {
 	protected ThreeTuple<String, String, InputStream> stream; // 数据流
 
 	protected JsoupUtils() {
-		headers.put("user-agent", UserAgent.randomChrome()); // 设置随机请求头
+		headers.put("user-agent", UserAgent.chrome()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatus(HttpStatus.SC_NOT_FOUND, HttpStatus.SC_TOO_MANY_REQUEST);
 	}
@@ -151,7 +151,7 @@ public class JsoupUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public JsoupUtils isPhone(boolean isPhone) {
-		return isPhone ? header("user-agent", UserAgent.randomChromeAsPE()) : header("user-agent", UserAgent.randomChrome());
+		return isPhone ? header("user-agent", UserAgent.chromeAsPhone()) : header("user-agent", UserAgent.chrome());
 	}
 
 	/**

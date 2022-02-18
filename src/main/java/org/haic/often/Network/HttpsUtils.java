@@ -51,7 +51,7 @@ public class HttpsUtils {
 	protected List<Integer> excludeErrorStatusCodes = new ArrayList<>(); // 排除错误状态码,不重试
 
 	protected HttpsUtils() {
-		headers.put("user-agent", UserAgent.randomChrome()); // 设置随机请求头
+		headers.put("user-agent", UserAgent.chrome()); // 设置随机请求头
 		headers.put("accept-language", "zh-CN,zh;q=0.9,en;q=0.8");
 		excludeErrorStatus(HttpStatus.SC_NOT_FOUND, HttpStatus.SC_TOO_MANY_REQUEST);
 	}
@@ -156,7 +156,7 @@ public class HttpsUtils {
 	 * @return this
 	 */
 	@Contract(pure = true) public HttpsUtils isPhone(boolean isPhone) {
-		return isPhone ? header("user-agent", UserAgent.randomChromeAsPE()) : header("user-agent", UserAgent.randomChrome());
+		return isPhone ? header("user-agent", UserAgent.chromeAsPhone()) : header("user-agent", UserAgent.chrome());
 	}
 
 	/**
