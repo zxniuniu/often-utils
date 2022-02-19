@@ -629,15 +629,8 @@ public class NetworkFileUtils {
 		}
 		MultiThreadUtils.WaitForEnd(executorService); // 等待线程结束
 		// 判断下载状态
-		for (int statusCode : statusCodes) {
-			if (!URIUtils.statusIsOK(statusCode)) {
-				if (errorExit) {
-					throw new RuntimeException("文件下载失败，状态码: " + statusCode + " URL: " + url);
-				}
-				return statusCode;
-			}
-		}
-		return HttpStatus.SC_OK;
+		List<Integer> statusCode = statusCodes.parallelStream().filter(s -> !URIUtils.statusIsOK(s)).toList();
+		return statusCode.isEmpty() ? HttpStatus.SC_OK : statusCode.get(0);
 	}
 
 	/**
