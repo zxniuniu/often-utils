@@ -1,7 +1,6 @@
 package org.haic.often.Network;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import org.haic.often.*;
 import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.Multithread.ParameterizedThread;
@@ -468,10 +467,8 @@ public class NetworkFileUtils {
 				}
 				MAX_THREADS = fileInfo.getInteger("threads");
 				method = Method.valueOf(fileInfo.getString("method"));
-				headers = JSONObject.parseObject(fileInfo.getString("header"), new TypeReference<>() {
-				});
-				cookies = JSONObject.parseObject(fileInfo.getString("cookie"), new TypeReference<>() {
-				});
+				headers = StringUtils.jsonToMap(fileInfo.getString("header"));
+				cookies = StringUtils.jsonToMap(fileInfo.getString("cookie"));
 				storage = new File(folder, fileName); // 获取其file对象
 				infos.remove(0); // 删除信息行
 			} else { // 配置文件不存在，抛出异常

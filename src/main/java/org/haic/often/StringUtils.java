@@ -1,5 +1,7 @@
 package org.haic.often;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NonNls;
@@ -11,6 +13,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,8 +54,19 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @param replacement 替换的字符串
 	 * @return 替换后的字符串
 	 */
-	@Contract(pure = true) public static String replaceLast(@NotNull String str, @NotNull @NonNls String regex, final String replacement) {
+	@Contract(pure = true) public static String replaceLast(@NotNull String str, @NotNull @NonNls String regex, @NotNull String replacement) {
 		return str.replaceFirst("(?s)(.*)" + regex, "$1" + replacement);
+	}
+
+	/**
+	 * JSON格式字符串转换Map
+	 *
+	 * @param str 源字符串
+	 * @return Map - String String
+	 */
+	@Contract(pure = true) public static Map<String, String> jsonToMap(@NotNull String str) {
+		return JSONObject.parseObject(str, new TypeReference<>() {
+		});
 	}
 
 	/**
