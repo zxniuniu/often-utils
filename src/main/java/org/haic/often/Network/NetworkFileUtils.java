@@ -570,7 +570,7 @@ public class NetworkFileUtils {
 				throw new RuntimeException("Configuration file reset information failed");
 			}
 			if (unlimitedRetry) {
-				return download(folder);
+				return method(Method.FILE).download(folder);
 			}
 			if (errorExit) {
 				throw new RuntimeException("File verification is not accurate, URLFile md5:" + hash + " LocalFile md5: " + md5 + " URL: " + url);
