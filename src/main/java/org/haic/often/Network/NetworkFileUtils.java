@@ -559,11 +559,14 @@ public class NetworkFileUtils {
 			if (!ReadWriteUtils.orgin(conf).append(false).text(fileInfo.toJSONString())) { // 重置信息文件
 				throw new RuntimeException("Configuration file reset information failed");
 			}
+			if (unlimitedRetry) {
+				return download(folder);
+			}
 			if (errorExit) {
-				throw new RuntimeException("文件效验不正确，URL md5:" + hash + " 本地文件 md5: " + md5 + " URL: " + url);
+				throw new RuntimeException("File verification is not accurate, URLFile md5:" + hash + " LocalFile md5: " + md5 + " URL: " + url);
 			} else {
 				try {
-					throw new RuntimeException("文件效验不正确，URL md5:" + hash + " 本地文件 md5: " + md5 + " URL: " + url);
+					throw new RuntimeException("File verification is not accurate, URLFile md5:" + hash + " LocalFile md5: " + md5 + " URL: " + url);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
