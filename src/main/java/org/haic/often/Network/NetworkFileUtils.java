@@ -1,6 +1,7 @@
 package org.haic.often.Network;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import org.haic.often.*;
 import org.haic.often.Multithread.MultiThreadUtils;
 import org.haic.often.Multithread.ParameterizedThread;
@@ -467,7 +468,11 @@ public class NetworkFileUtils {
 				}
 				MAX_THREADS = fileInfo.getInteger("threads");
 				method = Method.valueOf(fileInfo.getString("method"));
-				storage = new File(folder.getPath(), fileName); // 获取其file对象
+				headers = JSONObject.parseObject(fileInfo.getString("header"), new TypeReference<>() {
+				});
+				cookies = JSONObject.parseObject(fileInfo.getString("cookie"), new TypeReference<>() {
+				});
+				storage = new File(folder, fileName); // 获取其file对象
 				infos.remove(0); // 删除信息行
 			} else { // 配置文件不存在，抛出异常
 				if (errorExit) {
@@ -524,6 +529,12 @@ public class NetworkFileUtils {
 				fileInfo.put("referrer", referrer);
 				fileInfo.put("threads", MAX_THREADS);
 				fileInfo.put("method", method.name());
+				fileInfo.put("header", new JSONObject() {{
+					putAll(headers);
+				}});
+				fileInfo.put("cookie", new JSONObject() {{
+					putAll(cookies);
+				}});
 				if (!ReadWriteUtils.orgin(conf).text(fileInfo.toJSONString())) {
 					throw new RuntimeException("Configuration file creation failed");
 				}
