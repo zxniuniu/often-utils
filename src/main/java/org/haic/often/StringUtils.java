@@ -11,12 +11,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 字符串常用工具类
@@ -59,7 +57,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	}
 
 	/**
-	 * JSON格式字符串转换Map
+	 * JSON格式字符串转换Map类
 	 *
 	 * @param str 源字符串
 	 * @return Map - String String
@@ -67,6 +65,16 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	@Contract(pure = true) public static Map<String, String> jsonToMap(@NotNull String str) {
 		return JSONObject.parseObject(str, new TypeReference<>() {
 		});
+	}
+
+	/**
+	 * Map格式字符串转换Map类
+	 *
+	 * @param str 源字符串
+	 * @return Map - String String
+	 */
+	@Contract(pure = true) public static Map<String, String> toMap(@NotNull String str) {
+		return Arrays.stream(str.replaceAll("\\{*}*", "").split(", ")).map(l -> l.split("=")).collect(Collectors.toMap(l -> l[0], l -> l[1]));
 	}
 
 	/**
