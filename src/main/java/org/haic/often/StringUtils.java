@@ -74,7 +74,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @return Map - String String
 	 */
 	@Contract(pure = true) public static Map<String, String> toMap(@NotNull String str) {
-		return Arrays.stream(str.replaceAll("\\{*}*", "").split(", ")).map(l -> l.split("=")).collect(Collectors.toMap(l -> l[0], l -> l[1]));
+		return Arrays.stream(str.replaceAll("\\{*}*", "").split(",")).map(l -> l.split("="))
+				.collect(Collectors.toMap(l -> StringUtils.deletePefix(l[0], " "), l -> l[1]));
 	}
 
 	/**
