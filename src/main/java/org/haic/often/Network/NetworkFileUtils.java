@@ -500,22 +500,21 @@ public class NetworkFileUtils {
 			if (fileName.length() > 200) {
 				throw new RuntimeException("Error: File name length is greater than 200 URL: " + url + " FileName: " + fileName);
 			}
+
 			// 获取待下载文件和配置文件对象
-			storage = new File(folder.getPath(), fileName); // 获取其file对象
-			// 配置信息文件后缀
-			conf = new File(folder.getPath(), fileName + ".haic");
-			// 文件已存在，结束下载
-			if (storage.isFile() && !conf.exists()) {
+			storage = new File(folder, fileName); // 获取其file对象
+			conf = new File(storage + ".haic"); // 配置信息文件后缀
+			if (storage.isFile() && !conf.exists()) { // 文件已存在，结束下载
 				return HttpStatus.SC_OK;
 			}
-			// 获取文件大小
-			String contentLength = response.header("content-length");
+			if (conf.isFile()) {
+				return method(Method.FILE).download(folder);
+			}
+
+			String contentLength = response.header("content-length"); // 获取文件大小
 			fileSize = Judge.isEmpty(contentLength) ? 0 : Integer.parseInt(Objects.requireNonNull(contentLength));
 			hash = Judge.isEmpty(hash) ? response.header("x-cos-meta-md5") : hash; // 获取文件MD5
-			if (conf.isFile()) { // 读取文件配置信息
-				infos = ReadWriteUtils.orgin(conf).list();
-				infos.remove(0); // 删除配置行
-			} else if (conf.exists()) { // 文件存在但不是文件，抛出异常
+			if (conf.exists()) { // 文件存在但不是文件，抛出异常
 				throw new RuntimeException("Not is file " + conf);
 			} else { // 创建并写入文件配置信息
 				fileInfo.put("URL", url);
