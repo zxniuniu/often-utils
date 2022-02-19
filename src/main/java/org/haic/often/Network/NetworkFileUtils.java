@@ -388,7 +388,7 @@ public class NetworkFileUtils {
 	}
 
 	/**
-	 * 设置多线程分块大小,仅对PIECE下载模式有效
+	 * 设置多线程分块大小
 	 *
 	 * @param pieceSize 指定块大小(KB)
 	 * @return this
